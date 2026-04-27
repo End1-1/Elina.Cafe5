@@ -1,0 +1,5 @@
+set(__QT_DEPLOY_TARGET_QXlsx_FILE C:/Development/projects/cafe5.elina/Shop/debug/qxlsx_build/QXlsxQt6.lib)
+set(__QT_DEPLOY_TARGET_QXlsx_TYPE STATIC_LIBRARY)
+set(__QT_DEPLOY_TARGET_Shop_net_FILE C:/Development/projects/cafe5.elina/Shop/debug/Shop_net.exe)
+set(__QT_DEPLOY_TARGET_Shop_net_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_Shop_net_RUNTIME_DLLS C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6PrintSupport.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Sql.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Multimedia.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6WebSockets.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6PdfWidgets.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Concurrent.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Widgets.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Pdf.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Network.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Gui.dll;C:/Development/Qt/6.10.2/msvc2022_64/bin/Qt6Core.dll)

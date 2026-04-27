@@ -1,0 +1,27 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : 
+		[
+			"C:/Development/projects/qxlsx/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			}
+		]
+	},
+	"id" : "QXlsx_autogen_timestamp_deps::@4f9d4386469b7d8378e6",
+	"isGeneratorProvided" : true,
+	"name" : "QXlsx_autogen_timestamp_deps",
+	"paths" : 
+	{
+		"build" : "qxlsx_build",
+		"source" : "C:/Development/projects/qxlsx"
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}

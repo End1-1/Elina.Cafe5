@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CE5Storage</class>
+ <widget class="QWidget" name="CE5Storage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>222</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit_6">
+     <property name="Type" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_complectcounter</string>
+     </property>
+     <property name="Default" stdset="0">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit_5">
+     <property name="Type" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_movecounter</string>
+     </property>
+     <property name="Default" stdset="0">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Code</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit_3">
+     <property name="Type" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_inputcounter</string>
+     </property>
+     <property name="Default" stdset="0">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="Primary" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_id</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit_2">
+     <property name="Field" stdset="0">
+      <string>f_name</string>
+     </property>
+     <property name="Check" stdset="0">
+      <string>empty=&quot;Name&quot;</string>
+     </property>
+     <property name="Type" stdset="0">
+      <string>0</string>
+     </property>
+     <property name="First" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Movement counter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Complectation counter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Output counter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="C5LineEditWithSelector" name="lineEdit_4">
+     <property name="Type" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_outcounter</string>
+     </property>
+     <property name="Default" stdset="0">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Input counter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>State</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="C5ComboBox" name="cbState">
+     <property name="Field" stdset="0">
+      <string>f_state</string>
+     </property>
+     <property name="ItemData" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>C5LineEditWithSelector</class>
+   <extends>QLineEdit</extends>
+   <header location="global">c5lineeditwithselector.h</header>
+  </customwidget>
+  <customwidget>
+   <class>C5ComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">c5combobox.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>lineEdit_3</tabstop>
+  <tabstop>lineEdit_4</tabstop>
+  <tabstop>lineEdit_5</tabstop>
+  <tabstop>lineEdit_6</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

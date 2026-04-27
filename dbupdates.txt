@@ -1,0 +1,1406 @@
+
+ALTER TABLE `o_header` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `o_body` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `o_goods` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `a_store_inventory` DROP FOREIGN KEY `fk_si_document`;
+ALTER TABLE `a_store_inventory` DROP INDEX `fk_si_document_idx` ;
+ALTER TABLE `a_store` DROP FOREIGN KEY `fk_document`;
+ALTER TABLE `a_store` DROP INDEX `fk_document_idx` ;
+ALTER TABLE `a_store_draft` DROP FOREIGN KEY `fk_store_draft_document`;
+ALTER TABLE `a_store_draft` DROP INDEX `fk_store_draft_document_idx` ;
+ALTER TABLE `a_header` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `a_store` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `a_store_draft` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `a_store_inventory` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `a_store` CHANGE COLUMN `f_base` `f_base` CHAR(36) NULL DEFAULT NULL ,CHANGE COLUMN `f_baseDoc` `f_baseDoc` CHAR(36) NULL DEFAULT NULL, CHANGE COLUMN `f_document` `f_document` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `a_store_draft` CHANGE COLUMN `f_document` `f_document` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `b_history` CHANGE COLUMN `f_order` `f_order` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `o_tax_log` CHANGE COLUMN `f_order` `f_order` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `o_tax` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+alter table d_menu add column f_state smallint default 1;
+ALTER TABLE `o_goods` CHANGE COLUMN `f_header` `f_header` CHAR(36) NOT NULL ;
+alter table o_goods add column f_tax smallint default 0;
+ALTER TABLE `s_receipt_print` RENAME TO  `s_station_conf` ;
+ALTER TABLE `s_station_conf` CHANGE COLUMN `f_printer` `f_conf` INT NULL DEFAULT NULL ;
+alter table c_goods_scancode add column  f_receipt smallint;
+CREATE TABLE `d_img` (  `f_id` INT NOT NULL,  `f_data` MEDIUMBLOB NULL,  PRIMARY KEY (`f_id`));
+/* ELINA STARTED FRON HERE */
+alter table d_recipes add column f_complex integer;
+alter table d_recipes add column f_complexQty decimal(14,4);
+alter table d_recipes add column f_complexBaseQty decimal(14,4);
+create table droid_message(f_id integer primary key auto_increment, msg integer);
+alter table o_goods add f_taxdept varchar(2);
+ALTER TABLE `o_goods` CHANGE COLUMN `f_tax` `f_tax` INT NULL DEFAULT NULL ;
+ALTER TABLE `b_history`  CHANGE COLUMN `f_order` `f_order` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `b_clients` CHANGE COLUMN `f_firstname` `f_firstname` TINYTEXT NULL DEFAULT NULL ,CHANGE COLUMN `f_lastname` `f_lastname` TINYTEXT NULL DEFAULT NULL ,CHANGE COLUMN `f_info` `f_info` TINYTEXT NULL DEFAULT NULL ;
+alter table b_cards_discount add f_mode smallint after f_id;
+create table b_card_types (f_id integer primary key auto_increment, f_name varchar(255));
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('1', 'Զեղչ տոկոսով');
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('2', 'Զեղչ գումար');
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('3', 'Հաճախորդի գնումներ');
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('4', 'Կուտակային');
+update o_header set f_state=2 where f_state=0;
+ALTER TABLE `h_halls` CHANGE COLUMN `f_prefix` `f_prefix` CHAR(8) NOT NULL , ADD UNIQUE INDEX `f_prefix_UNIQUE` (`f_prefix` ASC);
+ALTER TABLE `h_halls` ADD COLUMN `f_settings` INTeger;
+ALTER TABLE `h_halls`  ADD COLUMN `f_counterhall` INT(11) NULL AFTER `f_settings`;
+alter table d_menu change column f_print1 f_print1 tinytext, change column f_print2 f_print2 tinytext;
+alter table o_body change column f_print1 f_print1 tinytext, change column  f_print2 f_print2 tinytext;
+create table d_special (f_id integer primary key auto_increment, f_dish integer, f_comment tinytext);
+alter table o_tax_debug add column f_mark tinytext;
+alter table o_tax_debug add column f_elapsed integer;
+alter table o_body add f_timeorder smallint;
+alter table o_goods add f_row smallint;
+
+/* 040919 */
+alter table c_goods add f_lowlevel decimal(12,4);
+INSERT INTO `a_reason` (`f_id`, `f_name`) VALUES ('8', 'Կոմպլեկտավորում');
+alter table a_header add column f_payment smallint, add column f_paid smallint;
+create table a_header_paid (f_id integer primary key, f_name tinytext);
+insert into a_header_paid (f_id, f_name) values (1, 'Չվճարված'), (2, 'Վճարված'), (3, 'Բոլորը');
+create table a_header_payment (f_id integer primary key, f_name tinytext);
+insert into a_header_payment (f_id, f_name) values (1, 'Կանխիկ'), (2, 'Բանկային քարտ'), (3, 'Փոխանցում');
+insert into a_type  values (6, 'Կոմպլեկտավորում', 0);
+create table c_goods_complectation (f_id integer primary key auto_increment, f_base integer, f_goods integer, f_qty decimal(14,2), f_price decimal(14,3));
+
+/*190919 */
+insert into s_app values ('DB', '1');
+alter table o_store_output add column f_baseqty decimal(14,4) after f_qty;
+alter table c_goods add column f_lastinputprice decimal(14,3) after f_saleprice;
+alter table o_store_output add column f_store integer after f_body ;
+
+/* DB - 2 */
+update s_app set f_version='2' where f_app='DB';
+alter table a_store_draft add column f_storein integer after f_document, add column f_storeout integer after f_storein;
+alter table o_store_output add column f_storerec char(36);
+alter table a_store add f_draft char(36);
+
+
+/* DB - 3 */
+update s_app set f_version ='3' where f_app='DB';
+ALTER TABLE `a_store_draft` ADD INDEX `fk_store_draft_document_idx` (`f_document` ASC);
+alter table o_goods add f_storerec char(36);
+alter table a_store_draft add column f_store integer after f_document, add column f_type smallint after f_store;
+ALTER TABLE `a_store_draft`  ADD INDEX `fk_store_draft_store_idx` (`f_store` ASC);
+alter table a_store_draft drop column f_storein, drop column f_storeout;
+alter table a_store_draft add column f_base char(36);
+ALTER TABLE `a_store_draft` ADD INDEX `fk_store_draft_base_idx` (`f_base` ASC);
+INSERT INTO `a_reason` (`f_id`, `f_name`) VALUES ('9', 'Հետ վերադարձ');
+UPDATE `a_reason` SET `f_name` = 'Տեղաշարժ' WHERE (`f_id` = '2');
+insert into s_app (f_app, f_version) values ('menu', '1');
+alter table o_goods add f_body char(36) after f_header;
+drop table o_store_output;
+
+/* DB - 4 */
+update s_app set f_version ='4' where f_app='DB';
+ALTER TABLE `a_store_inventory` CHANGE COLUMN `f_document` `f_document` CHAR(36) NULL DEFAULT NULL ;
+ALTER TABLE `o_goods` CHANGE COLUMN `f_header` `f_header` CHAR(36) NULL DEFAULT NULL ;
+create table s_car (f_id integer primary key auto_increment, f_name tinytext);
+create table b_car(f_id integer primary key auto_increment, f_car integer, f_costumer integer, f_govnumber tinytext);
+create table d_package (f_id integer primary key auto_increment, f_name tinytext, f_price decimal(14,2), f_enabled smallint);
+create table d_package_list (f_id integer primary key auto_increment, f_package integer, f_dish integer, f_price decimal(14,2));
+alter table c_storages add column f_outcounter integer, add column f_inputcounter integer, add column f_movecounter integer, add column f_complectcounter integer;
+update c_storages set f_outcounter=0, f_inputcounter=0, f_movecounter=0, f_complectcounter=0;
+INSERT INTO S_CAR (F_NAME) VALUES ('ACURA');
+INSERT INTO S_CAR (F_NAME) VALUES ('ALFA ROMEO');
+INSERT INTO S_CAR (F_NAME) VALUES ('ASTON MARTIN');
+INSERT INTO S_CAR (F_NAME) VALUES ('AUDI');
+INSERT INTO S_CAR (F_NAME) VALUES ('BENTLEY');
+INSERT INTO S_CAR (F_NAME) VALUES ('BMW');
+INSERT INTO S_CAR (F_NAME) VALUES ('BRILLIANCE');
+INSERT INTO S_CAR (F_NAME) VALUES ('BUD');
+INSERT INTO S_CAR (F_NAME) VALUES ('BUGATTI');
+INSERT INTO S_CAR (F_NAME) VALUES ('BUICK');
+INSERT INTO S_CAR (F_NAME) VALUES ('BYD');
+INSERT INTO S_CAR (F_NAME) VALUES ('CADILLAC');
+INSERT INTO S_CAR (F_NAME) VALUES ('CHANGAN');
+INSERT INTO S_CAR (F_NAME) VALUES ('CHERY');
+INSERT INTO S_CAR (F_NAME) VALUES ('CHEVROLET');
+INSERT INTO S_CAR (F_NAME) VALUES ('CHRYSLER');
+INSERT INTO S_CAR (F_NAME) VALUES ('CITROEN');
+INSERT INTO S_CAR (F_NAME) VALUES ('DAEWOO');
+INSERT INTO S_CAR (F_NAME) VALUES ('DAIHATSU');
+INSERT INTO S_CAR (F_NAME) VALUES ('DATSUN');
+INSERT INTO S_CAR (F_NAME) VALUES ('DODGE');
+INSERT INTO S_CAR (F_NAME) VALUES ('DONGFENG');
+INSERT INTO S_CAR (F_NAME) VALUES ('DS');
+INSERT INTO S_CAR (F_NAME) VALUES ('FAW');
+INSERT INTO S_CAR (F_NAME) VALUES ('FERRARI');
+INSERT INTO S_CAR (F_NAME) VALUES ('FIAT');
+INSERT INTO S_CAR (F_NAME) VALUES ('FORD');
+INSERT INTO S_CAR (F_NAME) VALUES ('FOTON');
+INSERT INTO S_CAR (F_NAME) VALUES ('GAC');
+INSERT INTO S_CAR (F_NAME) VALUES ('GEELY');
+INSERT INTO S_CAR (F_NAME) VALUES ('GENESIS');
+INSERT INTO S_CAR (F_NAME) VALUES ('GMC');
+INSERT INTO S_CAR (F_NAME) VALUES ('GREAT HOVER');
+INSERT INTO S_CAR (F_NAME) VALUES ('GREAT WALL');
+INSERT INTO S_CAR (F_NAME) VALUES ('HAIMA');
+INSERT INTO S_CAR (F_NAME) VALUES ('HAVAL');
+INSERT INTO S_CAR (F_NAME) VALUES ('HONDA');
+INSERT INTO S_CAR (F_NAME) VALUES ('HUMMER');
+INSERT INTO S_CAR (F_NAME) VALUES ('HYUNDAI');
+INSERT INTO S_CAR (F_NAME) VALUES ('INFINITI');
+INSERT INTO S_CAR (F_NAME) VALUES ('ISUZU');
+INSERT INTO S_CAR (F_NAME) VALUES ('JAC');
+INSERT INTO S_CAR (F_NAME) VALUES ('JAGUAR');
+INSERT INTO S_CAR (F_NAME) VALUES ('JEEP');
+INSERT INTO S_CAR (F_NAME) VALUES ('KIA');
+INSERT INTO S_CAR (F_NAME) VALUES ('LADA (ВАЗ)');
+INSERT INTO S_CAR (F_NAME) VALUES ('LAMBORGHINI');
+INSERT INTO S_CAR (F_NAME) VALUES ('LANCIA');
+INSERT INTO S_CAR (F_NAME) VALUES ('LAND ROVER');
+INSERT INTO S_CAR (F_NAME) VALUES ('LEXUS');
+INSERT INTO S_CAR (F_NAME) VALUES ('LIFAN');
+INSERT INTO S_CAR (F_NAME) VALUES ('LINCOLN');
+INSERT INTO S_CAR (F_NAME) VALUES ('LUXGEN');
+INSERT INTO S_CAR (F_NAME) VALUES ('MASERATI');
+INSERT INTO S_CAR (F_NAME) VALUES ('MAYBACH');
+INSERT INTO S_CAR (F_NAME) VALUES ('MAZDA');
+INSERT INTO S_CAR (F_NAME) VALUES ('MERCEDES-BENZ');
+INSERT INTO S_CAR (F_NAME) VALUES ('MERCURY');
+INSERT INTO S_CAR (F_NAME) VALUES ('MINI');
+INSERT INTO S_CAR (F_NAME) VALUES ('MITSUBISHI');
+INSERT INTO S_CAR (F_NAME) VALUES ('NISSAN');
+INSERT INTO S_CAR (F_NAME) VALUES ('NIVA');
+INSERT INTO S_CAR (F_NAME) VALUES ('OKA');
+INSERT INTO S_CAR (F_NAME) VALUES ('OLDSMOBILE');
+INSERT INTO S_CAR (F_NAME) VALUES ('OPEL');
+INSERT INTO S_CAR (F_NAME) VALUES ('PEUGEOT');
+INSERT INTO S_CAR (F_NAME) VALUES ('PONTIAC');
+INSERT INTO S_CAR (F_NAME) VALUES ('PORSCHE');
+INSERT INTO S_CAR (F_NAME) VALUES ('RANGE ROVER');
+INSERT INTO S_CAR (F_NAME) VALUES ('RAVON');
+INSERT INTO S_CAR (F_NAME) VALUES ('RENAULT');
+INSERT INTO S_CAR (F_NAME) VALUES ('ROLLS-ROYCE');
+INSERT INTO S_CAR (F_NAME) VALUES ('ROVER');
+INSERT INTO S_CAR (F_NAME) VALUES ('SAAB');
+INSERT INTO S_CAR (F_NAME) VALUES ('SCION');
+INSERT INTO S_CAR (F_NAME) VALUES ('SEAT');
+INSERT INTO S_CAR (F_NAME) VALUES ('SKODA');
+INSERT INTO S_CAR (F_NAME) VALUES ('SKODA');
+INSERT INTO S_CAR (F_NAME) VALUES ('SMART');
+INSERT INTO S_CAR (F_NAME) VALUES ('SSANGYONG');
+INSERT INTO S_CAR (F_NAME) VALUES ('SUBARU');
+INSERT INTO S_CAR (F_NAME) VALUES ('SUZUKI');
+INSERT INTO S_CAR (F_NAME) VALUES ('TESLA');
+INSERT INTO S_CAR (F_NAME) VALUES ('TOYOTA');
+INSERT INTO S_CAR (F_NAME) VALUES ('VOLGA');
+INSERT INTO S_CAR (F_NAME) VALUES ('VOLKSWAGEN');
+INSERT INTO S_CAR (F_NAME) VALUES ('VOLVO');
+INSERT INTO S_CAR (F_NAME) VALUES ('ZAP');
+INSERT INTO S_CAR (F_NAME) VALUES ('ZAZ');
+INSERT INTO S_CAR (F_NAME) VALUES ('ZOTYE');
+INSERT INTO S_CAR (F_NAME) VALUES ('ГАЗ');
+INSERT INTO S_CAR (F_NAME) VALUES ('МОСКВИЧ');
+INSERT INTO S_CAR (F_NAME) VALUES ('ТАГАЗ');
+INSERT INTO S_CAR (F_NAME) VALUES ('УАЗ');
+
+/* DB - 5 */
+update s_app set f_version ='5' where f_app='DB';
+alter table o_body add f_package integer default 0;
+create table b_car_orders (f_order char(36) primary key, f_car integer);
+create table b_clients_debts (f_id integer primary key auto_increment, f_header char(36), f_date date, f_costumer integer, f_order char(36),  f_cash char(36), f_amount decimal(14,2));
+
+/* DB - 6 */
+update s_app set f_version ='6' where f_app='DB';
+create table s_salary_body (f_id char(36) primary key, f_header char(36), f_user integer, f_position integer, f_amount decimal(14,2), f_row integer);
+ALTER TABLE `o_header` ADD COLUMN `f_servicemode` INTeger;
+ALTER TABLE `a_header` ADD COLUMN `f_invoice` VARCHAR(64) NULL AFTER `f_paid`;
+create table s_salary_options (f_id char(36) primary key, f_cashdoc char(36), f_shift integer);
+create table s_salary_shift (f_id integer primary key auto_increment, f_name tinytext, f_number smallint);
+insert into s_salary_shift  values (1, 'I հերթ', 1), (2, 'II հերթ', 2);
+create table s_salary_shift_time (f_id integer primary key auto_increment, f_shift integer, f_start time, f_end time);
+INSERT INTO `s_salary_shift_time` (`f_shift`, `f_start`, `f_end`) VALUES ('1', '10:00:00', '21:59:59');
+INSERT INTO `s_salary_shift_time` (`f_shift`, `f_start`, `f_end`) VALUES ('2', '22:00:00', '23:59:59');
+INSERT INTO `s_salary_shift_time` (`f_shift`, `f_start`, `f_end`) VALUES ('2', '00:00:00', '09:59:50');
+create table s_salary_account (f_id integer primary key auto_increment, f_position integer, f_shift integer, f_individual integer, f_percent decimal(3,3), f_round integer);
+INSERT INTO `a_type` (`f_id`, `f_name`, `f_counter`) VALUES ('7', 'Աշխատավարձ', '0');
+INSERT INTO `o_pay_other` (`f_id`, `f_name`) VALUES ('5', 'Պարտք ');
+UPDATE `o_pay_other` SET `f_name` = 'Գործընկերոչ պարտք' WHERE (`f_id` = '3');
+alter table o_header add column f_shift integer;
+update o_header set f_shift=1 where f_timeclose between '10:00' and '21:59:59';
+update o_header set f_shift=2 where f_timeclose between '22:00' and '23:59:59';
+update o_header set f_shift=2 where f_timeclose between '00:00' and '09:59:59';
+
+
+/* DB - 7 */
+update s_app set f_version ='7' where f_app='DB';
+alter table s_station_conf add column f_shift smallint default 1;
+
+/* DB - 8 */
+update s_app set f_version ='8' where f_app='DB';
+alter table b_clients_debts add f_govnumber tinytext;
+
+/* DB - 9 */
+update s_app set f_version ='9' where f_app='DB';
+alter table s_salary_account add f_raw text;
+
+/* DB - 10 */
+update s_app set f_version ='10' where f_app='DB';
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('5', 'Ավտոմատ զեղչ տոկոսով');
+INSERT INTO `o_state` (`f_id`, `f_name`) VALUES ('4', 'Դատարկ');
+
+/* DB - 11*/
+update s_app set f_version ='11' where f_app='DB';
+alter table c_goods add column f_group1 integer, add column f_group2 integer, add column f_group3 integer, add column f_group4 integer, add column f_saleprice2 decimal(14,2);
+alter table c_goods add column f_supplier integer after f_id;
+create table c_goods_classes (f_id integer primary key auto_increment, f_name tinytext);
+alter table c_goods add column f_enabled smallint ;
+update c_goods set f_enabled=1;
+
+/* DB - 12*/
+update s_app set f_version ='12' where f_app='DB';
+create table s_syncronize (f_id integer primary key auto_increment, f_db integer, f_table tinytext, f_recid char(36), f_op smallint, f_date timestamp);
+insert into s_app (f_app, f_version) values ('LOCATION', '1');
+ALTER TABLE `c_goods_scancode` DROP PRIMARY KEY;
+alter table c_goods_scancode add column f_id integer primary key auto_increment first;
+alter table s_sync_tables add column f_inout smallint;
+ALTER TABLE `o_tax_debug` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+ALTER TABLE `o_tax_log` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+alter table s_db add column f_syncin integer default 0, add column f_syncout integer default 0;
+drop table s_sync_tables;
+create table s_syncronize_in (f_id integer primary key auto_increment, f_table tinytext);
+insert into s_syncronize_in (f_table) values ('o_tax_log');
+insert into s_syncronize_in (f_table) values ('o_tax');
+insert into s_syncronize_in (f_table) values ('o_tax_debug');
+insert into s_syncronize_in (f_table) values ('o_header');
+insert into s_syncronize_in (f_table) values ('o_goods');
+insert into s_syncronize_in (f_table) values ('a_store_draft');
+insert into s_syncronize_in (f_table) values ('a_store');
+insert into s_syncronize_in (f_table) values ('a_header');
+CREATE TABLE `o_body_state` (  `f_id` int(11) NOT NULL,  `f_name` varchar(128) DEFAULT NULL,  PRIMARY KEY (`f_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO `o_body_state` (`f_id`, `f_name`) VALUES ('1', 'Նորմալ');
+INSERT INTO `o_body_state` (`f_id`, `f_name`) VALUES ('2', 'Սխալ');
+INSERT INTO `o_body_state` (`f_id`, `f_name`) VALUES ('3', 'Չեղակված');
+
+
+/* DB - 13*/
+update s_app set f_version ='13' where f_app='DB';
+drop table s_deleted;
+create table a_complectation_additions (f_id char(36) primary key, f_header char(36), f_name tinytext, f_amount decimal(14,2), f_row integer);
+alter table s_db add f_synctime timestamp;
+alter table e_cash add column f_autoinput smallint default 0;
+alter table e_cash add column f_oheader char(36);
+
+/* DB - 14 */
+update s_app set f_version ='14' where f_app='DB';
+create table s_login_session (f_id integer primary key auto_increment, f_session binary(16), f_user integer, f_iplogin char(15), f_iplogout char(15), f_datestart date, f_timestart time, f_dateend date, f_timeend time);
+ALTER TABLE `s_login_session` ADD INDEX `idx_login_session` (`f_session` ASC);
+
+/* DB - 15*/
+update s_app set f_version ='15' where f_app='DB';
+alter table c_goods add column f_scancode tinytext;
+alter table o_header add f_source smallint;
+alter table o_header add column f_cashdoc char(36);
+UPDATE c_goods g INNER JOIN c_goods_scancode s ON s.f_goods = g.f_id SET g.f_scancode = (select f_code from c_goods_scancode ss where ss.f_goods=g.f_id order by s.f_receipt );
+drop table c_goods_scancode;
+
+/* DB - 16 */
+update s_app set f_version ='16' where f_app='DB';
+create table d_dish_state (f_id integer primary key, f_name tinytext);
+insert into d_dish_state (f_id, f_name) values (0, 'Ոչ ակտիվ'),(1, 'Ակտիվ');
+insert into c_partners (f_id, f_contact) select f_id, concat(f_firstname, ' ', f_lastname)  from b_clients;
+drop table b_clients;
+alter table c_Partners add column f_address tinytext;
+create table o_additional (f_id char(36), f_coordinates tinytext, f_customer integer);
+alter table s_user add column f_config integer;
+
+/* DB - 17 */
+update s_app set f_version ='17' where f_app='DB';
+ALTER TABLE `s_user` ADD COLUMN `f_config` INT AFTER `f_altPassword`;
+create table c_goods_images (f_id integer primary key , f_data mediumblob);
+create table a_header_store (f_id char(36) primary key ,  f_useraccept integer, f_userpass integer, f_invoice tinytext, f_invoicedate date, f_storein integer, f_storeout integer, f_baseonsale smallint default 0, f_cashuuid char(36),  f_complectation integer, f_complectationqty decimal(14,3));
+/* VERY LONG QUERY */
+insert into a_header_store (f_id, f_baseonsale, f_useraccept, f_userpass, f_invoice, f_invoicedate, f_storein, f_storeout, f_cashuuid, f_complectation, f_complectationqty)
+select h.f_id, 
+if (locate('based_on_sale', f_raw)>0, mid(f_raw, locate('based_on_sale', f_raw) + length('based_on_sal":') + 1, 1), 0) as based_on_sale,
+if (locate('f_accepted', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_accepted', f_raw) + length('f_accepted":"') , 
+    locate('"', f_raw, locate('f_accepted', f_raw) + length('f_accepted":"')) - (locate('f_accepted', f_raw) + length('f_accepted":"'))) , ''), 0), 0) as accepted,
+if (locate('f_passed', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_passed', f_raw) + length('f_passed":"') , 
+    locate('"', f_raw, locate('f_passed', f_raw) + length('f_passed":"')) - (locate('f_passed', f_raw) + length('f_passed":"'))), ''), 0), 0) as passed,
+if (locate('f_invoice', f_raw)>0, 
+	mid(f_raw, locate('f_invoice', f_raw) + length('f_invoice":"') , 
+    locate('"', f_raw, locate('f_invoice', f_raw) + length('f_invoice":"')) - (locate('f_invoice', f_raw) + length('f_invoice":"'))) , '') as invoice,
+if (locate('f_invoicedate', f_raw)>0, 
+	str_to_date(mid(f_raw, locate('f_invoicedate', f_raw) + length('f_invoicedate":"') , 
+    locate('"', f_raw, locate('f_invoicedate', f_raw) + length('f_invoicedate":"')) - (locate('f_invoicedate', f_raw) + length('f_invoicedate":"'))), '%d.%m.%Y'), null) as invoice_date,
+if (locate('f_storein', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_storein', f_raw) + length('f_storein":"') , 
+    locate('"', f_raw, locate('f_storein', f_raw) + length('f_storein":"')) - (locate('f_storein', f_raw) + length('f_storein":"'))), ''), 0), 0) as storein,
+if (locate('f_storeout', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_storeout', f_raw) + length('f_storeout":"') , 
+    locate('"', f_raw, locate('f_storeout', f_raw) + length('f_storeout":"')) - (locate('f_storeout', f_raw) + length('f_storeout":"'))) , ''), 0), 0) as storeout,
+if (locate('f_cashuuid', f_raw)>0, 
+	mid(f_raw, locate('f_cashuuid', f_raw) + length('f_cashuuid":"') , 
+    locate('"', f_raw, locate('f_cashuuid', f_raw) + length('f_cashuuid":"')) - (locate('f_cashuuid', f_raw) + length('f_cashuuid":"'))) , '') as cashuuid,
+if (locate('f_complectation', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_complectation', f_raw) + length('f_complectation":"') , 
+    locate('"', f_raw, locate('f_complectation', f_raw) + length('f_complectation":"')) - (locate('f_complectation', f_raw) + length('f_complectation":"'))) , ''), 0), 0) as complectation,
+if (locate('f_complectationqty', f_raw)>0, 
+	coalesce(nullif(mid(f_raw, locate('f_complectationqty', f_raw) + length('f_complectationqty":"') , 
+    locate('"', f_raw, locate('f_complectationqty', f_raw) + length('f_complectationqty":"')) - (locate('f_complectationqty', f_raw) + length('f_complectationqty":"'))), ''), 0), 0) as complectationqty
+from a_header h ;
+/* END OF VERY LONG QUERY */
+alter table a_header drop column f_invoice, drop column f_raw;
+create table a_header_cash (f_id char(36) primary key, f_cashin integer, f_cashout integer, f_related smallint, f_storedoc char(36));
+alter table e_cash drop column f_autoinput;
+ALTER TABLE e_cash  CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL ;
+alter table e_cash add column f_base char(36);
+ALTER TABLE `e_cash` ADD INDEX `idx_ecash_base` (`f_base` ASC);
+alter table e_cash add column f_row smallint;
+ALTER TABLE `e_cash` ADD INDEX `fk_ecash_header_idx` (`f_header` ASC);
+alter table a_store_draft add f_row integer;
+ALTER TABLE  `e_cash` ADD CONSTRAINT `fk_ecash_header`   FOREIGN KEY (`f_header`)   REFERENCES `a_header` (`f_id`)   ON DELETE NO ACTION  ON UPDATE NO ACTION;
+/* 
+
+
+
+
+THE CORRECTION CASH DOCUMENTS FOR STORE INPUT DOCUMENTS MUST BE COMPLETED MANUALLY
+
+
+
+
+*/
+
+
+/* DB - 18 */
+/*
+
+!!!   COPY CASHDOC INFO FROM O_HEADER TO A_HEADER_CASH ! ! 
+
+
+*/
+update s_app set f_version ='18' where f_app='DB';
+alter table b_history drop column f_id;
+ALTER TABLE `b_history` CHANGE COLUMN `f_order` `f_id` CHAR(36) NOT NULL ,ADD PRIMARY KEY (`f_id`);
+alter table a_header_cash add column f_oheader char(36);
+alter table e_cash drop column f_oheader;
+alter table o_header drop column f_cashdoc;
+alter table o_header add column f_saletype smallint;
+create table o_sale_type (f_id integer primary key, f_name tinytext);
+INSERT INTO `o_sale_type` (`f_id`, `f_name`) VALUES ('1', 'Մանրածախ');
+INSERT INTO `o_sale_type` (`f_id`, `f_name`) VALUES ('2', 'Մեծածախ');
+alter table o_header add column f_partner integer;
+alter table c_partners add f_store integer;
+alter table c_partners add f_cash integer;
+INSERT INTO `a_type` (`f_id`, `f_name`, `f_counter`) VALUES ('8', 'Ապակոմպլեկտավորում', '0');
+create table a_header_shop2partner (f_id char(36) primary key,  f_store integer, f_accept integer);
+create table a_header_shop2partneraccept(f_id char(36));
+ALTER TABLE `o_header` CHANGE COLUMN `f_discountFactor` `f_discountFactor` DECIMAL(14,2) NULL DEFAULT NULL ;
+create table a_store_temp (f_id integer primary key auto_increment, f_store integer, f_goods integer, f_qty decimal(14,3));
+create table s_user_config (f_id integer primary key auto_increment, f_user integer, f_settings integer);
+alter table c_groups add f_order integer;
+insert into a_type  values (5, 'Դրամարկղ', 0);
+ALTER TABLE `c_goods_complectation` CHANGE COLUMN `f_qty` `f_qty` DECIMAL(14,4) NULL DEFAULT NULL ;
+ALTER TABLE `b_cards_discount` CHANGE COLUMN `f_value` `f_value` DECIMAL(14,3) NULL DEFAULT NULL ;
+
+ALTER TABLE `h_halls` CHANGE COLUMN `f_prefix` `f_prefix` CHAR(8) NULL DEFAULT NULL , ADD UNIQUE INDEX `f_prefix_UNIQUE` (`f_prefix` ASC);
+create table s_user_photo (f_id integer primary key, f_data mediumblob);
+
+/* DB - 19*/
+update s_app set f_version ='19' where f_app='DB';
+ALTER TABLE `h_halls` CHANGE COLUMN `f_prefix` `f_prefix` CHAR(8) NULL DEFAULT NULL ,ADD UNIQUE INDEX `f_prefix_UNIQUE` (`f_prefix` ASC);
+CREATE TABLE `s_salary_inout` (
+  `f_id` int(11) NOT NULL AUTO_INCREMENT,
+  `f_user` int(11) DEFAULT NULL,
+  `f_datein` date DEFAULT NULL,
+  `f_timein` time DEFAULT NULL,
+  `f_dateout` date DEFAULT NULL,
+  `f_timeout` time DEFAULT NULL,
+  PRIMARY KEY (`f_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* DB - 20*/
+update s_app set f_version ='20' where f_app='DB';
+create table op_header (f_id binary(16) primary key, f_state smallint, f_datecreate date, f_timecreate time, f_staff integer, f_datefor date, f_timefor time, f_advance decimal(14, 2), f_total decimal(14,2), f_customer integer, f_info tinytext);
+create table op_body (f_id binary(16) primary key, f_header binary(16), f_goods integer, f_qty decimal(14,4), f_price decimal(14,2));
+ALTER TABLE  `op_body` ADD INDEX `fx_op_body_header_idx` (`f_header` ASC);
+ALTER TABLE `op_body` ADD CONSTRAINT `fx_op_body_header`  FOREIGN KEY (`f_header`)  REFERENCES `op_header` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+create table s_draft (f_name tinytext, f_value tinytext);
+create table op_header_state (f_id integer primary key, f_name tinytext);
+insert into op_header_state (f_id, f_name) values (1, 'Սպասում է'), (2, 'Կատարված է');
+
+/* DB - 21*/
+update s_app set f_version ='21' where f_app='DB';
+alter table op_header add column f_advancetax integer;
+insert into op_header_state values (3, 'Հեռացված');
+alter table c_goods add column f_service smallint default 0;
+
+/* DB - 22*/
+update s_app set f_version ='22' where f_app='DB';
+alter table o_goods add column f_discountfactor decimal(14,2) default 0;
+alter table o_goods add column f_discountmode smallint default 0;
+
+/* DB - 23*/
+update s_app set f_version ='23' where f_app='DB';
+ALTER TABLE `a_store` ADD CONSTRAINT `fk_header`  FOREIGN KEY (`f_document`)  REFERENCES a_header (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+alter table c_groups add column f_chargevalue decimal(14,3);
+alter table o_goods add f_return smallint default 0;
+
+/* DB - 24*/
+alter table c_goods add column f_description text;
+update s_app set f_version ='24' where f_app='DB';
+
+/* DB - 25*/
+/* check select f_scancode, count(f_scancode) from c_goods group by 1  */
+ALTER TABLE `a_header_shop2partneraccept` CHANGE COLUMN `f_id` `f_id` CHAR(36) NOT NULL , ADD PRIMARY KEY (`f_id`);
+update c_goods set f_scancode=null where f_scancode='';
+ALTER TABLE `c_goods` CHANGE COLUMN `f_scancode` `f_scancode` VARCHAR(32) NULL DEFAULT NULL , ADD UNIQUE INDEX `f_scancode_UNIQUE` (`f_scancode` ASC);
+create table o_goods_return_reason (f_id integer primary key, f_name tinytext);
+insert into o_goods_return_reason values (1, 'Հետվերադարձ'), (2, 'Փոխանակում');
+update s_app set f_version ='25' where f_app='DB';
+
+
+/* DB - 26*/
+ALTER TABLE `c_goods` ADD INDEX `idx_goods_enabled` (`f_enabled` ASC);
+ALTER TABLE `a_store` ADD INDEX `idx_store_type` (`f_type` ASC);
+alter table b_clients_debts add f_storedoc char(36);
+update s_app set f_version ='26' where f_app='DB';
+
+/* DB - 27*/
+alter table s_salary_account add column f_individuallow decimal(14,2);
+update s_app set f_version ='27' where f_app='DB';
+
+/* db - 28 */
+update s_app set f_version ='28' where f_app='DB';
+create table c_goods_option (f_id integer primary key , f_flaguncomplectfrom integer, f_uncomplectfromqty decimal(14,4));
+
+ALTER TABLE `c_goods_complectation` ADD INDEX `fk_goods_complectation_1_idx` (`f_base` ASC) , ADD INDEX `fk_goods_complectation_2_idx` (`f_goods` ASC) ;
+ALTER TABLE `c_goods_complectation` ADD CONSTRAINT `fk_goods_complectation_1`  FOREIGN KEY (`f_base`)  REFERENCES `c_goods` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_goods_complectation_2`  FOREIGN KEY (`f_goods`)  REFERENCES `c_goods` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+/* db - 29 */
+update s_app set f_version ='29' where f_app='DB';
+DROP TABLE `s_salary_account`;
+ALTER TABLE `s_salary_shift` ADD COLUMN `f_formula` JSON NULL AFTER `f_number`;
+
+/* db - 30 */
+update s_app set f_version ='30' where f_app='DB';
+alter table o_goods add column f_discountAmount decimal(14,3);
+alter table o_goods add column f_sign tinyint;
+update o_goods set f_sign=-1 where f_total<0;
+update o_goods set f_total=abs(f_total), f_price=abs(f_price) where f_sign=-1;
+
+/* db - 31 */
+update s_app set f_version ='31' where f_app='DB';
+ALTER TABLE `b_history` CHANGE COLUMN `f_value` `f_value` DECIMAL(14,3) NULL DEFAULT NULL ;
+alter table d_dish add f_recipeqty decimal(14,2);
+alter table a_store_draft add column f_comment tinytext;
+
+/* db - 32 */
+update s_app set f_version ='32' where f_app='DB';
+alter table d_dish add column f_netweight decimal(14,5) default 0;
+alter table d_dish add column f_cost decimal(14,2) default 0;
+update d_dish  d set f_netweight= (select sum(f_qty) from d_recipes r where r.f_dish=d.f_id) , f_cost = (select sum(r.f_qty*g.f_lastinputprice) from d_recipes r inner join c_goods g on g.f_id=r.f_goods where r.f_dish=d.f_id);
+
+/* db - 33 */
+update s_app set f_version ='33' where f_app='DB';
+ALTER TABLE `b_cards_discount` CHANGE COLUMN `f_code` `f_code` TEXT NULL DEFAULT NULL ;
+
+/* db - 34 */
+update s_app set f_version ='34' where f_app='DB';
+alter table c_goods add column f_storeid integer;
+update c_goods set f_storeid=f_id;
+alter table c_goods add column f_wholenumber smallint;
+ALTER TABLE `h_tables` CHANGE COLUMN `f_name` `f_name` TINYTEXT NULL DEFAULT NULL ;
+
+/* db - 35 */
+update s_app set f_version='35' where f_app='DB';
+alter table h_tables add column f_special_config integer;
+alter table s_station_conf add column f_datecash date, add column f_datecashauto smallint default 0;
+create table s_log_store_price (f_id integer primary key auto_increment, f_date datetime, f_user integer, f_base char(36), f_old_goods integer, f_new_goods integer, f_old_price decimal(14,2), f_new_price decimal(14,2));
+
+/* db - 36 */
+update s_app set f_version='36' where f_app='DB';
+create table a_store_dish_waste (f_id char(36) primary key, f_document char(36), f_dish integer, f_qty decimal(14,4), f_data json);
+
+/* db - 37 */
+update s_app set f_version='37' where f_app='DB';
+create table c_goods_multiscancode (f_id varchar(32) primary key, f_goods integer);
+
+/* db - 38 */
+update s_app set f_version='38' where f_app='DB';
+alter table c_units add column f_defaultqty decimal(14,3);
+drop table a_store_temp;
+
+/* db - 39 */
+update s_app set f_version='39' where f_app='DB';
+create table a_sale_temp (f_id integer primary key auto_increment, f_station tinytext, f_saletype smallint, f_window smallint, f_row smallint, f_order char(36), f_state smallint, f_goodsid integer, f_name tinytext, f_qty decimal(14,4), f_unit tinytext, f_price decimal(14,2), f_total decimal(14,2), f_taxdept integer, f_adgcode tinytext, f_tablerec smallint, f_unitcode integer, f_service smallint, f_discountvalue decimal(14,3), f_discountmode tinytext);
+
+/* db - 40 */
+update s_app set f_version='40' where f_app='DB';
+drop table o_payment;
+create table o_payment (f_id char(36) primary key, f_cash decimal(14,2), f_change decimal(14,2));
+
+/* db - 41 */
+update s_app set f_version='41' where f_app='DB';
+alter table d_package add column f_menu integer after f_id;
+alter table d_package_list add column f_store integer, add column f_printer tinytext;
+drop table a_sale_temp;
+create table a_sale_temp (f_id integer primary key auto_increment, f_station tinytext, f_saletype smallint, f_window smallint, f_row smallint, f_order char(36), f_state smallint, f_goodsid integer, f_name tinytext, f_qty decimal(14,4), f_unit tinytext, f_price decimal(14,2), f_total decimal(14,2), f_taxdept integer, f_adgcode tinytext, f_tablerec smallint, f_unitcode integer, f_service smallint, f_discountvalue decimal(14,3), f_discountmode tinytext);
+
+/* db - 40 */
+update s_app set f_version='40' where f_app='DB';
+drop table o_payment;
+create table o_payment (f_id char(36) primary key, f_cash decimal(14,2), f_change decimal(14,2));
+
+/* db - 41 */
+update s_app set f_version='41' where f_app='DB';
+alter table d_package add column f_menu integer after f_id;
+alter table d_package_list add column f_store integer, add column f_printer tinytext;
+CREATE TABLE `o_package` (`f_id` int NOT NULL AUTO_INCREMENT, `f_header` char(36) DEFAULT NULL, `f_package` int DEFAULT NULL, `f_qty` decimal(14,2) DEFAULT NULL, `f_price` decimal(14,2) DEFAULT NULL,  PRIMARY KEY (`f_id`))ENGINE=InnoDB AUTO_INCREMENT=0;
+
+/* db - 42 */
+update s_app set f_version='42' where f_app='DB';
+create table a_store_current (f_id char(36), f_document char(36), f_state smallint, f_store integer, f_goods integer, f_originalqty decimal(14,4), f_currentqty decimal(14,4), f_price decimal(14,2));
+create table b_marks (f_id integer primary key auto_increment, f_active smallint, f_name tinytext);
+alter table o_header add column f_flags tinytext;
+ALTER TABLE `c_goods` ADD INDEX `idx_storeid` (`f_storeid` ASC) ;
+INSERT INTO `a_type` (`f_id`, `f_name`, `f_counter`) VALUES ('9', 'Վաճառքի մուտք', '0');
+
+/* db - 43 */
+update s_app set f_version='43' where f_app='DB';
+alter table o_header drop column f_flags;
+create table o_header_flags (f_id char(36) primary key, f_1 tinyint , f_2 tinyint , f_3 tinyint , f_4 tinyint , f_5 tinyint );
+create table o_flags (f_id tinyint  primary key, f_name tinytext, f_enabled tinyint, f_field tinytext);
+insert into o_flags values (1, 'Flag #1', 0, 'f_1'), (2, 'Flag #2', 0, 'f_2'), (3, 'Flag #3', 0, 'f_3'), (4, 'Flag #4', 0, 'f_4'), (5, 'Flag #5', 0, 'f_5');
+INSERT INTO `s_syncronize_in` (`f_table`) VALUES ('o_flags');
+update s_syncronize_in set f_id=100 where f_id=8;
+update s_syncronize_in set f_id=8 where f_id=7;
+update s_syncronize_in set f_id=7 where f_id=100;
+
+/* db - 44 */
+update s_app set f_version='44' where f_app='DB';
+alter table d_dish add f_hourlypayment int;
+UPDATE `s_app` SET `f_version` = '1.1.5.79' WHERE (`f_app` = 'WAITER');
+alter table o_body add column f_canservice tinyint, add column f_candiscount tinyint;
+
+/* db - 45 */
+update s_app set f_version='45' where f_app='DB';
+alter table c_goods_option add column f_storeinputbeforesale tinyint, drop column  f_flaguncomplectfrom, drop column f_uncomplectfromqty;
+UPDATE `s_app` SET `f_version` = '1.1.5.81' WHERE (`f_app` = 'WAITER');
+alter table op_header add column f_state tinyint, add column f_total decimal(14,2);
+
+/* db - 46 */
+update s_app set f_version='46' where f_app='DB';
+create table o_header_options (f_id char(36) primary key, f_guests tinyint);
+ALTER TABLE `o_body` ADD COLUMN `f_guest` TINYINT NULL AFTER `f_candiscount`;
+alter table o_Header_options add column f_splitted tinyint;
+create table d_stoplist (f_dish integer primary key, f_qty decimal(14,2));
+
+/* db - 47 */
+INSERT INTO `o_state` (`f_id`, `f_name`) VALUES ('5', 'Նախնական ամրագրում');
+INSERT INTO `o_state` (`f_id`, `f_name`) VALUES ('6', 'Բանկետ ամրագրում');
+UPDATE `s_app` SET `f_version` = '1.1.5.83' WHERE (`f_app` = 'WAITER');
+create table o_preorder (f_id char(36), f_datefor date, f_timefor time, f_guests tinyint, f_prepaidcash decimal(14,2), f_prepaidcard decimal(14,2));
+ALTER TABLE s_salary_shift DROP f_formula, add column f_formula text;
+
+/* db - 48 */
+update s_app set f_version='48' where f_app='DB';
+UPDATE `s_app` SET `f_version` = '1.1.6.85' WHERE (`f_app` = 'WAITER');
+create table o_waiterserver_debug (f_id integer primary key auto_increment, f_json MEDIUMTEXT);
+alter table h_tables add column f_locktime timestamp;
+create table s_custom_reports (f_id integer primary key auto_increment, f_access smallint, f_name tinytext, f_sql text, f_params text);
+
+/* db - 49 */
+update s_app set f_version='49' where f_app='DB';
+alter table o_header add column f_currentstaff integer;
+alter table o_body add f_row smallint;
+alter table o_header_options add column f_car integer;
+update o_header_options  o set o.f_car=(select b.f_Car from b_car_orders b where b.f_order=o.f_id);
+drop table b_car_orders;
+alter table o_header add column f_guests tinyint default 0;
+
+/* db - 50 */
+update s_app set f_version='50' where f_app='DB';
+drop table droid_message;
+alter table o_header drop column f_servicemode;
+create table o_service_values (f_id integer primary key auto_increment, f_value decimal (4,2));
+alter table o_header add column f_precheck tinyint default 0;
+alter table o_header add column f_amountprepaid decimal(14,2) after f_amountcard;
+INSERT INTO`o_state` (`f_id`, `f_name`) VALUES ('7', 'Տեղափոխված');
+alter table o_body add column f_fromtable integer default 0;
+alter table d_part2 add column f_parent integer default 0;
+ALTER TABLE `o_goods` ADD INDEX `fk_oheader_id_idx` (`f_header` ASC);
+ALTER TABLE `o_goods` ADD CONSTRAINT `fk_oheader_id`  FOREIGN KEY (`f_header`)  REFERENCES `o_header` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `o_goods` ADD INDEX `fk_cgoods_id_idx` (`f_goods` ASC);
+ALTER TABLE `o_goods` ADD CONSTRAINT `fk_cgoods_id`  FOREIGN KEY (`f_goods`)  REFERENCES `c_goods` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+
+/* db - 51 */
+update s_app set f_version='51' where f_app='DB';
+alter table c_storages add column f_partner integer;
+alter table d_menu add f_recent tinyint default 0;
+alter table d_recipes drop column f_complex, drop column f_complexBaseQty, drop column f_complexQty, drop column f_complexBase;
+drop table s_station_conf;
+
+/* db - 52 */
+update s_app set f_version='52' where f_app='DB';
+alter table c_goods add column f_weight decimal(14,4);
+INSERT INTO `o_pay_other` (`f_id`, `f_name`) VALUES ('6', 'IDRAM');
+INSERT INTO `o_pay_other` (`f_id`, `f_name`) VALUES ('7', 'TellCell');
+alter table o_payment add column f_idram decimal(14,2) default 0, add column f_tellcell decimal(14,2) default 0, change f_cash f_cash decimal(14,2) default 0, change f_change f_change decimal(14,2) default 0;
+alter table o_payment add column f_card decimal(14,2) default 0 after f_cash, add column f_prepaid decimal(14,2) default 0 after f_card;
+alter table d_translator add f_am tinytext;
+
+/* db - 53 */
+update s_app set f_version='53' where f_app='DB';
+alter table o_preorder add column f_fiscal integer default 0;
+alter table o_body add column f_appendtime timestamp, add column f_printtime timestamp;
+alter table o_body add column f_removetime timestamp;
+alter table o_body add column f_removeuser integer;
+ALTER TABLE `o_body` ADD INDEX `fk_obdy_removeuser_idx` (`f_removeuser` ASC) ;
+ALTER TABLE `o_body` ADD CONSTRAINT `fk_obdy_removeuser` FOREIGN KEY (`f_removeuser`) REFERENCES `s_user` (`f_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+/* db - 54 */
+update s_app set f_version='54' where f_app='DB';
+alter table d_dish add column f_extra tinyint default 0;
+alter table o_body add column f_removeprecheck tinyint;
+alter table o_body add f_comment2 tinytext;
+alter table o_body add f_reprint tinyint;
+create table d_print_aliases (f_id integer primary key auto_increment, f_alias tinytext, f_printer tinytext);
+create table a_store_reserve (f_id integer primary key auto_increment, f_date date, f_time time, f_state tinyint, f_source integer, f_completed integer, f_completeddate date, f_completedtime time, f_canceled integer, f_canceleddate date, f_canceledtime time, f_store integer, f_goods integer, f_qty decimal(14,3), f_message text);
+create table a_store_reserve_state (f_id integer primary key auto_increment, f_name tinytext);
+insert into a_store_reserve_state (f_id, f_name) values (1, 'Ամրագրված'),(2, 'Ավարտված'),(3, 'Չեղարկված');
+alter table a_store_reserve add column f_enddate date after f_time;
+
+/* db - 55 */
+update s_app set f_version='55' where f_app='DB';
+alter table c_goods add column f_storeinputbeforesale tinyint;
+create table a_store_sale (f_store integer, f_goods integer, f_qty decimal(14,3), f_qtyreserve decimal(14,3), f_qtyprogram decimal(14,3));
+ALTER TABLE `a_store_sale` ADD INDEX `idx_store_goods` (`f_goods` ASC, `f_store` ASC) ;
+insert into a_store_reserve_state (f_id, f_name) values (4, 'Ժամկետնանց');
+create table airlog.sqllog (fid integer primary key auto_increment, fop tinyint, fsql text, felapsedtime integer, fcompname tinytext);
+ALTER TABLE `o_body_state` CHANGE COLUMN `f_id` `f_id` SMALLINT NOT NULL ;
+alter table o_goods add column f_returnfrom char(36) after f_return;
+
+
+/* db - 56 */
+update s_app set f_version='56' where f_app='DB';
+UPDATE `o_body_state` SET `f_name` = 'Չեղակված առանց դուրս գրման' WHERE (`f_id` = '2');
+UPDATE `o_body_state` SET `f_name` = 'Չեղակված դուրս գրումով' WHERE (`f_id` = '3');
+
+/* db - 57 */
+update s_app set f_version='57' where f_app='DB';
+insert into o_body_state (f_id, f_name) values (0, 'Անհայտ');
+ALTER TABLE `o_body_state` CHANGE COLUMN `f_id` `f_id` SMALLINT NOT NULL ;
+ALTER TABLE `o_body` DROP FOREIGN KEY `fk_obody_state`;
+ALTER TABLE `o_body` ADD INDEX `fk_obody_state_idx` (`f_state` ASC) ,DROP INDEX `fk_obody_state_idx` ;
+ALTER TABLE `o_body` ADD CONSTRAINT `fk_obody_state`  FOREIGN KEY (`f_state`)  REFERENCES `cafe5`.`o_body_state` (`f_id`);
+
+/* db - 58 */
+update s_app set f_version='58' where f_app='DB';
+alter table c_goods add f_complectout decimal(14,3) default 1;
+alter table c_goods add f_iscomplect tinyint default 0;
+create table mf_actions_group (f_id integer primary key auto_increment, f_name tinytext);
+create table mf_actions (f_id integer primary key auto_increment, f_name tinytext);
+create table mf_process (f_id integer primary key auto_increment, f_rowid integer, f_group integer, f_action integer, f_durationsec integer, f_price decimal(14,2));
+create table mf_daily_workers (f_id integer primary key auto_increment, f_date date, f_worker integer);
+create table mf_daily_process (f_id integer primary key auto_increment, f_date date, f_worker integer, f_product integer, f_process integer, f_qty integer, f_price decimal(14,2));
+ALTER TABLE `mf_daily_workers` ADD UNIQUE INDEX `idx_mfdailyworkers_date_worker` (`f_date` ASC, `f_worker` ASC);
+ALTER TABLE `mf_daily_process` ADD INDEX `idx_mfdailyprocess_date` (`f_date` ASC) ,ADD INDEX `idx_mfdailyprocess_worker` (`f_worker` ASC) ;
+alter table mf_process add column f_goalprice decimal(14,2);
+ALTER TABLE `mf_process` CHANGE COLUMN `f_group` `f_product` INT(11) NULL DEFAULT NULL ,CHANGE COLUMN `f_action` `f_process` INT(11) NULL DEFAULT NULL ,ADD INDEX `idx_mfprocess_product` (`f_product` ASC);
+
+/*db - 59 */
+/* 06.12.2021 */
+update s_app set f_version='59' where f_app='DB';
+alter table h_halls add column f_booking tinyint default 0;
+
+/*db - 60 */
+/* 13.12.2021 */
+update s_app set f_version='60' where f_app='DB';
+alter table d_package_list add column f_qty decimal(14,2) after f_dish;
+
+/*db - 61 */
+/* 14.12.2021 */
+update s_app set f_version='61' where f_app='DB';
+create table d_image (f_id integer primary key, f_image mediumblob);
+drop table d_img;
+
+
+/*db - 62 */
+/* 30.12.2021 */
+update s_app set f_version='62' where f_app='DB';
+alter table o_preorder add column f_guestname tinytext, add column f_cityledger integer, add column f_prepaidpayx decimal(14,2) after f_prepaidcard; 
+alter table o_preorder add column f_fortable integer;
+alter table o_header add column f_amountidram decimal(14,3), add column f_amountpayx decimal(14,2);
+
+/*db - 63 */
+/*19.01.2022 */
+update s_app set f_version='63' where f_app='DB';
+ALTER TABLE `a_store` ADD INDEX `fk_store_draft_idx` (`f_draft` ASC) ;
+ALTER TABLE `a_store` ADD CONSTRAINT `fk_store_draft`  FOREIGN KEY (`f_draft`)  REFERENCES `a_store_draft` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+/*db - 64 */
+/*25.01.2022 */
+update s_app set f_version='64' where f_app='DB';
+alter table c_units add f_fullname tinytext;
+ALTER TABLE `a_store_draft` DROP INDEX `fk_store_draft_document_idx` ;
+ALTER TABLE `a_store_draft` ADD CONSTRAINT `fk_store_draft_document`  FOREIGN KEY (`f_document`)  REFERENCES `a_header` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+/*db - 65 */
+/* 18.02.2022 */
+update s_app set f_version='65' where f_app='DB';
+create table a_dc (f_id char(36), f_debit varchar(12), f_credit varchar(12), f_doc char(36), f_dc tinyint, f_amount decimal(14,2));
+ALTER TABLE `a_dc` ADD INDEX `id_adc_dc` (`f_dc` ASC) ;
+ALTER TABLE `a_dc` ADD INDEX `fk_adc_doc_idx` (`f_doc` ASC);
+ALTER TABLE `a_dc` ADD CONSTRAINT `fk_adc_doc` FOREIGN KEY (`f_doc`) REFERENCES `a_header` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+/*db - 66 */
+/* 21.02.2022 */
+update s_app set f_version='66' where f_app='DB';
+create table sys_cache_tables (f_name varchar(128) primary key, f_sql text);
+insert into sys_cache_tables (f_name) values ('c_goods'), ('c_groups'), ('c_units'), ('c_partners'), ('c_storages');
+delete from sys_cache_tables;
+INSERT INTO `sys_cache_tables` (`f_name`, `f_sql`) VALUES ('c_goods', 'select t.f_id as `Կոդ`, gg.f_name as `Խումբ`, t.f_name as `Անվանում`, u.f_name as `ՉՄ`, t.f_scancode as `Շտրիխ կոդ`, t.f_lastinputprice as `ՎԵրջին մուտքի գին`, t.f_complectout as `Կոմպլեկտի ելքի քանակ`\nfrom c_goods t\nleft join c_groups gg on gg.f_id=t.f_group \nleft join c_units as u on u.f_id=t.f_unit ');
+INSERT INTO `sys_cache_tables` (`f_name`, `f_sql`) VALUES ('c_groups', NULL);
+INSERT INTO `sys_cache_tables` (`f_name`, `f_sql`) VALUES ('c_partners', NULL);
+INSERT INTO `sys_cache_tables` (`f_name`, `f_sql`) VALUES ('c_storages', 'select f_id as `Կոդ`, f_name as `Անվանում` from c_storages t');
+INSERT INTO `sys_cache_tables` (`f_name`, `f_sql`) VALUES ('c_units', NULL);
+
+
+/*db - 67 */
+/* 08.03.2022 */
+update s_app set f_version='67' where f_app='DB';
+INSERT INTO `o_sale_type` (`f_id`, `f_name`) VALUES ('3', 'Պատվեր');
+INSERT INTO `o_sale_type` (`f_id`, `f_name`) VALUES ('4', 'Վերադարձ');
+UPDATE `sys_cache_tables` SET `f_sql` = 'select t.f_id as `կոդ`, gg.f_name as `խումբ`, t.f_name as `անվանում`, u.f_name as `չմ`, t.f_scancode as `շտրիխ կոդ`, t.f_lastinputprice as `վերջին մուտքի գին`, t.f_complectout as `կոմպլեկտի ելքի քանակ`\r from c_goods t\r left join c_groups gg on gg.f_id=t.f_group \r left join c_units as u on u.f_id=t.f_unit ' WHERE (`f_name` = 'c_goods');
+UPDATE `sys_cache_tables` SET `f_sql` = 'select f_id as `կոդ`, f_name as `անվանում` from c_storages t' WHERE (`f_name` = 'c_storages');
+
+/*db - 68 */
+/*23.03.2022 */
+update s_app set f_version='68' where f_app='DB';
+alter table s_user add column f_teamlead integer after f_group;
+
+/*db - 69, 17.04.2022 */
+update s_app set f_version='69' where f_app='DB';
+alter table o_header add column f_cash decimal(14,2), add column f_change decimal(14,2);
+
+/*  db - 70, 28.04.2022 */
+update s_app set f_version='70' where f_app='DB';
+ALTER TABLE `b_cards_discount` ADD INDEX `idx_bcardsdisc_client` (`f_client` ASC) ;
+alter table op_header add column f_paymentmode tinyint;
+CREATE TABLE SERVER5.queries  (fid INTEGER PRIMARY KEY AUTO_INCREMENT, fkey TINYTEXT, fquery TEXT);
+INSERT INTO SERVER5.queries (fkey, fquery) VALUES ('list_storages', 'select fid, fname from c_storages');
+
+/*  db - 71, 28.04.2022 */
+update s_app set f_version='71' where f_app='DB';
+alter table a_header_store add column f_mobilestore integer;
+
+/*  db - 72, 18.05.2022 */
+update s_app set f_version='72' where f_app='DB';
+alter table mf_daily_workers add column f_checked tinyint;
+
+/*  db - 73, 22.05.2022 */
+update s_app set f_version='73' where f_app='DB';
+alter table c_goods add column f_acc tinytext;
+
+/*  db - 74, 12.06.2022 */
+update s_app set f_version='74' where f_app='DB';
+create table s_report_template (f_id integer primary key auto_increment, f_group integer, f_name tinytext, f_sql text);
+create table s_report_template_params (f_id integer primary key auto_increment, f_report integer, f_param_type tinyint, f_param_name tinytext, f_replace_text tinytext);
+create table s_report_template_access (f_id integer primary key auto_increment, f_report integer, f_group integer);
+create table a_calc_price (f_id char(36) primary key, f_document char(36), f_price2 decimal(14,2), f_margin decimal(14,2), f_final_price decimal(14,2));
+CREATE TABLE server5.plugins_options (fid INTEGER PRIMARY KEY AUTO_INCREMENT, fplugin TINYTEXT, fkey TINYTEXT, fvalue TINYTEXT);
+
+/*  db - 75, 12.06.2022 */
+update s_app set f_version='75' where f_app='DB';
+alter table d_dish add column f_samestore TINYINT, ADD column f_barcode tinytext;
+alter table s_salary_inout add column f_comp tinytext;
+alter table a_header_cash add column f_session int;
+
+/*  db - 76, 29.06.2022 */
+update s_app set f_version='76' where f_app='DB';
+alter table a_sale_temp add column f_comment tinytext;
+alter table a_sale_temp add column f_printer tinytext;
+alter table a_sale_temp add column f_store int;
+alter table a_sale_temp add column f_customer int;
+
+/*  db - 77, 19.07.2022 */
+update s_app set f_version='77' where f_app='DB';
+create table o_header_hotel (f_id char(36) primary key, f_guestcount tinyint, f_guest integer, f_checkin date, f_checkout date, f_roomrate decimal(14,2));
+create table o_header_hotel_date (f_id integer primary key auto_increment, f_header char(36), f_date date, f_1 tinyint, f_2 tinyint);
+
+/*  db - 78, 13.07.2022 */
+update s_app set f_version='77' where f_app='DB';
+ALTER TABLE d_dish ADD COLUMN f_adgt VARCHAR(8);
+
+/*  db - 79, 31.07.2022 */
+update s_app set f_version='79' where f_app='DB';
+CREATE TABLE `mf_daily_process` (
+	`f_id` INT(11) NOT NULL AUTO_INCREMENT,
+	`f_date` DATE NULL DEFAULT NULL,
+	`f_worker` INT(11) NULL DEFAULT NULL,
+	`f_product` INT(11) NULL DEFAULT NULL,
+	`f_process` INT(11) NULL DEFAULT NULL,
+	`f_qty` INT(11) NULL DEFAULT NULL,
+	`f_price` DECIMAL(14,2) NULL DEFAULT NULL,
+	`f_taskid` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`f_id`) USING BTREE,
+	INDEX `idx_mfdailyprocess_date` (`f_date`) USING BTREE,
+	INDEX `idx_mfdailyprocess_worker` (`f_worker`) USING BTREE
+)
+COLLATE='utf8mb3_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=22
+;
+CREATE TABLE `mf_actions` (
+	`f_id` INT(11) NOT NULL AUTO_INCREMENT,
+	`f_name` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci',
+	`f_state` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`f_id`) USING BTREE
+)
+COLLATE='utf8mb3_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;
+
+select * from s_appCREATE TABLE `mf_tasks_state` (
+  `f_id` int(11) NOT NULL AUTO_INCREMENT,
+  `f_name` tinytext DEFAULT NULL,
+  PRIMARY KEY (`f_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+
+
+
+create table mf_tasks (f_id integer primary key auto_increment, f_datecreate date, f_timecreate time, f_user integer, f_product integer, f_qty decimal(14,2));
+alter table mf_tasks add column f_state tinyint after f_id;
+alter table mf_tasks add column f_ready decimal(9,3);
+alter table mf_tasks add column f_step integer;
+create table mf_stage (f_id integer primary key auto_increment, f_name tinytext);
+create table mf_task_stage (f_id integer primary key auto_increment, f_task integer, f_date date, f_time time, f_stage integer);
+alter table mf_tasks drop column f_step, add column f_stage integer;
+alter table mf_tasks add column f_workshop integer;
+create table mf_task_workshop (f_id integer primary key auto_increment, f_task integer, f_date date, f_time time, f_workshop integer);
+create table files (f_id integer primary key auto_increment, f_table tinytext, f_rec integer, f_storetype tinyint, f_filename varchar(1024), f_filebytes longblob); 
+
+/*  db - 80, 01.09.2022 */
+update s_app set f_version='80' where f_app='DB';
+alter table mf_tasks add column f_out decimal(14,3) after f_ready , add column f_notes text;
+alter table mf_daily_process add column f_laststep tinyint;
+create table mf_tasks_output (f_id integer primary key auto_increment, f_task integer, f_date date, f_qty decimal(14,3));
+
+/*  db - 81, 08.09.2022 */
+update s_app set f_version='81' where f_app='DB';
+alter table o_Header add column f_hotel decimal(14,2);
+create table mf_tasks_state (f_id integer primary key auto_increment, f_name tinytext);
+insert into mf_tasks_state (f_id, f_name) values  (1, 'Ընդացիկ'), (2, 'Ավարտված'), (3, 'Չեղարկված');
+
+/*  db - 82, 11.11.2022 */
+update s_app set f_version='82' where f_app='DB';
+alter table o_body add f_row smallint;
+INSERT INTO `b_card_types` (`f_id`, `f_name`) VALUES ('6', 'Զեղչ հատուկ ապրանքների վրա');
+alter table d_dish add column f_specialdiscount decimal(6,3);
+
+/*  db - 83, 12.11.2022 */
+update s_app set f_version='83' where f_app='DB';
+create table e_currency (f_id integer primary key auto_increment, f_name tinytext, f_rate decimal(14,3));
+insert into e_currency (f_id, f_name, f_rate) values (1, 'AMD', 1), (2, 'USD', 390), (3, 'EUR', 380);
+CREATE table e_currency_rate_history (f_id integer primary key, f_date date, f_currency integer, f_rate decimal(14,3));
+
+/*  db - 84, 17.11.2022 */
+update s_app set f_version='84' where f_app='DB';
+alter table e_cash_names add column f_currency integer;
+alter table e_currency add column f_symbol varchar(2);
+update e_currency set f_symbol='֏' where f_id='1';
+update e_currency set f_symbol='$' where f_id='2';
+update e_currency set f_symbol='€' where f_id='3';
+alter table a_header add f_currency integer;
+create table c_goods_prices (f_id integer primary key auto_increment, f_goods integer, f_currency integer, f_price1 decimal(14,2), f_price2 decimal(14,2));
+
+/*  db - 85, 17.11.2022 */
+update s_app set f_version='85' where f_app='DB';
+alter table c_goods add column f_price_margin decimal(14,3);
+create table c_goods_scancode_counter (f_id integer primary key auto_increment, f_digitsnumber tinyint, f_counter integer);
+insert into c_goods_scancode_counter (f_digitsnumber, f_counter) values (7, 0);
+ALTER TABLE `e_currency_rate_history`CHANGE COLUMN `f_id` `f_id` INT(11) NOT NULL AUTO_INCREMENT FIRST;
+alter table c_goods add column f_base_currency tinyint;
+create table e_currency_cross_rate (f_id integer primary key auto_increment, f_currency1 integer, f_currency2 integer, f_rate decimal(14,3));
+create table e_currency_cross_rate_history (f_id integer primary key auto_increment, f_date date, f_currency1 integer, f_currency2 integer, f_rate decimal(14,3));
+
+/*  db - 86, 17.11.2022 */
+update s_app set f_version='86' where f_app='DB';
+alter table o_header_options add column f_deliveryman integer;
+
+/*  db - 87, 17.11.2022 */
+update s_app set f_version='87' where f_app='DB';
+alter table s_user add column f_passhash tinytext, add column f_firebase_token tinytext;
+
+/*  db - 88, 17.11.2022 */
+update s_app set f_version='88' where f_app='DB';
+alter table a_dc add column f_currency integer after f_id;
+alter table o_header_options add column f_currency integer;
+
+/* db - 89, 30.11.2022 */
+DROP TABLE a_dc;                                                                                                                              
+create table a_dc (f_id char(36), f_currency INT, f_debit varchar(12), f_credit varchar(12), f_doc char(36), f_dc tinyint, f_amount decimal(14,2));
+ALTER TABLE `a_dc` ADD INDEX `id_adc_dc` (`f_dc` ASC) ;                                                                                       
+ALTER TABLE `a_dc` ADD INDEX `fk_adc_doc_idx` (`f_doc` ASC);                                                                                  
+ALTER TABLE `a_dc` ADD CONSTRAINT `fk_adc_doc` FOREIGN KEY (`f_doc`) REFERENCES `a_header` (`f_id`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `e_currency_rate_history` CHANGE COLUMN `f_rate` `f_rate` DECIMAL(14,4) NULL DEFAULT NULL AFTER `f_currency`;
+ALTER TABLE `e_currency_cross_rate_history` CHANGE COLUMN `f_rate` `f_rate` DECIMAL(14,4) NULL DEFAULT NULL AFTER `f_currency2`;
+insert into a_reason (f_id, f_name) values (10, 'Ապակոմպլեկտավորում');
+
+/* db - 90, 01.12.2022 */
+update s_app set f_version='90' where f_app='DB';
+ALTER TABLE c_goods ADD COLUMN f_price_margin2 DECIMAL(14,2);
+ALTER TABLE `c_goods_prices` CHANGE COLUMN `f_price1` `f_price1` DECIMAL(14,4) NULL DEFAULT NULL AFTER `f_currency`, CHANGE COLUMN `f_price2` `f_price2` DECIMAL(14,4) NULL DEFAULT NULL AFTER `f_price1`;
+alter table c_goods change f_lastinputprice f_lastinputprice decimal(14,4);
+
+/* db - 91, 06.12.2022 */
+update s_app set f_version='91' where f_app='DB';
+ALTER TABLE `c_goods_prices` ADD CONSTRAINT `fk_goods_price_goods` FOREIGN KEY (`f_goods`) REFERENCES `c_goods` (`f_id`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `c_goods_prices` ADD CONSTRAINT `fk_goods_price_currency` FOREIGN KEY (`f_currency`) REFERENCES `e_currency` (`f_id`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `a_header` ADD INDEX `f_currency` (`f_currency`) USING BTREE;
+ALTER TABLE c_goods_prices CHANGE f_price1 f_price1 DECIMAL(16,7), CHANGE f_price2 f_price2 DECIMAL(17,7);
+ALTER TABLE c_goods CHANGE f_lastinputprice f_lastinputprice DECIMAL(16,7);
+ALTER TABLE e_currency_cross_rate CHANGE f_rate f_rate DECIMAL(16,7);
+ALTER TABLE e_currency_cross_rate_history CHANGE f_rate f_rate DECIMAL(16,7);
+
+/* db - 92, 06.12.2022 */
+update s_app set f_version='92' where f_app='DB';
+alter table c_goods add column f_adg tinytext;
+
+/* db - 93, 06.12.2022 */
+update s_app set f_version='93' where f_app='DB';
+ALTER TABLE `d_dish` CHANGE COLUMN `f_barcode` `f_barcode` TEXT NULL COLLATE 'utf8mb3_general_ci' AFTER `f_samestore`;
+
+/* db - 94, 12.12.2022 */
+update s_app set f_version='94' where f_app='DB';
+create table o_draft_sale (f_id char(36) primary key, f_state tinyint, f_date date, f_time time, f_staff integer, f_amount decimal(14,2));
+create table o_draft_sale_body (f_id char(36) primary key, f_header char(36), f_state tinyint, f_dateappend date, f_timeappend time, f_goods integer, f_qty decimal(14,3), f_price decimal(14,3), f_dateremoved date, f_timeremoved time, f_userappend integer, f_userremove integer);
+
+/* db - 95, 15.12.2022 */
+update s_app set f_version='95' where f_app='DB';
+create table b_gift_card (f_id integer primary key auto_increment, f_code varchar(36), f_costumer integer, f_dateregistered date, f_datesaled date);
+create table b_gift_card_history (f_id integer primary key auto_increment, f_card integer, f_amount decimal(14,2));
+create table b_gift_card_sale_options (f_id integer primary key auto_increment, f_value tinytext);
+INSERT INTO `b_gift_card_sale_options` (`f_value`) VALUES ('10000,20000,30000,40000,50000');
+alter table b_gift_card_history add f_trsale varchar(36) after f_card;
+
+/* db - 96, 19.12.2022 */
+update s_app set f_version='96' where f_app='DB';
+create table reports (f_id integer primary key auto_increment, f_group integer, f_name tinytext);
+create table reports_queries (f_id integer primary key auto_increment, f_report integer, f_query text);
+create table reports_group (f_id integer primary key auto_increment, f_name tinytext);
+create table reports_permissions (f_id integer primary key auto_increment, f_group integer, f_report integer, f_access tinyint);
+alter table reports add column f_query text;
+drop table reports_queries;
+alter table reports_group add column f_level int after f_id;
+alter table reports add column f_sumcolumn_indexes tinytext;
+
+/* db - 97, 04.01.2023 */
+update s_app set f_version='97' where f_app='DB';
+alter table s_user add column f_firebase_token tinytext;
+alter table s_user add column f_passhash tinytext;
+INSERT INTO b_card_types (f_id, f_name) VALUES (7, 'Միանվագ զեղչ');
+alter table b_cards_discount add column f_createdby integer;
+
+/* db - 98, 04.01.2023 */
+update s_app set f_version='98' where f_app='DB';
+alter table o_draft_sale add column f_comment text;
+alter table reports add column f_handler tinytext;
+insert into reports (f_id, f_group, f_name, f_query, f_handler) values (2, 1, 'Սևագիր վաճառքմեր', 'SELECT f_id as `Կոդ`, f_date as `Ամսաթիվ`, f_time as `Ժամ`, f_amount as `Գումար`, f_comment as `Մեկնաբանություն` FROM o_draft_sale
+WHERE f_state=1', '39617ca7-8fa4-11ed-8ad3-1078d2d2b808');
+insert into reports_group (f_name, f_level) values ('Վաճառք', 2);
+insert into reports_permissions (f_group, f_report, f_access) values (1, 2, 1);
+alter table o_draft_sale_body add column f_store int after f_state;
+
+/* db - 99, 04.01.2023 */
+update s_app set f_version='99' where f_app='DB';
+alter table reports add f_deletehandler text;
+alter table reports add f_filterhandler text;
+alter table o_draft_sale add column f_payment tinyint;
+alter table a_header_store add column f_saleuuid tinytext;
+ALTER TABLE `a_header_store`ADD INDEX `idx_saleuuid` (`f_saleuuid`);
+
+/* db - 100, 04.01.2023 */
+update s_app set f_version='100' where f_app='DB';
+create table reports_handler (f_id varchar(36) primary key, f_query text); 
+
+/* db - 101, 04.01.2023 */
+update s_app set f_version='101' where f_app='DB';
+alter table o_body add column f_appenduser integer after f_fromtable;
+alter table o_Body add column f_printuser integer after f_printtime;
+
+/* db - 102, 04.01.2023 */
+update s_app set f_version='102' where f_app='DB';
+alter table s_translator add f_am text;
+update s_translator set f_am=f_text;
+alter table s_translator drop column f_text;
+
+/* db - 103, 12.02.2023 */
+update s_app set f_version='103' where f_app='DB';
+create table p_preorder_state (f_id tinyint primary key auto_increment, f_name tinytext);
+insert into p_preorder_state (f_id, f_name) values (1, 'Ընթացիկ'), (2, 'Կատարված'), (3, 'Չեղարկված');
+create table p_preorder_header (f_id char(36) primary key, f_state tinyint, f_datecreated date, f_timecreated  time, f_datefor date, f_customer text, f_phone tinytext, f_prepaid decimal(14,2), f_prepaidfiscal int);
+create table p_preorder_body (f_id char(36) primary key, f_goods integer, f_qty decimal(14,2), f_price decimal(14,2));
+
+/* db - 104, 12.02.2023 */
+update s_app set f_version='104' where f_app='DB';
+alter table p_preorder_header drop column f_prepaid, add column f_prepaidcash decimal(14,3), add column f_prepaidcard decimal(14,2);
+alter table p_preorder_body add f_header char(36) after f_id;
+
+/* db - 105, 03.03.2023 */
+update s_app set f_version='105' where f_app='DB';
+ALTER TABLE `c_goods_prices` ADD CONSTRAINT `fk_goods_id` FOREIGN KEY (`f_goods`) REFERENCES `c_goods` (`f_id`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+/* db - 106, 03.03.2023 */
+update s_app set f_version='106' where f_app='DB';
+create table c_goods_predefined_list (f_id integer primary key auto_increment, f_list integer, f_goods integer);
+
+/* db - 107, 03.03.2023 */
+update s_app set f_version='107' where f_app='DB';
+alter table o_draft_sale add column f_partner integer, add column f_debt tinyint;
+alter table o_draft_sale add column f_discount decimal(3,3);
+
+/* db - 108, 03.03.2023 */
+update s_app set f_version='108' where f_app='DB';
+alter table o_draft_sale change column f_debt f_debt integer, change column f_payment f_payment integer;
+create table o_route (f_id integer primary key auto_increment, f_partner integer, f_date integer);
+create table o_route_exec (f_id integer primary key auto_increment, f_partner integer, f_date date, f_action integer);
+alter table o_route add column f_driver integer;
+alter table o_route_exec add column f_driver integer;
+drop table o_route;
+create table o_route (f_id integer primary key auto_increment, f_partner integer, f_1 integer, f_2 integer, f_3 integer, f_4 integer, f_5 integer, f_6 integer, f_7 integer);
+alter table o_draft_sale_body add column f_back decimal(14,2) after f_qty;
+alter table o_route_exec add column f_action_comment TEXT, ADD column f_action_datetime timestamp null default null;
+alter table o_route_exec add column f_saleuuid char(36);
+alter table o_header change column f_amountIdram f_amountIdram decimal(14,2) after f_amountBank, change column f_amountPayX f_amountPayX decimal(14,2) after f_amountIdram, add column f_telcell decimal(14,2) after f_amountIdram, add column f_amountDebt decimal(14,2) after f_amountIdram;
+alter table o_header change column f_telcell f_amountTelcell decimal(14,2) after f_amountIdram;
+alter table o_header add column f_cashier int after f_timeclose;
+alter table o_header add column f_currency int;
+alter table o_goods add column f_adgcode tinytext after f_taxdept;
+alter table o_goods add column f_isservice integer;
+alter table o_goods add column f_amountAccumulate decimal(14,2);
+alter table b_clients_debts drop column f_header, add column f_currency int not null;
+drop table a_dc;
+alter table b_clients_debts add column f_source tinyint;
+
+/* db - 109, 28.03.2023 */
+update s_app set f_version='109' where f_app='DB';
+drop table a_sale_temp;
+alter table o_draft_sale add column f_saletype integer after f_state;
+alter table c_partners add column f_state TINYINT default 1 after f_id , add column f_group integer after f_state, add column f_legaladdress text after f_address;
+create table c_partners_state (f_id tinyint primary key auto_increment, f_name text);
+create table c_partners_group (f_id integer primary key auto_increment, f_name text);
+insert into c_partners_state (F_id, f_name) values (1, 'Գործող');
+insert into c_partners_group (f_id, f_name) values (1, 'Հիմնական');
+update c_partners set f_state=1, f_group = 1;
+alter table c_partners add column f_ascode tinytext;
+alter table c_goods add column f_ascode tinytext;
+
+/* db - 110, 04.04.2023 */
+update s_app set f_version='110' where f_app='DB';
+create table as_list (f_id integer primary key auto_increment, f_name tinytext, f_connectionstring text);
+create table as_tables (f_id integer primary key, f_name tinytext);
+create table as_convert (f_id integer primary key auto_increment, f_table integer, f_tableid integer, f_ascode tinytext);
+drop table as_tables;
+alter table as_convert change column f_table f_table varchar(32);
+alter table as_convert add column f_asdbid integer after f_id;
+alter table c_partners drop column f_ascode;
+alter table c_partners add column f_category int after f_id;
+alter table c_partners add column f_name tinytext after f_taxname;
+create table c_partners_category (f_id integer primary key auto_increment, f_name tinytext);
+insert into c_partners_category (f_name) values ('Հիմնական');
+
+/* db - 111, 05.04.2023 */
+update s_app set f_version='111' where f_app='DB';
+create table mgapp_devices (f_id integer primary key auto_increment, f_fcmtoken tinytext, f_apikey char(36));
+alter table o_route add f_driver integer after f_id;
+create table c_goods_special_prices (f_id integer primary key auto_increment, f_partner integer, f_goods integer, f_price decimal(14,2));
+alter table mgapp_devices add column f_devicename tinytext after f_Id;
+alter table c_partners add column f_permanent_discount decimal(5,2);
+ALTER TABLE `c_partners`
+	CHANGE COLUMN `f_category` `f_category` INT(11) NULL DEFAULT '1' AFTER `f_id`,
+	CHANGE COLUMN `f_group` `f_group` INT(11) NULL DEFAULT '1' AFTER `f_state`,
+	CHANGE COLUMN `f_taxname` `f_taxname` VARCHAR(128) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_group`,
+	CHANGE COLUMN `f_name` `f_name` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_taxname`,
+	CHANGE COLUMN `f_taxcode` `f_taxcode` VARCHAR(45) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_name`,
+	CHANGE COLUMN `f_contact` `f_contact` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_taxcode`,
+	CHANGE COLUMN `f_info` `f_info` VARCHAR(256) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_contact`,
+	CHANGE COLUMN `f_phone` `f_phone` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_info`,
+	CHANGE COLUMN `f_email` `f_email` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_phone`,
+	CHANGE COLUMN `f_address` `f_address` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_email`,
+	CHANGE COLUMN `f_legaladdress` `f_legaladdress` VARCHAR(255) NULL DEFAULT '' COLLATE 'utf8mb3_general_ci' AFTER `f_address`;
+	UPDATE c_partners SET f_phone='' WHERE f_phone IS NULL;
+UPDATE c_partners SET f_permanent_discount=0 WHERE f_permanent_discount IS NULL;
+ALTER TABLE `c_partners`	CHANGE COLUMN `f_permanent_discount` `f_permanent_discount` DECIMAL(5,2) NULL DEFAULT '0' AFTER `f_cash`;
+UPDATE c_partners SET f_phone='' WHERE f_phone IS NULL;
+UPDATE c_partners SET f_permanent_discount=0 WHERE f_permanent_discount IS NULL;
+alter table c_partners add column f_price_polyitic integer default 1;
+alter table c_partners drop column f_price_politic, add column f_price_politic integer default 1;
+
+/* db - 112, 08.04.2023 */
+update s_app set f_version='112' where f_app='DB';
+create table c_goods_size (f_id integer primary key auto_increment, f_name tinytext);
+create table c_goods_sizes (f_id integer primary key auto_increment, f_size integer, f_name varchar(8));
+alter table c_goods_option add column f_size_standart integer;
+alter table c_goods add column f_weblink tinytext;
+
+/* db - 113, 08.04.2023 */
+update s_app set f_version='113' where f_app='DB';
+create table o_draft_sound (f_id integer primary key auto_increment, f_header char(36), f_timeconfirmed timestamp);
+alter table o_draft_sale add column f_datefor date;
+update c_partners set f_phone='' where f_phone is null;
+alter table c_goods add f_queue integer;
+alter table o_route add column f_q1 integer, add column f_q2 integer,add column f_q3 integer,add column f_q4 integer,add column f_q5 integer,add column f_q6 integer,add column f_q7 integer;
+create table o_route_round (f_id integer primary key auto_increment, f_name tinytext, f_rounds tinyint, f_started date);
+alter table o_route drop column f_q1, drop column f_q2, drop column f_q3, drop column f_q4, drop column f_q5, drop column f_q6, drop column f_q7 , add column f_q integer;
+alter table o_route add column f_round integer;
+
+/* db - 114, 18.04.2023 */
+update s_app set f_version='114' where f_app='DB';
+create table sys_configs (f_id integer primary key auto_increment, f_type integer, f_data json);
+create table sys_configs_types (f_id integer primary key, f_name tinytext);
+
+/* db - 115 , 27.04.2023 */
+update s_app set f_version='115' where f_app='DB';
+create table o_draft_sale_state (f_id tinyint, f_name tinytext);
+insert into o_draft_sale_state (f_id, f_name) values (1, 'Ընդունված'), (2, 'Առաքման ենթակա'), (3, 'Կատարված'), (4, 'Չեղարկված');
+
+
+/* db - 116 , 27.04.2023 */
+update s_app set f_version='116' where f_app='DB';
+alter table c_goods add column f_component_exit tinyint default 0;
+
+
+/* db - 117 , 13.05.2023 */
+update s_app set f_version='117' where f_app='DB';
+alter table o_draft_sale_body add column f_discount decimal(5,2), add column f_special_price tinyint;
+alter table e_currency add f_short tinytext;
+create table c_storages_state (f_id tinyint primary key, f_name tinytext);
+alter table c_storages add column f_state tinyint default 1;
+insert into  c_storages_state (f_id, f_name) values ('1', 'Գործող'), (2, 'Փակ');
+create table o_route_drivers (f_id integer primary key auto_increment, f_user integer);
+alter table o_draft_sale add column f_cashier integer;
+insert into  o_draft_sale_state (f_id, f_name) values (5, 'Հետ վերադարձ');
+
+/* db - 118 , 19.05.2023 */
+update s_app set f_version='118' where f_app='DB';
+INSERT INTO `a_reason` (`f_id`, `f_name`) VALUES (11, 'Հետվերադարձ գործընկերոջից');
+
+
+/* db - 119 , 19.05.2023 */
+update s_app set f_version='119' where f_app='DB';
+alter table o_draft_sale add column f_flag integer;
+
+/* db - 120 , 29.05.2023 */
+update s_app set f_version='120' where f_app='DB';
+alter table c_partners add column f_manager integer;
+
+/* db - 121 , 05.06.2023 */
+update s_app set f_version='121' where f_app='DB';
+alter table b_clients_debts add column f_flag integer;
+
+/* db - 122 , 05.06.2023 */
+update s_app set f_version='122' where f_app='DB';
+alter table c_storages add column f_hall integer;
+
+/* db - 123 , 17.06.2023 */
+update s_app set f_version='123' where f_app='DB';
+drop table s_salary_account;
+drop table s_salary_body;
+drop table s_salary_options;
+drop table s_salary_shift;
+drop table s_salary_shift_time;
+CREATE TABLE s_salary_attendance (f_id INTEGER PRIMARY KEY AUTO_INCREMENT, f_date DATE, f_worker INTEGER, f_position INTEGER, f_amount decimal);
+alter table d_part2 add column f_salary_percent decimal(5, 2);
+alter table d_part2 add f_position integer;
+alter table s_salary_attendance add  column f_indate date, add column f_intime time, add column f_outdate date, add column f_outtime time;
+alter table s_user_group add column f_starttime time, add column f_duration int;
+create table s_salary_rules (f_id integer primary key auto_increment, f_fixed decimal, f_min decimal, f_max decimal, f_dep integer, f_store integer, f_total decimal);
+alter table s_salary_rules add column f_position integer after f_id;
+create table s_salary_payment (f_id integer primary key,  f_date date, f_cashdoc char(36), f_worker integer, f_amount decimal);
+alter table s_salary_rules drop column f_store;
+ALTER TABLE `s_salary_payment` CHANGE COLUMN `f_id` `f_id` INT(11) NOT NULL AUTO_INCREMENT FIRST;
+alter table s_salary_payment add column f_position integer after f_cashdoc;
+alter table s_salary_payment drop column f_position;
+alter table s_salary_rules add column f_owntotal decimal (5,2);
+
+/* db - 124, 22.06.2023 */
+update s_app set f_version='124' where f_app='DB'; 
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Customer', 'Հաճախորդ', 'Клиент');
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('List of names', 'Անվանացանկ', 'Список наименований');
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Name', 'Անվանում', 'Наименование');
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Qty', 'Քնկ', 'Кол-во');
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Price', 'Գին', 'Цена');
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Amount', 'Գումար', 'Сумма');
+
+/* db - 125, 22.06.2023 */
+update s_app set f_version='125' where f_app='DB'; 
+create table c_goods_partner (f_id integer primary key auto_increment, f_partner integer, f_goods integer);
+INSERT INTO s_translator (f_en, f_am, f_ru) VALUES ('Accumulate', 'Կուտակում', 'Накопление');
+DELETE FROM s_translator;
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('(F)', '(F)', '(Ֆ)');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Accumulate', 'Накопление', 'Կուտակում');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Amount', 'Сумма', 'Գումար');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Bank transfer', 'Банк. перевод', 'Փոխանցում');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Breakfast', 'Завтрак', 'Նախաճաշ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('City Ledger', 'Должник', 'Դեբիտորական պարտք');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Class', 'Клас', 'Դաս');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Class | Name | Qty | Price | Total', 'Класс | Наименование | Колво | Цена | Итого', 'Դաս | Անվանում | Քանակ | Գին | Ընդամենը');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Complimentary', 'Подарок', 'Հյուրասիրություն');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Customer', 'Клиент', 'Հաճախորդ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Date', 'Дата', 'Ամսաթիվ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Department', 'Отдел', 'Բաժին');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Device number', 'Номер машины', 'Սարքի համար');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Discount', 'Скидка', 'Զեղչ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Fiscal', 'Фискальный номер', 'Ֆիսկալ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Idram', '', NULL);
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('List of names', 'Список наименований', 'Անվանացանկ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Name', 'Наименование', 'Անվանում');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Need to pay', 'К оплате', 'Ենթակա է վճարման');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('No discount', 'Без скидки', 'Զեղչ չկա');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('No service', 'Без обслуживания', 'Սպասարկում չկա');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Pay by IDRAM', 'Оплата  через IDRAM', 'Վճարում IDRAM-ով');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Payment, card', 'Оплата картой', 'Վճարումը անկանխիկ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Payment, cash', 'Оплата наличными', 'Վճարումը առնձերն');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Preorder', 'Заказ', 'Նախնական պատվեր');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Present', 'Угощение', 'Հյուրասիրություն');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Price', 'Цена', 'Գին');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Printed', 'Распечатано', 'Տպված');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Qty', 'Кол-во', 'Քնկ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Receipt #', 'Счёт №', 'Հաշիվ №');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Refund', 'Возврат средств', 'Վերադարձ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Sample', 'Вариант', 'Օրինակ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Serial', 'Серийный номер', 'Սերիալ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Service', 'Обслуживание', 'Սպասարկում');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Service fee included', 'Обслуживание', 'Այդ թվում սպասարկում');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Signature', 'Подпись', 'Ստորագրություն');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Staff', 'Обслужил', 'Սպասարկող');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Table', 'Стол', 'Սեղան');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Tax number', 'Код налог.', 'ՀՎՀՀ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Tax TIN', 'Tax TIN', 'ՀՎՀՀ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Thank For Your Visit', 'Спасибо за визит', 'Շնորհակալություն այցելության համար');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Total', 'Итого', 'Ընդամենը');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Transfer to room', 'Перевести на счёт номера', 'Կցել սենյակի հաշվին');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('ԱՀ', '', 'ԱՀ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Բաժին', 'Отдел', 'Բաժին');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('ԳՀ', '-', 'ԳՀ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('ԿՀ', 'НЧ', 'ԿՀ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Ֆիսկալ', 'Фискальный', 'Ֆիսկալ');
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Receipt number', 'НЧ', 'ԿՀ' );
+INSERT INTO `s_translator` (`f_en`, `f_ru`, `f_am`) VALUES ('Time', 'Ժամ', 'Время');
+ALTER TABLE `s_translator` ADD UNIQUE INDEX `Индекс 1` (`f_en`(100));
+ALTER TABLE `c_goods_partner` ADD INDEX `Индекс 2` (`f_partner`);
+
+
+/* db - 126, 22.06.2023 */
+update s_app set f_version='126' where f_app='DB';
+create table a_header_sr (f_id integer primary key auto_increment, f_rec char(36), f_dish integer, f_goods integer, f_dish_qty decimal(12,3), f_goods_qty decimal(12,3));
+alter table a_header_sr add column f_date date after f_id;
+alter table a_header_sr add column f_store int after f_date;
+
+/* db - 127, 22.06.2023 */
+update s_app set f_version='127' where f_app='DB';
+create table e_cash_suggest(f_id integer primary key auto_increment, f_name tinytext);
+alter table c_goods add column f_nospecial_price integer;
+
+/* db - 128, 04.07.2023 */
+update s_app set f_version='128' where f_app='DB';
+alter table h_tables add column f_hourly integer;
+alter table a_header add column f_sessionid char(36);
+
+/* db - 129, 08.07.2023 */
+update s_app set f_version='129' where f_app='DB';
+alter table c_goods add column f_qtybox decimal;
+create table a_store_valid (f_id char(36) primary key, f_date date);
+alter table a_store_valid add column f_document char(36) after f_id;
+ALTER TABLE `a_store_valid` ADD INDEX `idx_valid_doc` (`f_document`);
+update c_goods set f_qtybox=1;
+
+
+/* db - 130, 05.09.2023 */
+update s_app set f_version='130' where f_app='DB';
+ALTER TABLE o_header ADD COLUMN f_taxpayertin TINYTEXT;
+create table mf_process_details (f_id integer primary key auto_increment, f_process integer, f_color tinytext, f_36 integer, f_38 integer, f_40 integer, f_42 integer, f_44 integer, f_46 integer);
+alter table mf_process_details add column f_48 integer, add column f_50 integer, add column f_52 integer, add column f_36p integer, add column f_38p integer, add column f_40p integer, add column f_42p integer, add column f_44p integer, add column f_46p integer, add column f_48p integer, add column f_50p integer, add column f_52p integer;
+alter table mf_process_details add column f_product integer after f_id;
+alter table mf_process_details rename column f_product to f_task;
+create table mf_process_details_done (f_id integer primary key auto_increment, f_taskid integer, f_processid integer, f_36d integer,f_38d integer, f_40d integer, f_42d integer, f_44d integer, f_46d integer,  f_48d integer,  f_50d integer,  f_52d integer);
+alter table mf_process_details_done add column f_color tinytext after f_processid;
+alter table mf_process_details add column f_34 integer after f_color, add column f_34p integer after f_52;
+alter table mf_process_details_done add column f_34d integer after f_color;
+
+/* db - 131, 05.09.2023 */
+update s_app set f_version='131' where f_app='DB';
+alter table mf_process_details drop column f_34,drop column f_36,drop column f_38,drop column f_40,drop column f_42,drop column f_44,drop column f_46,drop column f_48,drop column f_50,drop column f_52;
+alter table c_goods_option add f_lastvaliddate date;
+insert into c_goods_option (f_id) select f_id from c_goods where f_id not in (select f_id from c_goods_option);
+
+/* db - 132, 05.09.2023 */wesasfdsdf
+update s_app set f_version='132' where f_app='DB';
+alter table o_body add column  f_emarks tinytext;
+alter table o_goods add column f_emarks tinytext;
+
+/*db - 133, 09.10.2023*/
+update s_app set f_version='133' where f_app='DB';
+ALTER TABLE `c_groups` CHANGE COLUMN `f_name` `f_name` TINYTEXT NULL COLLATE 'utf8mb3_general_ci' AFTER `f_id`;
+create table c_goods_model (f_id integer primary key auto_increment, f_name tinytext);
+alter table c_goods add column f_model integer after f_group;
+
+/*db - 134, 09.10.2023*/
+update s_app set f_version='134' where f_app='DB';
+alter table mf_tasks add column f_responsible int after f_workshop;
+
+/*db - 135, 20.10.2023*/
+update s_app set f_version='135' where f_app='DB';
+alter table o_Header add column f_amountcredit decimal after f_amountbank;
+
+/*db - 136, 24.10.2023*/
+update s_app set f_version='136' where f_app='DB';
+create table remotedb_sql (f_id integer primary key auto_increment, f_name tinytext, f_sql text);
+ALTER TABLE `s_login_session` CHANGE COLUMN `f_session` `f_session` CHAR(36) NULL DEFAULT NULL AFTER `f_id`;
+alter table s_salary_inout change column f_id f_id char(36);
+UPDATE s_salary_inout SET f_id=UUID();
+alter table s_salary_inout add column f_hall integer;
+insert into o_draft_sale_state (f_id, f_name) values (6, 'Գրանցված հետվերադարձ');
+
+/*db - 137, 24.10.2023*/
+update s_app set f_version='137' where f_app='DB';
+alter table o_preorder add column f_guest INT, ADD column f_comment tinytext, add column f_feedback tinytext;
+alter table remotedb_sql add column f_type int after f_id;
+
+/*db - 138, 24.10.2023*/
+update s_app set f_version='138' where f_app='DB';
+CREATE TABLE d_dish_set (f_id INTEGER PRIMARY KEY AUTO_INCREMENT, f_dish INTEGER, f_part INTEGER, f_qty DECIMAL(12,2));
+alter table d_part2 add column f_qr tinyint;
+alter table a_header_cash change column f_session f_session char(36);
+
+/*db - 139, 13.12.2023*/
+update s_app set f_version='139' where f_app='DB';
+ALTER TABLE a_store_reserve ADD COLUMN f_prepaid DECIMAL(12,2), ADD COLUMN f_fiscal int;
+alter table a_store_reserve add column f_prepaidcard decimal(12,2) after f_prepaid;
+
+/*db - 140, 22.12.2023*/
+update s_app set f_version='140' where f_app='DB';
+create table s_images (f_id char(36) primary key, f_data mediumtext);
+alter table d_part2 add f_image char(36) DEFAULT uuid();
+update d_part2 set f_image=uuid();
+alter table d_dish add column f_image char(36);
+update d_dish set f_image=uuid();
+alter table d_dish add column f_cookingtime int;
+update d_dish set f_cookingtime=0;
+create table o_body_process( f_id char(36) primary key, f_append timestamp default null, f_print timestamp default null, f_begin timestamp default null, f_end timestamp default null);
+
+/*db - 141, 03.01.2024*/
+update s_app set f_version='141' where f_app='DB';
+alter table a_header add f_body json;
+drop table a_calc_price;
+drop table s_draft;
+create table a_result (f_id int primary key  auto_increment, f_timestamp timestamp, f_session char(36), f_document char(36), f_result longtext);
+alter table a_result add column f_request longtext after f_document, add column f_done timestamp after f_timestamp, add column f_elapsed timestamp after f_done;
+ALTER TABLE `a_result` ADD INDEX `idx_session` (`f_session`);
+alter table o_tax add column f_json longtext;
+alter table o_tax_log add column f_elapsed int after f_time, add column f_state int;
+alter table a_result drop column f_elapsed, add column f_elapsed int after f_done;
+alter table a_header_store add column f_body longtext;
+ALTER TABLE `a_header_store` ADD INDEX `f_saleuuid_storeout` (`f_saleuuid`, `f_storeout`);
+CREATE TABLE s_notifications (f_id INTEGER PRIMARY KEY AUTO_INCREMENT,  f_created TIMESTAMP, f_delivered TIMESTAMP, f_readed TIMESTAMP, f_message JSON);
+alter table s_notifications add column f_destination varchar(36) after f_readed;

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/server5.sql</file>
+        <file>res/cafe5.sql</file>
+        <file>res/airlog.sql</file>
+    </qresource>
+</RCC>

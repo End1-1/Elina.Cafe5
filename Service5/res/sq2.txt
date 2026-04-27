@@ -1,0 +1,40 @@
+sq_store_check_qty>>
+select sn.f_name as `Պահեստ`, g.f_name as `Ապրանք`, sum(s.f_qty*s.f_type) as `Քանակ`,
+gp.f_price1 as `Մանր․ գին`, gp.f_price2 as `Մեծ․ գին`, g.f_scancode as `Բարկոդ`,  g.f_id
+from a_store s 
+left join c_goods g on g.f_id=s.f_goods 
+left join c_goods_prices gp on gp.f_goods=s.f_goods 
+left join c_storages sn on sn.f_id=s.f_store 
+where s.f_goods=:f_goods and gp.f_currency=:f_currency
+group by 1
+having sum(s.f_qty*s.f_type) > 0
+
+==========
+sq_data_currency_list>>select f_id, f_name from e_currency order by 1
+
+==========
+sq_data_currency_crossrate_list>> select f_id, f_currency1, f_currency2, f_rate from e_currency_cross_rate
+
+==========
+sq_data_goods_list>> select g.f_id, g.f_group, g.f_name, g.f_scancode from c_goods g  WHERE g.f_enabled=1 order by g.f_name
+
+==========
+sq_data_goods_prices>> SELECT gp.f_goods, gp.f_currency, gp.f_price1, gp.f_price2 FROM c_goods_prices gp
+INNER JOIN c_goods g ON g.f_id=gp.f_goods
+WHERE g.f_enabled=1 and gp.f_currency=1
+
+==========
+sq_data_sales_drafts_headers>> select dr.f_id, dr.f_date as `Ամսաթիվ`, dr.f_time as `Ժամ`, dr.f_amount as `Գումար`
+from o_draft_sale dr
+where dr.f_staff=:f_staff and dr.f_state=1
+
+==========
+sq_data_open_draft_body>>
+select db.f_id, db.f_goods, db.f_qty, db.f_price, g.f_name
+from o_draft_sale_body db
+left join c_goods g on g.f_id=db.f_goods
+where db.f_state=1 and db.f_header=:f_header
+
+==========
+sq_no>>
+select 1

@@ -1,0 +1,66 @@
+#include "logwriter.h"
+#include <QDateTime>
+#include <QDebug>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
+
+int LogWriter::fCurrentLevel = 0;
+
+LogWriter::LogWriter()
+{
+}
+
+void LogWriter::write(const QString &file, const QString &title, const QString &message)
+{
+#ifdef QT_DEBUG
+    qDebug() << QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss ") << title << message.left(1000);
+#else
+
+    if(file == LogWriterLevel::special) {
+        return;
+    }
+
+#endif
+    writeToFile(file, title, message);
+
+    if(file != LogWriterLevel::verbose) {
+        writeToFile(LogWriterLevel::verbose, title, message);
+    }
+}
+
+void LogWriter::writeToFile(const QString &fileName, const QString &title, const QString &message)
+{
+#ifdef Q_OS_WIN
+    QString tempPath = QDir::tempPath();
+#else
+    QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+#endif
+
+    QString fnpath = QString("%1/%2/%3/Logs").arg(tempPath, _APPLICATION_, _MODULE_);
+    QString fn = fnpath + QString("/%4_%5.log").arg(QDate::currentDate().toString("dd_MM_yyyy"), fileName);
+    QDir().mkpath(QDir().absoluteFilePath(fnpath));
+    qDebug() << "Used path" << fn;
+    QFile file(fn);
+
+    if(file.open(QIODevice::Append)) {
+        file.write(QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss ").toUtf8());
+
+        if(!title.isEmpty()) {
+            file.write(title.toUtf8());
+            file.write(" ");
+        }
+
+        file.write(message.toUtf8());
+        file.write("\r\n");
+        file.close();
+    } else {
+        QFile fallback("C:/Windows/Temp/breeze_log_error.txt");
+        if (fallback.open(QIODevice::Append)) {
+            fallback.write("LOG OPEN FAILED: ");
+            fallback.write(fn.toUtf8());
+            fallback.write("\r\n");
+            fallback.close();
+        }
+    }
+}

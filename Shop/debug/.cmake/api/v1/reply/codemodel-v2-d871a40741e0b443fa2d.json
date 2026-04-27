@@ -1,0 +1,167 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				},
+				{
+					"build" : "qxlsx_build",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-qxlsx_build-Release-39c391e247b571298afd.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "C:/Development/projects/qxlsx",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Shop_net",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "QXlsx",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "QXlsx::@4f9d4386469b7d8378e6",
+					"jsonFile" : "target-QXlsx-Release-c8df2ed692a5d4bac133.json",
+					"name" : "QXlsx",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "QXlsx_autogen::@4f9d4386469b7d8378e6",
+					"jsonFile" : "target-QXlsx_autogen-Release-91606bfe3a995bf997f3.json",
+					"name" : "QXlsx_autogen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "QXlsx_autogen_timestamp_deps::@4f9d4386469b7d8378e6",
+					"jsonFile" : "target-QXlsx_autogen_timestamp_deps-Release-d04dce6700b403fa332b.json",
+					"name" : "QXlsx_autogen_timestamp_deps",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Shop_net::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Shop_net-Release-78e89631204e22b5a5b4.json",
+					"name" : "Shop_net",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Shop_net_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Shop_net_autogen-Release-46b588a390eea9ba9776.json",
+					"name" : "Shop_net_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Shop_net_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Shop_net_autogen_timestamp_deps-Release-e127c6f33e1b10d8cf54.json",
+					"name" : "Shop_net_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Shop_net_lrelease::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Shop_net_lrelease-Release-b1d19601eaaf741e26d6.json",
+					"name" : "Shop_net_lrelease",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "release_translations::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-release_translations-Release-5c64009a4116b07588ef.json",
+					"name" : "release_translations",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "version_inc::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-version_inc-Release-403c02303252d990a440.json",
+					"name" : "version_inc",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Development/projects/cafe5.elina/Shop/debug",
+		"source" : "C:/Development/projects/cafe5.elina/Shop"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

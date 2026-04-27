@@ -1,0 +1,22 @@
+{
+	"BUILD_DIR" : "C:/Development/projects/cafe5.elina/Shop/debug/Shop_net_autogen",
+	"CMAKE_BINARY_DIR" : "C:/Development/projects/cafe5.elina/Shop/debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/Development/projects/cafe5.elina/Shop/debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/Development/projects/cafe5.elina/Shop",
+	"CMAKE_SOURCE_DIR" : "C:/Development/projects/cafe5.elina/Shop",
+	"CROSS_CONFIG" : false,
+	"GENERATOR" : "Ninja",
+	"INCLUDE_DIR" : "C:/Development/projects/cafe5.elina/Shop/debug/Shop_net_autogen/include",
+	"INPUTS" : [ "C:/Development/projects/cafe5.elina/Shop/Shop.qm" ],
+	"LOCK_FILE" : "C:/Development/projects/cafe5.elina/Shop/debug/CMakeFiles/Shop_net_autogen.dir/AutoRcc_local_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "local" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_local.cpp",
+	"RCC_EXECUTABLE" : "C:/Development/Qt/6.10.2/msvc2022_64/bin/rcc.exe",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "C:/Development/projects/cafe5.elina/Shop/debug/CMakeFiles/Shop_net_autogen.dir/AutoRcc_local_EWIEGA46WW_Used.txt",
+	"SOURCE" : "C:/Development/projects/cafe5.elina/Shop/local.qrc",
+	"USE_BETTER_GRAPH" : true,
+	"VERBOSITY" : 0
+}

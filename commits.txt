@@ -1,0 +1,68 @@
+15.11.2018
+	1. Correct. Print preview and printing
+	2. New. Sorting data in C5TableModel
+	3. Correct. Print table name on receipt and service. 
+	4. Correct. Print order id on service
+	5. Correct. Order prefix
+	6. New. Correct qty of inventory from T-account, extra.
+	7. New. C5TableWidget.createComboBox.
+	8. Correct. C5FilterValues correct search.
+16.11.2018
+	1. New. Consumption of goods based on sales.
+	2. Upgrade. C5TableWidget, export to excel.
+	3. Correct. C5WaiterServer, error in sql query due opening table.
+17.11.2018
+	1. New. Autofit columns widths.
+18.11.2018
+	1. Upgrade. Correct leading zero from float.
+19.11.2018
+	1. New. C5Grid hot key for select all (Ctrl + Plus).
+	2. Upgrade. CR5Documents. Create draft for selected document and save selected draft documents.
+	3. New. Reason for documents in the store.
+20.11.2018
+	1. New. C5StoreDoc. Added panel with goods list with quantity in the store.
+	2. Upgrade. C5TableWidget. Fit columns to table widget width.
+	3. New. Storehouse rc.file
+22.11.2018
+	1. New. C5Editor. Required field: Field - field name, Type - data type: 0 - QString, 1 - int. Optional: Check, format empty=FieldName.
+23.11.2018
+27.11.2018
+	1. Upgrade. CE5User, CE5UserGroup.
+	2. New. Passed and accepted fields in store doc. Stored in json string.
+	3. Upgrade. alter table a_type add f_counter integer.
+	4. Upgrade. alter table a_header add f_userId nvarchar(32) after f_id.
+28.11.2018
+	1. Upgrade. Save already saved document. Only some fields, not part of store.
+02.12.2018
+	1. Save filters parameters.
+	2. Make the copy document from documents directory.
+	3. Correct store output function. 
+05.12.2018
+	1. Correct. Save the record of the table if "Manual" property is defined for id field.
+	2. Upgrade. Manual id code for goods editor.
+06.12.2018
+	1. Upgrade. New table o_credit_card.
+07.12.2018
+	1. Upgrade. Add dish remove reason. New table o_dish_remove_reason.
+12.12.2018
+	1. Upgrade. Add additional counter for o_header. Each hall have own order counter.
+	2. Upgrade. Add discount system.
+13.12.2018
+	1. Continue. Finished discount system.
+	2. Correct. Remove dish from order.
+14.12.2018
+	1. Upgrade. Add comment for the dish in the order.
+	2. Upgrade. Save and close shortcut binded to Ctrl+S key for C5Editor.
+	3. Upgrade. Double click on row in the C5Grid now can activated with Ctrl + Enter.
+	4. Correct. Retrive correct hall list from server.
+18.12.2018
+	1. New. Waiter report dialog.
+21.12.2018
+	1. New. First report from dinamic library.
+03.07.2019
+	1. Shop: refund option.
+	2. Cash doc.
+	3. First Working configuration
+	
+04.07.2020
+	1. Do not register cash document in write order with partner option. Store document also writed like draft.

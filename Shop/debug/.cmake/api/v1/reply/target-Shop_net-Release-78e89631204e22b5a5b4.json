@@ -1,0 +1,2010 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "Shop_net.exe"
+		},
+		{
+			"path" : "Shop_net.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_directories",
+			"target_link_libraries",
+			"set_target_properties",
+			"include",
+			"find_package",
+			"find_dependency",
+			"_qt_internal_find_qt_dependencies",
+			"add_dependencies",
+			"qt6_add_lrelease",
+			"qt_add_lrelease",
+			"target_compile_options",
+			"target_compile_definitions",
+			"target_include_directories",
+			"target_sources"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6PrintSupport/Qt6PrintSupportTargets.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6PrintSupport/Qt6PrintSupportConfig.cmake",
+			"debug/.qtc/package-manager/maintenance_tool_provider.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Network/Qt6NetworkTargets.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Network/Qt6NetworkConfig.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Gui/Qt6GuiTargets.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Core/Qt6CoreTargets.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Core/Qt6CoreConfig.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6EntryPointPrivate/Qt6EntryPointPrivateTargets.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6EntryPointPrivate/Qt6EntryPointPrivateConfig.cmake",
+			"C:/Development/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeFindDependencyMacro.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake",
+			"C:/Development/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 84,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 129,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 131,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 142,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 20,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 315,
+				"parent" : 5
+			},
+			{
+				"file" : 2,
+				"parent" : 6
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 52,
+				"parent" : 7
+			},
+			{
+				"file" : 1,
+				"parent" : 8
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 61,
+				"parent" : 9
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 315,
+				"parent" : 5
+			},
+			{
+				"file" : 5,
+				"parent" : 11
+			},
+			{
+				"command" : 4,
+				"file" : 5,
+				"line" : 52,
+				"parent" : 12
+			},
+			{
+				"file" : 4,
+				"parent" : 13
+			},
+			{
+				"command" : 3,
+				"file" : 4,
+				"line" : 61,
+				"parent" : 14
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 315,
+				"parent" : 5
+			},
+			{
+				"file" : 7,
+				"parent" : 16
+			},
+			{
+				"command" : 4,
+				"file" : 7,
+				"line" : 52,
+				"parent" : 17
+			},
+			{
+				"file" : 6,
+				"parent" : 18
+			},
+			{
+				"command" : 3,
+				"file" : 6,
+				"line" : 61,
+				"parent" : 19
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 315,
+				"parent" : 5
+			},
+			{
+				"file" : 9,
+				"parent" : 21
+			},
+			{
+				"command" : 4,
+				"file" : 9,
+				"line" : 54,
+				"parent" : 22
+			},
+			{
+				"file" : 8,
+				"parent" : 23
+			},
+			{
+				"command" : 3,
+				"file" : 8,
+				"line" : 61,
+				"parent" : 24
+			},
+			{
+				"command" : 4,
+				"file" : 9,
+				"line" : 42,
+				"parent" : 22
+			},
+			{
+				"file" : 14,
+				"parent" : 26
+			},
+			{
+				"command" : 7,
+				"file" : 14,
+				"line" : 51,
+				"parent" : 27
+			},
+			{
+				"command" : 6,
+				"file" : 13,
+				"line" : 142,
+				"parent" : 28
+			},
+			{
+				"command" : 5,
+				"file" : 12,
+				"line" : 76,
+				"parent" : 29
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 333,
+				"parent" : 30
+			},
+			{
+				"file" : 11,
+				"parent" : 31
+			},
+			{
+				"command" : 4,
+				"file" : 11,
+				"line" : 52,
+				"parent" : 32
+			},
+			{
+				"file" : 10,
+				"parent" : 33
+			},
+			{
+				"command" : 3,
+				"file" : 10,
+				"line" : 61,
+				"parent" : 34
+			},
+			{
+				"command" : 3,
+				"file" : 10,
+				"line" : 87,
+				"parent" : 34
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 151,
+				"parent" : 0
+			},
+			{
+				"command" : 10,
+				"file" : 0,
+				"line" : 160,
+				"parent" : 0
+			},
+			{
+				"command" : 9,
+				"file" : 15,
+				"line" : 983,
+				"parent" : 38
+			},
+			{
+				"command" : 8,
+				"file" : 15,
+				"line" : 629,
+				"parent" : 39
+			},
+			{
+				"command" : 11,
+				"file" : 0,
+				"line" : 123,
+				"parent" : 0
+			},
+			{
+				"command" : 12,
+				"file" : 0,
+				"line" : 115,
+				"parent" : 0
+			},
+			{
+				"command" : 13,
+				"file" : 0,
+				"line" : 104,
+				"parent" : 0
+			},
+			{
+				"command" : 14,
+				"file" : 0,
+				"line" : 165,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /O2 /Ob2 /DNDEBUG -std:c++17 -MD"
+				},
+				{
+					"backtrace" : 41,
+					"fragment" : "/wd4834"
+				},
+				{
+					"backtrace" : 41,
+					"fragment" : "/utf-8"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-Zc:__cplusplus"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-permissive-"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-utf-8"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 42,
+					"define" : "BORDERLESSDIALOGS"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "NETWORKDB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "NOMINMAX"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_CORE_LIB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "QT_DEPRECATED_WARNINGS"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_GUI_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_MULTIMEDIA_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_NETWORK_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_NO_DEBUG"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PDFWIDGETS_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PDF_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PRINTSUPPORT_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_SQL_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_WEBSOCKETS_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_WIDGETS_LIB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "SHOP"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "UNICODE"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "WIN32"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "WIN64"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_APPLICATION_=\"Shop\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_CRYPT_KEY_=\"shop2022!!!\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_DBDRIVER_=\"QMARIADB\""
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_ENABLE_EXTENDED_ALIGNED_STORAGE"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_MART008_"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_MODULE_=\"Shop\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_ORGANIZATION_=\"BreezeDevs\""
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_UNICODE"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_WIN64"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/debug/Shop_net_autogen/include"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/."
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Cafe5"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../DBData"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../TableRecord"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../NTable"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Classes"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Cache"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Configs"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Controls"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../DbData"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Forms"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Service"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Service5/worker"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../StructModel"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Printing"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../RESOURCES"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/desktop.newtax/Src"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/OpenSSL-Win64/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Development/projects/qxlsx/header"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/mkspecs/win32-msvc"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtWidgets"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPrintSupport"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtNetwork"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtSql"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtMultimedia"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtWebSockets"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPdf"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPdfWidgets"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui/6.10.2"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui/6.10.2/QtGui"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore/6.10.2"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore/6.10.2/QtCore"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					3,
+					3,
+					4
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				14,
+				17,
+				87,
+				106,
+				131,
+				132
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-DWIN32"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 42,
+					"define" : "BORDERLESSDIALOGS"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "NETWORKDB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "NOMINMAX"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_CORE_LIB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "QT_DEPRECATED_WARNINGS"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_GUI_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_MULTIMEDIA_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_NETWORK_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_NO_DEBUG"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PDFWIDGETS_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PDF_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_PRINTSUPPORT_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_SQL_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_WEBSOCKETS_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_WIDGETS_LIB"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "SHOP"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "UNICODE"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "WIN32"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "WIN64"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_APPLICATION_=\"Shop\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_CRYPT_KEY_=\"shop2022!!!\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_DBDRIVER_=\"QMARIADB\""
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_ENABLE_EXTENDED_ALIGNED_STORAGE"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_MART008_"
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_MODULE_=\"Shop\""
+				},
+				{
+					"backtrace" : 42,
+					"define" : "_ORGANIZATION_=\"BreezeDevs\""
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_UNICODE"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "_WIN64"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/debug/Shop_net_autogen/include"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/."
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Cafe5"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../DBData"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../TableRecord"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../NTable"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Classes"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Cache"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Configs"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Controls"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../DbData"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Forms"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Service"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Service5/worker"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../StructModel"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../Printing"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/cafe5.elina/Shop/../RESOURCES"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/projects/desktop.newtax/Src"
+				},
+				{
+					"backtrace" : 43,
+					"path" : "C:/Development/OpenSSL-Win64/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Development/projects/qxlsx/header"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/mkspecs/win32-msvc"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtWidgets"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPrintSupport"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtNetwork"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtSql"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtMultimedia"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtWebSockets"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPdf"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtPdfWidgets"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui/6.10.2"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtGui/6.10.2/QtGui"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore/6.10.2"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Development/Qt/6.10.2/msvc2022_64/include/QtCore/6.10.2/QtCore"
+				}
+			],
+			"language" : "RC",
+			"sourceIndexes" : 
+			[
+				127
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 37,
+			"id" : "version_inc::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 40,
+			"id" : "Shop_net_lrelease::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "Shop_net_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "QXlsx::@4f9d4386469b7d8378e6"
+		},
+		{
+			"backtrace" : 0,
+			"id" : "Shop_net_autogen::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "Shop_net::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /O2 /Ob2 /DNDEBUG -MD",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /INCREMENTAL:NO /subsystem:windows",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LIBPATH:C:\\Development\\OpenSSL-Win64\\lib\\VC\\x64\\MD",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6PrintSupport.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Sql.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Multimedia.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6WebSockets.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6PdfWidgets.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "Version.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "Ws2_32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "libssl.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "libcrypto.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "Gdi32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "User32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "qxlsx_build\\QXlsxQt6.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
+				"fragment" : "comdlg32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
+				"fragment" : "winspool.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Widgets.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Pdf.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Network.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 15,
+				"fragment" : "ws2_32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Gui.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "d3d11.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "dxgi.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "dxguid.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "d3d12.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6Core.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 25,
+				"fragment" : "mpr.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 25,
+				"fragment" : "userenv.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "C:\\Development\\Qt\\6.10.2\\msvc2022_64\\lib\\Qt6EntryPoint.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 36,
+				"fragment" : "shell32.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "Shop_net",
+	"nameOnDisk" : "Shop_net.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68,
+				69,
+				70,
+				71,
+				72,
+				73,
+				74,
+				75,
+				76,
+				77,
+				78,
+				79,
+				80,
+				81,
+				82,
+				83,
+				84,
+				85,
+				86,
+				87,
+				88,
+				89,
+				90,
+				91,
+				92,
+				93,
+				94,
+				95,
+				96,
+				97,
+				98,
+				99,
+				100,
+				101,
+				102,
+				103,
+				104,
+				105,
+				106,
+				107,
+				108,
+				109,
+				110,
+				111,
+				112,
+				113,
+				114,
+				115,
+				116,
+				117,
+				120,
+				124,
+				127,
+				131,
+				132
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				118,
+				121,
+				122,
+				123,
+				129
+			]
+		},
+		{
+			"name" : "Forms",
+			"sourceIndexes" : 
+			[
+				119
+			]
+		},
+		{
+			"name" : "Resources",
+			"sourceIndexes" : 
+			[
+				125,
+				126
+			]
+		},
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				128,
+				130
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				133,
+				134,
+				135,
+				136
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_6_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_5_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_4_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_3_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_2_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_1_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "debug/CMakeFiles/Shop_net.dir/Unity/unity_0_cxx.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/mocs_compilation.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5double.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5systempreference.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/calendar.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5config.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5database.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5message.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5utils.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Cafe5/c5dialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/QProgressIndicator.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/QRCodeGenerator.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/appwebsocket.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5combodelegate.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5datedelegate.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5jsondb.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5logtoserverthread.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5menu.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5permissions.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5printing.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5printjson.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5printrecipta4.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5random.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5replacecharacter.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5reporttemplatedriver.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5servername.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5shoporder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5storedraftwriter.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5tablemodel.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5tablerec.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5tableview.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5textdelegate.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5threadobject.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5user.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5widget.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5witerconf.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/calculator.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/fileversion.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/idram.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/logwriter.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/notificationwidget.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/outputofheader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/proxytablewidgetdatabase.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Classes/c5cache.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Configs/breezeconfig.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Configs/configs.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5graphicsview.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5guicontrols.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5lineedit.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5combobox.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5dateedit.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5checkbox.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Controls/c5cleartablewidget.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/datadriver.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbdata.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbgoods.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbgoodsgroup.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbstore.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbstoredoctype.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/DbData/dbunit.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Forms/c5connectiondialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Forms/dlgreservgoods.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Forms/dlgsplashscreen.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Forms/previewdialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/NTable/ndataprovider.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/NTable/ninterface.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/NTable/nloadingdlg.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Printing/selectprinters.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/StructModel/c5structtableview.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/aheader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/bclientdebts.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/bhistory.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/c5dbrecord.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/cpartners.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/ecash.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/odraftsale.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/ogoods.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/oheader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/TableRecord/otax.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Service5/worker/struct_workstationitem.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/Service5/worker/struct_fiscal_machine.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "C:/Development/projects/desktop.newtax/Src/printtaxn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "c5shopdialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "c5tempsale.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "cashcollection.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgcashout.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgdate.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlggetidname.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlggetvalue.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlggiftcardsale.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlggoodslist.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgmovement.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgpin.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgregistercard.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgreturnitem.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgshopcustomer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgshowcolumns.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dqty.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "goodsreturnreason.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "sales.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "searchitems.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "selectstaff.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "storeinput.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "threadworker.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "userphoto.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "viewinputitem.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "vieworder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "wcustomerdisplay.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "working.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "worder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgpaymentchoose.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgpaymentchoose.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "dlgpaymentchoose.ui",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "printreceiptgroup.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "printreceiptgroup.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "version.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "printreceipt.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "printreceipt.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "C:/Development/projects/cafe5.elina/resources/res.qrc",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"path" : "local.qrc",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "res.rc",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 44,
+			"isGenerated" : true,
+			"path" : "debug/Shop.qm",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/include/ui_dlgpaymentchoose.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/timestamp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/JDPCI7QWO6/qrc_res.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/EWIEGA46WW/qrc_local.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop.qm.rule",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/timestamp.rule",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/JDPCI7QWO6/qrc_res.cpp.rule",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "debug/Shop_net_autogen/EWIEGA46WW/qrc_local.cpp.rule",
+			"sourceGroupIndex" : 5
+		}
+	],
+	"type" : "EXECUTABLE"
+}

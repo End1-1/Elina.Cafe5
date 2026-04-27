@@ -1,0 +1,102 @@
+#ifndef RKEYBOARD_H
+#define RKEYBOARD_H
+
+#include <QWidget>
+#include <QList>
+#include <QToolButton>
+
+namespace Ui
+{
+class RKeyboard;
+}
+
+class RKeyboard : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit RKeyboard(QWidget *parent = nullptr);
+
+    ~RKeyboard();
+
+    void setText(const QString &text);
+
+    QString text() const;
+
+    virtual bool eventFilter(QObject *o, QEvent *e) override;
+
+private slots:
+    void btnTextClicked();
+
+    void on_btnSpace_clicked();
+
+    void on_btnBackspace_clicked();
+
+    void on_btnCaps_clicked();
+
+    void on_btnLShift_clicked();
+
+    void on_btnCancel_clicked();
+
+    void on_btnOk_clicked();
+
+    void on_btnRShift_clicked();
+
+    void on_btnEn_clicked();
+
+    void on_btnAm_clicked();
+
+    void on_btnRu_clicked();
+
+    void on_btnClear_clicked();
+
+    void on_leResult_textEdited(const QString &arg1);
+
+signals:
+    void textChanged(const QString &text);
+
+    void accept();
+
+    void reject();
+
+private:
+    Ui::RKeyboard* ui;
+
+    QString fText;
+
+    bool fShiftOn;
+
+    bool fCapsOn;
+
+    QString fCurrentLanguage;
+
+    QList<QToolButton*> fLine1b;
+
+    QList<QToolButton*> fLine2b;
+
+    QList<QToolButton*> fLine3b;
+
+    QList<QToolButton*> fLine4b;
+
+    void connectButtons(QList<QToolButton*>& buttons);
+
+    void setButtonsText(QList<QToolButton*>& buttons, const QString &text);
+
+    void setupEnglish();
+
+    void setupEnglishCaps();
+
+    void setupRussia();
+
+    void setupRussiaCaps();
+
+    void setupArmenian();
+
+    void setupArmenianCaps();
+
+    void setupKbd();
+
+    static int mKbdLang;
+};
+
+#endif // RKEYBOARD_H

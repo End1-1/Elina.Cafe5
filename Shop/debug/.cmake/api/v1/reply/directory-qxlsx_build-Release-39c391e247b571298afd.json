@@ -1,0 +1,125 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"C:/Development/projects/qxlsx/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 194,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 201,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 216,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "devel",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"qxlsx_build/QXlsxQt6.lib"
+			],
+			"targetId" : "QXlsx::@4f9d4386469b7d8378e6",
+			"targetIndex" : 0,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "devel",
+			"destination" : "include/QXlsxQt6",
+			"paths" : 
+			[
+				"C:/Development/projects/qxlsx/header/xlsxabstractooxmlfile.h",
+				"C:/Development/projects/qxlsx/header/xlsxabstractsheet.h",
+				"C:/Development/projects/qxlsx/header/xlsxabstractsheet_p.h",
+				"C:/Development/projects/qxlsx/header/xlsxcellformula.h",
+				"C:/Development/projects/qxlsx/header/xlsxcell.h",
+				"C:/Development/projects/qxlsx/header/xlsxcelllocation.h",
+				"C:/Development/projects/qxlsx/header/xlsxcellrange.h",
+				"C:/Development/projects/qxlsx/header/xlsxcellreference.h",
+				"C:/Development/projects/qxlsx/header/xlsxchart.h",
+				"C:/Development/projects/qxlsx/header/xlsxchartsheet.h",
+				"C:/Development/projects/qxlsx/header/xlsxconditionalformatting.h",
+				"C:/Development/projects/qxlsx/header/xlsxdatavalidation.h",
+				"C:/Development/projects/qxlsx/header/xlsxdatetype.h",
+				"C:/Development/projects/qxlsx/header/xlsxdocument.h",
+				"C:/Development/projects/qxlsx/header/xlsxformat.h",
+				"C:/Development/projects/qxlsx/header/xlsxglobal.h",
+				"C:/Development/projects/qxlsx/header/xlsxrichstring.h",
+				"C:/Development/projects/qxlsx/header/xlsxworkbook.h",
+				"C:/Development/projects/qxlsx/header/xlsxworksheet.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"cxxModuleBmiTarget" : 
+			{
+				"id" : "QXlsx::@4f9d4386469b7d8378e6",
+				"index" : 0
+			},
+			"destination" : "lib",
+			"type" : "cxxModuleBmi"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "devel",
+			"destination" : "lib/cmake/QXlsxQt6",
+			"exportName" : "QXlsxQt6Targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "QXlsx::@4f9d4386469b7d8378e6",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"qxlsx_build/CMakeFiles/Export/5e1a71f991ec0867fe453527b0963803/QXlsxQt6Targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/QXlsxQt6",
+			"paths" : 
+			[
+				"debug/qxlsx_build/QXlsxQt6Config.cmake",
+				"debug/qxlsx_build/QXlsxQt6ConfigVersion.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "qxlsx_build",
+		"source" : "C:/Development/projects/qxlsx"
+	}
+}
