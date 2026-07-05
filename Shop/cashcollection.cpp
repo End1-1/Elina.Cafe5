@@ -86,21 +86,6 @@ void CashCollection::responseOfCreate(const QJsonObject &jdoc)
     Q_UNUSED(jdoc);
     fHttp->httpQueryFinished(sender());
     collectCash();
-    fHttp->createHttpQuery("/engine/cashdesk/create.php",
-    QJsonObject {
-        {"date", QDate::currentDate().toString(FORMAT_DATE_TO_STR_MYSQL)},
-        {"operator", mUser->id() },
-        {"cashin", fCoinCashId},
-        {"cashout", 0},
-        {"remarks", tr("Amount coin")},
-        {"amount", ui->leAmountCoin->text()}
-    }, SLOT(responseOfCreateIn(QJsonObject)));
-}
-
-void CashCollection::responseOfCreateIn(const QJsonObject &jdoc)
-{
-    Q_UNUSED(jdoc);
-    fHttp->httpQueryFinished(sender());
 }
 
 void CashCollection::collectCash()

@@ -14,7 +14,7 @@ BEGIN
         END;
 
 
-#27/02/2026 12:48
+#22/06/2026 12:48
     SELECT CURRENT_TIMESTAMP() INTO @t1;
     SELECT JSON_EXTRACT(params, '$.header') INTO @jh;
     SELECT JSON_EXTRACT(params, '$.draft') INTO @jd;
@@ -34,6 +34,31 @@ BEGIN
     FROM s_settings_values sv
     WHERE sv.f_key = 35
       AND f_settings = (SELECT f_settings FROM h_halls WHERE f_id = JSON_VALUE(@jh, '$.f_hall') LIMIT 1);
+
+    SET @amountcash_chk = COALESCE(JSON_VALUE(@jh, '$.f_amountcash'), 0);
+    SET @amountcard_chk = COALESCE(JSON_VALUE(@jh, '$.f_amountcard'), 0)
+        + COALESCE(JSON_VALUE(@jh, '$.f_amountidram'), 0)
+        + COALESCE(JSON_VALUE(@jh, '$.f_amounttelcell'), 0);
+
+    IF (@amountcash_chk > 0 AND COALESCE(NULLIF(TRIM(@cashid), ''), '') = '') THEN
+        SET @result = JSON_OBJECT('status', 0,
+                                  'message', 'Կանխիկ դրամարկղը նշված չէ (կարգավորում 32)');
+        SELECT CURRENT_TIMESTAMP() INTO @t2;
+        INSERT INTO a_result (f_session, f_timestamp, f_done, f_elapsed, f_request, f_result)
+        VALUES (JSON_VALUE(params, '$.session'), @t1, @t2, TIMESTAMPDIFF(SECOND, @t1, @t2), params,
+                JSON_OBJECT('status', 0, 'message', JSON_VALUE(@result, '$.message')));
+        LEAVE sp;
+    END IF;
+
+    IF (@amountcard_chk > 0 AND COALESCE(NULLIF(TRIM(@nocashid), ''), '') = '') THEN
+        SET @result = JSON_OBJECT('status', 0,
+                                  'message', 'Անկանխիկ դրամարկղը նշված չէ (կարգավորում 35)');
+        SELECT CURRENT_TIMESTAMP() INTO @t2;
+        INSERT INTO a_result (f_session, f_timestamp, f_done, f_elapsed, f_request, f_result)
+        VALUES (JSON_VALUE(params, '$.session'), @t1, @t2, TIMESTAMPDIFF(SECOND, @t1, @t2), params,
+                JSON_OBJECT('status', 0, 'message', JSON_VALUE(@result, '$.message')));
+        LEAVE sp;
+    END IF;
 
     START TRANSACTION;
 
@@ -63,6 +88,11 @@ BEGIN
         UPDATE h_halls SET f_counter=@counter WHERE f_id = JSON_VALUE(@jh, '$.f_hall');
         SET @jh = JSON_SET(@jh, '$.f_hallid', @counter);
         SET @jh = JSON_SET(@jh, '$.f_prefix', @prefix);
+        SET @result = JSON_SET(@result, '$.f_hallid', @counter);
+        SET @result = JSON_SET(@result, '$.f_prefix', @prefix);
+    ELSE
+        SET @counter = JSON_VALUE(@jh, '$.f_hallid');
+        SET @prefix = JSON_VALUE(@jh, '$.f_prefix');
         SET @result = JSON_SET(@result, '$.f_hallid', @counter);
         SET @result = JSON_SET(@result, '$.f_prefix', @prefix);
     END IF;
@@ -143,7 +173,8 @@ BEGIN
         DO
             SELECT JSON_EXTRACT(@jg, CONCAT('$[', @i, ']')) INTO @g;
             SET @store = JSON_VALUE(@g, '$.f_store');
-            IF (JSON_VALUE(@g, '$.f_isservice') = 0) THEN
+            IF (JSON_VALUE(@g, '$.f_isservice') = 0
+                AND CAST(COALESCE(JSON_VALUE(@g, '$.f_store'), 0) AS SIGNED) > 0) THEN
                 SET @needstore = 1;
             END IF;
             INSERT INTO `o_goods` (`f_id`, `f_header`, `f_body`, `f_store`, `f_goods`, `f_qty`,
@@ -378,10 +409,13 @@ BEGIN
 
 
     SELECT CURRENT_TIMESTAMP() INTO @t2;
+    SET @result = JSON_OBJECT(
+            'status', CAST(COALESCE(JSON_VALUE(@result, '$.status'), '1') AS UNSIGNED),
+            'message', COALESCE(JSON_VALUE(@result, '$.message'), ''),
+            'f_hallid', @counter,
+            'f_prefix', @prefix);
     INSERT INTO a_result (f_session, f_timestamp, f_done, f_elapsed, f_request, f_result)
-    VALUES (JSON_VALUE(params, '$.session'), @t1, @t2, TIMESTAMPDIFF(SECOND, @t1, @t2), params,
-            JSON_OBJECT('status', CAST(JSON_VALUE(@result, '$.status') AS unsigned), 'message',
-                        JSON_VALUE(@result, '$.message')));
+    VALUES (JSON_VALUE(params, '$.session'), @t1, @t2, TIMESTAMPDIFF(SECOND, @t1, @t2), params, @result);
 
 
 END$$

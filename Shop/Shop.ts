@@ -8588,6 +8588,11 @@ MS Excel</translation>
     </message>
     <message>
         <location filename="sales.ui" line="425"/>
+        <source>ONLINE ORDER</source>
+        <translation>ԱՌՑԱՆՑ ՊԱՏՎԵՐ</translation>
+    </message>
+    <message>
+        <location filename="sales.ui" line="442"/>
         <source>Change Date</source>
         <oldsource>Item change</oldsource>
         <translation>Փոխել ամսաթիվը</translation>
@@ -8743,6 +8748,46 @@ MS Excel</translation>
         <location filename="sales.cpp" line="575"/>
         <source>Nothing was selected</source>
         <translation>Ոչինչ չի ընտրվել</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="592"/>
+        <source>Receipt number</source>
+        <translation>Չեկի համարը</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="600"/>
+        <source>This is not an online sale</source>
+        <translation>Սա առցանց վաճառք չէ</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="613"/>
+        <source>Order not found</source>
+        <translation>Պատվերը չի գտնվել</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="728"/>
+        <source>Tax department is not set</source>
+        <translation>Հարկային վարչություն չի ստեղծվել</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="762"/>
+        <source>Printing fiscal check</source>
+        <translation>Ֆիսկալ չեկի տպագրություն</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="828"/>
+        <source>Connection with fiscal machine lost</source>
+        <translation>Ֆիսկալ մեքենայի հետ կապը կորել է</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="831"/>
+        <source>Try again</source>
+        <translation>Նորից փորձեք</translation>
+    </message>
+    <message>
+        <location filename="sales.cpp" line="831"/>
+        <source>Do not print fiscal</source>
+        <translation>Վերադառնալ խմբագրմանը</translation>
     </message>
 </context>
 <context>

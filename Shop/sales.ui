@@ -414,6 +414,23 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btnOnlineOrderFiscal">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>ONLINE ORDER</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/res.qrc">
+            <normaloff>:/bill.png</normaloff>:/bill.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="btnChangeDate">
           <property name="minimumSize">
            <size>

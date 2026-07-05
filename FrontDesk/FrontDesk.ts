@@ -3501,7 +3501,12 @@
         <translation>Ապրանքների խմբեր</translation>
     </message>
     <message>
-        <location filename="../Forms/c5mainwindow.cpp" line="1143"/>
+        <location filename="../Forms/c5mainwindow.cpp" line="1147"/>
+        <source>Goods marks</source>
+        <translation>Ապրանքների նշաններ</translation>
+    </message>
+    <message>
+        <location filename="../Forms/c5mainwindow.cpp" line="1152"/>
         <source>Group discount</source>
         <translation>Խմբային զեղչ</translation>
     </message>
@@ -9805,6 +9810,7 @@ MS Excel</translation>
     </message>
     <message>
         <location filename="../Editors/ce5goodsgroup.ui" line="83"/>
+        <location filename="../Editors/ce5goodsgroup.ui" line="85"/>
         <source>0</source>
         <translation></translation>
     </message>
@@ -9837,6 +9843,49 @@ MS Excel</translation>
         <location filename="../Editors/ce5goodsgroup.cpp" line="23"/>
         <source>Background color</source>
         <translation>Գույն</translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsgroup.ui" line="66"/>
+        <source>Mark</source>
+        <translation>Նշում</translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsgroup.ui" line="79"/>
+        <source>f_mark</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>CE5GoodsMark</name>
+    <message>
+        <location filename="../Editors/ce5goodsmark.ui" line="14"/>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsmark.ui" line="20"/>
+        <source>Code</source>
+        <translation>Համար</translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsmark.ui" line="30"/>
+        <source>f_id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsmark.ui" line="40"/>
+        <source>Name</source>
+        <translation>Անվանում</translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsmark.ui" line="47"/>
+        <source>f_name</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../Editors/ce5goodsmark.cpp" line="18"/>
+        <source>Goods mark</source>
+        <translation>Ապրանքի նշան</translation>
     </message>
 </context>
 <context>
@@ -13805,6 +13854,11 @@ output</source>
         <translation>Խումբ</translation>
     </message>
     <message>
+        <location filename="../Reports/cr5goods.cpp" line="126"/>
+        <source>Mark</source>
+        <translation>Նշում</translation>
+    </message>
+    <message>
         <location filename="../Reports/cr5goods.cpp" line="124"/>
         <source>Unit</source>
         <translation>ՉՄ</translation>
@@ -14084,9 +14138,19 @@ barcode</source>
         <translation>Ոչ</translation>
     </message>
     <message>
-        <location filename="../Reports/cr5goodsfilter.ui" line="33"/>
+        <location filename="../Reports/cr5goodsfilter.ui" line="63"/>
         <source>Active</source>
         <translation>Ակտիվ է</translation>
+    </message>
+    <message>
+        <location filename="../Reports/cr5goodsfilter.ui" line="33"/>
+        <source>Mark</source>
+        <translation>Նշում</translation>
+    </message>
+    <message>
+        <location filename="../Reports/cr5goodsfilter.ui" line="46"/>
+        <source>mark</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -14120,6 +14184,11 @@ barcode</source>
         <location filename="../Reports/cr5goodsgroup.cpp" line="20"/>
         <source>Tax dept</source>
         <translation>ՀԴՄ-ի բաժին</translation>
+    </message>
+    <message>
+        <location filename="../Reports/cr5goodsgroup.cpp" line="22"/>
+        <source>Mark</source>
+        <translation>Նշում</translation>
     </message>
     <message>
         <location filename="../Reports/cr5goodsgroup.cpp" line="21"/>
@@ -14794,6 +14863,24 @@ barcode</source>
         <location filename="../Reports/cr5goodsstorages.cpp" line="17"/>
         <source>Partner</source>
         <translation>Գործընկեր</translation>
+    </message>
+</context>
+<context>
+    <name>CR5GoodsMark</name>
+    <message>
+        <location filename="../Reports/cr5goodsmark.cpp" line="8"/>
+        <source>Goods marks</source>
+        <translation>Ապրանքների նշաններ</translation>
+    </message>
+    <message>
+        <location filename="../Reports/cr5goodsmark.cpp" line="10"/>
+        <source>Code</source>
+        <translation>Համար</translation>
+    </message>
+    <message>
+        <location filename="../Reports/cr5goodsmark.cpp" line="11"/>
+        <source>Name</source>
+        <translation>Անվանում</translation>
     </message>
 </context>
 <context>

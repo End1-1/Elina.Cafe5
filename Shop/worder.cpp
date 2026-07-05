@@ -1,3 +1,4 @@
+#include <QJsonDocument>
 #include "worder.h"
 #include <QDir>
 #include <QFile>
@@ -183,16 +184,6 @@ void WOrder::writeOrder(std::function<void()> nextStep)
 
     if (fOGoods.count() == 0) {
         C5Message::error(tr("Empty order"));
-        return;
-    }
-
-    if (__c5config.cashId() == 0) {
-        C5Message::error(tr("Cashdesk for cash not defined"));
-        return;
-    }
-
-    if (__c5config.nocashId() == 0) {
-        C5Message::error(tr("Cashdesk for card not defined"));
         return;
     }
 
@@ -1049,6 +1040,40 @@ void WOrder::openDraftResponse(const QJsonObject &jdoc)
     QJsonObject js = jdoc["ds"].toObject();
     fDraftSale.saleType = js["f_saletype"].toInt();
     fDraftSale.id = js["f_id"].toString();
+    const QJsonObject draftData = QJsonDocument::fromJson(js.value("f_data").toString().toUtf8()).object();
+
+    if (js["f_hall"].toInt() > 0) {
+        fOHeader.hall = js["f_hall"].toInt();
+    } else if (draftData.value("f_hall").toInt() > 0) {
+        fOHeader.hall = draftData.value("f_hall").toInt();
+    }
+
+    const QString prefix = draftData.value("f_prefix").toString();
+    const int hallNumber = draftData.value("f_hallid").toInt();
+    if (!prefix.isEmpty() && hallNumber > 0) {
+        fOHeader.prefix = prefix;
+        fOHeader.hallId = hallNumber;
+    }
+
+    if (!js["f_comment"].toString().isEmpty()) {
+        ui->leComment->setText(js["f_comment"].toString());
+    }
+
+    if (js["f_partner"].toInt() > 0) {
+        C5Database db;
+        db[":f_id"] = js["f_partner"].toInt();
+        db.exec("select f_id, f_taxcode, f_name, f_taxname, f_phone from c_partners where f_id=:f_id");
+        if (db.nextRow()) {
+            PartnerItem pi;
+            pi.id = db.getInt("f_id");
+            pi.tin = db.getString("f_taxcode");
+            pi.contactName = db.getString("f_name");
+            pi.taxName = db.getString("f_taxname");
+            pi.phone = db.getString("f_phone");
+            setPartner(pi);
+        }
+    }
+
     QJsonArray ja = jdoc["goods"].toArray();
     ui->tblData->setRowCount(0);
     fOGoods.clear();
@@ -1069,7 +1094,8 @@ void WOrder::openDraftResponse(const QJsonObject &jdoc)
         og.isService = g.isService();
         og.qty = jo["f_qty"].toDouble();
         og.price = fOHeader.saleType == SALE_RETAIL ? jo["f_price1"].toDouble() : jo["f_price2"].toDouble();
-        og.store = mWorkStation.defaultStoreId();
+        const int draftStore = jo["f_store"].toInt();
+        og.store = draftStore > 0 ? draftStore : 0;
         og.total = og.qty * og.price;
         og.discountFactor = fBHistory.value;
         og.discountMode = fBHistory.type;
@@ -1573,6 +1599,7 @@ void WOrder::printFiscal(std::function<void(const QJsonObject &)> nextStep)
 
     // Блокируем интерфейс
     this->setEnabled(false);
+    const qint64 fiscalStartMs = QDateTime::currentMSecsSinceEpoch();
     auto *loading = new NLoadingDlg(tr("Printing fiscal check"), this);
 
     // Создаем поток и объект печати (БЕЗ родителя для moveToThread)
@@ -1634,14 +1661,17 @@ void WOrder::printFiscal(std::function<void(const QJsonObject &)> nextStep)
                           {"error", err},
                           {"result", result}};
 
-        // Логируем попытку печати на сервер
-        NInterface::query(
-            "/engine/v2/common/fiscal/log",
-            fUser->mSessionKey,
-            self,
-            reply,
-            [](const QJsonObject &) {},
-            [](const QJsonObject &) { return true; });
+        QJsonObject jtax;
+        jtax["f_order"] = self->fOHeader.id.toString();
+        jtax["f_elapsed"] = static_cast<int>(QDateTime::currentMSecsSinceEpoch() - fiscalStartMs);
+        jtax["f_in"] = reply["in"];
+        jtax["f_out"] = reply["out"];
+        jtax["f_err"] = err;
+        jtax["f_result"] = result;
+        jtax["f_state"] = (result == pt_err_ok ? 1 : 0);
+        QString jtaxStr = QString(QJsonDocument(jtax).toJson(QJsonDocument::Compact));
+        C5Database db;
+        db.exec(QString("call sf_create_shop_tax('%1')").arg(jtaxStr.replace("'", "''")));
 
         // Обработка ошибок
         if (result != 0) {

@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPrinterInfo>
+#include <QRegularExpression>
 #include "QRCodeGenerator.h"
 #include "c5config.h"
 #include "c5database.h"
@@ -10,6 +11,100 @@
 #include "c5utils.h"
 #include "cpartners.h"
 #include "oheader.h"
+
+namespace {
+bool isOnlineSalePrefix(const QString &prefix)
+{
+    if(prefix.isEmpty()) {
+        return false;
+    }
+
+    const QChar c = prefix.at(0).toUpper();
+    return c == QLatin1Char('O') || c == QLatin1Char('C');
+}
+
+QString resolveOrderComment(C5Database &db, const QString &orderId)
+{
+    db[":f_id"] = orderId;
+
+    if(!db.exec("select f_comment, f_data, f_partner from o_header where f_id=:f_id") || !db.nextRow()) {
+        return {};
+    }
+
+    const QString comment = db.getString("f_comment").trimmed();
+
+    if(!comment.isEmpty()) {
+        return comment;
+    }
+
+    const QString dataJson = db.getString("f_data");
+    const int partnerId = db.getInt("f_partner");
+
+    if(partnerId > 0) {
+        db[":f_id"] = partnerId;
+
+        if(db.exec("select f_phone, f_name, f_address from c_partners where f_id=:f_id") && db.nextRow()) {
+            QStringList parts;
+            const QString phone = db.getString("f_phone").trimmed();
+            const QString name = db.getString("f_name").trimmed();
+            const QString address = db.getString("f_address").trimmed();
+
+            if(!phone.isEmpty()) {
+                parts << phone;
+            }
+
+            if(!name.isEmpty()) {
+                parts << name;
+            }
+
+            if(!address.isEmpty()) {
+                parts << address;
+            }
+
+            if(!parts.isEmpty()) {
+                return parts.join("\n");
+            }
+        }
+    }
+
+    const QJsonObject data = QJsonDocument::fromJson(dataJson.toUtf8()).object();
+    QStringList parts;
+
+    for(const char *key : {"phone", "name", "address"}) {
+        const QString value = data.value(key).toString().trimmed();
+
+        if(!value.isEmpty()) {
+            parts << value;
+        }
+    }
+
+    return parts.join("\n");
+}
+
+void printOrderCommentBlock(C5Printing &p, const QString &comment)
+{
+    if(comment.trimmed().isEmpty()) {
+        return;
+    }
+
+    p.br();
+    p.setFontBold(true);
+
+    for(const QString &line : comment.split(QRegularExpression("[\\r\\n]+"))) {
+        const QString text = line.trimmed();
+
+        if(!text.isEmpty()) {
+            p.ltext(text, 0);
+            p.br();
+        }
+    }
+
+    p.setFontBold(false);
+    p.br();
+    p.line();
+    p.br(2);
+}
+} // namespace
 
 PrintReceiptGroup::PrintReceiptGroup(QObject *parent) :
     QObject(parent)
@@ -230,6 +325,10 @@ void PrintReceiptGroup::print(const QString &id, int rw)
         p.ctext(QString("(%1 %2%3)").arg(tr("Return from"), returnFrom["f_prefix"].toString()).arg(
                     returnFrom["f_hallid"].toInt()));
         p.br();
+    }
+
+    if(isOnlineSalePrefix(pref)) {
+        printOrderCommentBlock(p, resolveOrderComment(db, id));
     }
 
     p.setFontSize(bs - 2);
@@ -608,6 +707,17 @@ void PrintReceiptGroup::print2(const QString &id)
         p.br();
     }
 
+    if(isOnlineSalePrefix(oh.prefix)) {
+        QString commentText = oh.comment.trimmed();
+
+        if(commentText.isEmpty()) {
+            C5Database commentDb;
+            commentText = resolveOrderComment(commentDb, id);
+        }
+
+        printOrderCommentBlock(p, commentText);
+    }
+
     p.setFontSize(bs - 2);
     p.ltext(tr("Name"), 0, 31);
     p.ltext(tr("Qty"), 33, 10);
@@ -893,6 +1003,11 @@ void PrintReceiptGroup::print3(const QString &id)
         p.ctext(QString("(%1 %2%3)").arg(tr("Return from"), returnFrom["f_prefix"].toString()).arg(
                     returnFrom["f_hallid"].toInt()));
         p.br();
+    }
+
+    if(isOnlineSalePrefix(pref)) {
+        C5Database commentDb;
+        printOrderCommentBlock(p, resolveOrderComment(commentDb, id));
     }
 
     p.setFontSize(20);

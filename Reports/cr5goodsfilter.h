@@ -22,6 +22,8 @@ public:
 
     QString group();
 
+    QString mark();
+
 private:
     Ui::CR5GoodsFilter *ui;
 

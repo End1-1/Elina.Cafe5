@@ -14,8 +14,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include "ean8generator.h"
-#include <QDebug>
-#include <QImage>
+#include <QFontMetricsF>
+#include <QPageLayout>
+#include <QTextOption>
 
 C5StoreBarcode::C5StoreBarcode(QWidget *parent) :
     C5Widget(parent),
@@ -151,10 +152,159 @@ bool C5StoreBarcode::printOneBarcodeIllure(const QString &code, const QString &p
     return printer->printerState() != QPrinter::Error;
 }
 
+bool C5StoreBarcode::printOneBarcode(const QString &code, const QString &price, const QString &class1, const QString &name, QPrintDialog &pd)
+{
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setPrinterName(pd.printer()->printerName());
+    printer.setFullPage(true);
+    printer.setPageSize(QPageSize(QSizeF(55, 30), QPageSize::Millimeter, QStringLiteral("55x30mm")));
+    printer.setPageMargins(QMarginsF(0, 0, 0, 0), QPageLayout::Millimeter);
+
+    QPainter p(&printer);
+    if (!p.isActive()) {
+        return false;
+    }
+
+    const qreal pxPerMmX = printer.logicalDpiX() / 25.4;
+    const qreal pxPerMmY = printer.logicalDpiY() / 25.4;
+
+    const qreal labelW = 55.0;
+    const qreal labelH = 30.0;
+    const qreal margin = 1.5;
+    const qreal contentW = labelW - 2 * margin;
+
+    QString fontFamily = __c5config.getValue(param_app_font_family);
+    if (fontFamily.isEmpty()) {
+        fontFamily = QStringLiteral("Arial");
+    }
+    const QString monoFamily = QStringLiteral("Arial");
+
+    const bool hasClass = !class1.trimmed().isEmpty();
+    const qreal barcodeBarH = 8.0;
+    const qreal humanTextH = 4.6;
+    const qreal humanTextY = labelH - margin - humanTextH;
+    const qreal barcodeTop = humanTextY - 0.3 - barcodeBarH;
+    const qreal nameH = qMax<qreal>(4.0, barcodeTop - margin - 0.5);
+
+    const qreal fontScale = 1.15 * 1.15;
+    const int nameFontPx = qRound(9 * fontScale * 1.30);
+    const int codeFontPx = qRound(11 * fontScale);
+    const int classFontPx = qRound(8 * fontScale);
+    const int priceFontPx = qRound(10 * fontScale);
+
+    auto drawTextPx = [&](qreal xMm, qreal yMm, qreal wMm, qreal hMm, const QString &text,
+                          const QString &family, int pixelSize, bool bold, Qt::Alignment align, bool wrap) {
+        if (text.isEmpty()) {
+            return;
+        }
+        p.save();
+        p.resetTransform();
+        QFont f(family);
+        f.setPixelSize(pixelSize);
+        f.setBold(bold);
+        p.setFont(f);
+        p.setPen(Qt::black);
+        const QRectF rect(xMm * pxPerMmX, yMm * pxPerMmY, wMm * pxPerMmX, hMm * pxPerMmY);
+        if (wrap) {
+            QTextOption opt;
+            opt.setWrapMode(QTextOption::WordWrap);
+            opt.setAlignment(align);
+            p.drawText(rect, text, opt);
+        } else {
+            p.drawText(rect, int(align), text);
+        }
+        p.restore();
+    };
+
+    Barcode bc;
+    const QString encodeCode = code.trimmed();
+    QString displayCode = encodeCode;
+    if (bc.isEan13(encodeCode) && encodeCode.length() == 13) {
+        displayCode = QString("%1 %2 %3 %4").arg(encodeCode.mid(0, 1), encodeCode.mid(1, 6), encodeCode.mid(7, 5), encodeCode.mid(12, 1));
+    }
+
+    drawTextPx(margin, margin, contentW, nameH, name, fontFamily, nameFontPx, true, Qt::AlignHCenter | Qt::AlignTop, true);
+
+    if (!price.trimmed().isEmpty()) {
+        drawTextPx(margin, margin, contentW, 4.5, price, monoFamily, priceFontPx, true, Qt::AlignRight | Qt::AlignTop, false);
+    }
+
+    if (hasClass) {
+        QFontMetrics fm(QFont(fontFamily, classFontPx));
+        const QString classText = fm.elidedText(class1.trimmed(), Qt::ElideRight, int(contentW * 0.5 * pxPerMmX));
+        drawTextPx(margin, margin + 4.5, contentW, 3.5, classText, fontFamily, classFontPx, false,
+                   Qt::AlignRight | Qt::AlignTop, false);
+    }
+
+    BarcodeEan13 ean13;
+    Barcode128 code128;
+    BarcodeBase *encoder = nullptr;
+    bool encoded = false;
+
+    auto fitPenWidth = [](BarcodeBase &enc, qreal maxWidthMm) {
+        qreal penW = 0.42;
+        for (int i = 0; i < 12; ++i) {
+            if (enc.GetEncodeLength() * penW <= maxWidthMm) {
+                return penW;
+            }
+            penW *= 0.9;
+        }
+        return qMax<qreal>(0.2, maxWidthMm / qMax(1, enc.GetEncodeLength()));
+    };
+
+    auto isAllDigits = [](const QString &value) {
+        if (value.isEmpty()) {
+            return false;
+        }
+        for (const QChar ch : value) {
+            if (!ch.isDigit()) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    if (bc.isEan13(encodeCode)) {
+        encoded = ean13.EncodeEan13(encodeCode.left(12).toLatin1().constData());
+        encoder = &ean13;
+    } else if (isAllDigits(encodeCode) && (encodeCode.length() % 2) == 0) {
+        encoded = code128.Encode128C(encodeCode.toLatin1().constData());
+        encoder = &code128;
+    } else {
+        encoded = code128.Encode128B(encodeCode.toLatin1().constData());
+        if (!encoded) {
+            encoded = code128.Encode128A(encodeCode.toLatin1().constData());
+        }
+        encoder = &code128;
+    }
+
+    if (!encoded || !encoder) {
+        p.end();
+        return false;
+    }
+
+    const qreal penW = fitPenWidth(*encoder, contentW);
+    const qreal barcodeWidth = encoder->GetEncodeLength() * penW;
+    const qreal barcodeX = margin + qMax<qreal>(0, (contentW - barcodeWidth) / 2.0);
+    const qreal shortBarH = barcodeBarH * 0.85;
+    const qreal longBarH = barcodeBarH;
+
+    p.save();
+    p.scale(pxPerMmX, pxPerMmY);
+    encoder->DrawBarcode(p, barcodeX, barcodeTop, shortBarH, longBarH, penW);
+    p.restore();
+
+    drawTextPx(margin, humanTextY, contentW, humanTextH, displayCode, monoFamily, codeFontPx, true,
+               Qt::AlignHCenter | Qt::AlignVCenter, false);
+
+    p.end();
+    return printer.printerState() != QPrinter::Error;
+}
+
 //SAMO XANUT VERSION
 
-bool C5StoreBarcode::printOneBarcode(const QString &code, const QString &price, const QString &class1,
-                                     const QString &name, QPrintDialog &pd)
+bool C5StoreBarcode::printOneBarcodeQR(
+    const QString &code, const QString &price, const QString &class1, const QString &name, QPrintDialog &pd)
 {
     QPrinter printer(QPrinter::HighResolution);
     printer.setPrinterName(pd.printer()->printerName());
@@ -491,14 +641,8 @@ void C5StoreBarcode::print()
             continue;
         }
 
-        Barcode bc;
-
         for(int j = 0; j < ui->tbl->lineEdit(i, 2)->getInteger(); j++) {
-            QString code = ui->tbl->getString(i, 1);
-
-            if(bc.isEan13(code)) {
-                code = code.left(code.length() - 1);
-            }
+            const QString code = ui->tbl->getString(i, 1);
 
             //VAHE VERSION
             printOneBarcode(code, ui->tbl->getString(i, 4) + " " + fCurrencyName, ui->tbl->getString(i, 6), ui->tbl->getString(i,

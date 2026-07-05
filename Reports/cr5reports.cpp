@@ -137,9 +137,10 @@ bool CR5Reports::tblDoubleClicked(int row, int column, const QJsonArray &values)
             }
         } else {
             auto *retaildoc = __mainWindow->createTab<C5SaleDoc>();
-            retaildoc->setMode(1);
+            retaildoc->setMode(type > 0 ? type : 1);
 
-            if(!retaildoc->reportHandler(REPORT_HANDLER_SALE_DOC_OPEN_DRAFT, values.at(0))) {
+            if(!retaildoc->openDraft(values.at(0).toString())) {
+                C5Message::error(tr("Failed to open draft"));
             }
         }
     } else if(fHandlerUuid == REPORT_HANDLER_GIFT_CARD_TOTAL) {

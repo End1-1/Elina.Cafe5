@@ -57,6 +57,7 @@
 #include "cr5generalreportonlydate.h"
 #include "cr5goods.h"
 #include "cr5goodsgroup.h"
+#include "cr5goodsmark.h"
 #include "cr5goodsimages.h"
 #include "cr5goodsmovement.h"
 #include "cr5goodspartners.h"
@@ -778,6 +779,10 @@ void C5MainWindow::on_listWidgetItemClicked(const QModelIndex &index)
         createTab<CR5GoodsUnit>();
         break;
 
+    case -cp_t6_groups:
+        createTab<CR5GoodsMark>();
+        break;
+
     case cp_t6_groups:
         createTab<CR5GoodsGroup>();
         break;
@@ -1138,6 +1143,11 @@ void C5MainWindow::setDB()
         l->setProperty("reportlevel", 6);
         addTreeL3Item(l, cp_t6_storage, tr("Storages"), ":/goods.png");
         addTreeL3Item(l, cp_t6_groups, tr("Groups of goods"), ":/goods.png");
+        if (mUser->check(cp_t6_groups)) {
+            if (QListWidgetItem *item = addTreeL3Item(l, 0, tr("Goods marks"), ":/goods.png")) {
+                item->setData(Qt::UserRole, -cp_t6_groups);
+            }
+        }
         addTreeL3Item(l, cp_t6_goods, tr("Goods"), ":/goods.png");
         addTreeL3Item(l, cp_t6_goods_price, tr("Group discount"), ":/goods.png");
         addTreeL3Item(l, cp_t6_units, tr("Units"), ":/goods.png");

@@ -21,10 +21,10 @@ class ShopOrder extends PClass
             $this->exitError(tr("Draft not exists"));
         }
         $sql =<<<EOD
-        select d.f_id, d.f_id as f_bodyid, d.f_header, 
+        select d.f_id, d.f_id as f_bodyid, d.f_header, d.f_store,
         d.f_goods, g.f_name as f_goodsname, u.f_name as f_unitname, 
         cast(d.f_qty as float) as f_qty, cast(d.f_price as float) as f_price1, 
-        cast(d.f_price as float) as f_price2, 0 as f_storeqty,
+        cast(d.f_price as float) as f_price2, d.f_store, 0 as f_storeqty,
         g.f_candiscount
         from o_draft_sale_body d 
         left join c_goods g on g.f_id=d.f_goods 
@@ -66,21 +66,25 @@ class ShopOrder extends PClass
         $store = [];
         $storeHeader = [];
 
-        $sh = $this->stmtall("select distinct(d.f_document), d.f_store "
+        $storeRows = $this->stmtall("select distinct(d.f_document), d.f_store "
             . "from a_store_draft d "
             . "left join o_goods g on g.f_storerec=d.f_id "
-            . "where g.f_header=?", "s", [$this->id])->fetch_row();
-        if (!empty($sh)) {
-            array_push($storeHeader, $sh[0]);
-            array_push($store, $sh[1]);
+            . "where g.f_header=?", "s", [$this->id])->fetch_all(MYSQLI_NUM);
+        foreach ($storeRows as $sh) {
+            if (!empty($sh[0])) {
+                $storeHeader[] = $sh[0];
+                $store[] = $sh[1];
+            }
         }
-        $sh = $this->stmtall("select f_id, f_storein, f_storeout "
+        $storeRows = $this->stmtall("select f_id, f_storein, f_storeout "
             . "from a_header_store  "
-            . "where f_saleuuid=?", "s", [$this->id])->fetch_row();
-        if (!empty($sh)) {
-            array_push($storeHeader, $sh[0]);
-            array_push($store, $sh[1]);
-            array_push($store, $sh[2]);
+            . "where f_saleuuid=?", "s", [$this->id])->fetch_all(MYSQLI_NUM);
+        foreach ($storeRows as $sh) {
+            if (!empty($sh[0])) {
+                $storeHeader[] = $sh[0];
+                $store[] = $sh[1];
+                $store[] = $sh[2];
+            }
         }
 
         foreach ($storeHeader as $sh) {
@@ -113,6 +117,17 @@ class ShopOrder extends PClass
         }
         $this->stmtall("delete from b_gift_card_history where f_trsale=?", "s", [$this->id]);
         $this->stmtall("delete from b_clients_debts where f_order=?", "s", [$this->id]);
+
+        $this->stmtall("delete from o_tax_log where f_order=?", "s", [$this->id]);
+        $this->stmtall("delete from o_tax where f_id=?", "s", [$this->id]);
+        $this->stmtall(
+            "update o_goods og "
+            . "inner join o_goods orig on og.f_returnfrom = orig.f_id "
+            . "set og.f_returnfrom = null "
+            . "where orig.f_header = ?",
+            "s",
+            [$this->id]
+        );
 
         $this->stmtall("delete from o_goods where f_header=?", "s", [$this->id]);
         $this->stmtall("delete from o_header where f_id=?", "s", [$this->id]);

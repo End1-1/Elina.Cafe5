@@ -55,14 +55,45 @@ if ($params->amount > 0) {
         supdate("a_header_cash", $bind, $id);
     }
 
-    $bind["f_id"] = $id;
     $bind["f_header"] = $id;
-    $bind["f_cash"] = $params->cashin > 0 ? $params->cashin : $params->cashout;
-    $bind["f_sign"] = $params->cashin > 0 ? 1 : -1;
     $bind["f_remarks"] = $params->remarks;
     $bind["f_amount"] = $params->amount;
     $bind["f_row"] = 0;
-    sinsertupdate("e_cash", $bind, $id, $isnew);
+    $bind["f_base"] = $id;
+
+    if ($params->cashin > 0 && $params->cashout > 0) {
+        if (!$isnew) {
+            stmtall("delete from e_cash where f_header=?", "s", [$id]);
+        }
+        $ecash = [
+            "f_id" => uuidv4(),
+            "f_header" => $id,
+            "f_cash" => $params->cashin,
+            "f_sign" => 1,
+            "f_remarks" => $params->remarks,
+            "f_amount" => $params->amount,
+            "f_row" => 0,
+            "f_base" => $id,
+        ];
+        sinsert("e_cash", $ecash);
+
+        $ecash = [
+            "f_id" => uuidv4(),
+            "f_header" => $id,
+            "f_cash" => $params->cashout,
+            "f_sign" => -1,
+            "f_remarks" => $params->remarks,
+            "f_amount" => $params->amount,
+            "f_row" => 0,
+            "f_base" => $id,
+        ];
+        sinsert("e_cash", $ecash);
+    } else {
+        $bind["f_id"] = $id;
+        $bind["f_cash"] = $params->cashin > 0 ? $params->cashin : $params->cashout;
+        $bind["f_sign"] = $params->cashin > 0 ? 1 : -1;
+        sinsertupdate("e_cash", $bind, $id, $isnew);
+    }
 
     $db->commit();
 }

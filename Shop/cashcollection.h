@@ -26,8 +26,6 @@ private slots:
 
     void responseOfCreate(const QJsonObject &jdoc);
 
-    void responseOfCreateIn(const QJsonObject &jdoc);
-
 private:
     Ui::CashCollection* ui;
 

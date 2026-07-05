@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Shop_Elina_net LANGUAGES CXX)
 
+set(APP_TARGET Shop_net)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -81,7 +83,7 @@ set(APP_SOURCES
 # -------------------------
 # Executable
 # -------------------------
-add_executable(${PROJECT_NAME} ${APP_SOURCES})
+add_executable(${APP_TARGET} ${APP_SOURCES})
 
 # -------------------------
 # Настройки Unity Build и исключения
@@ -94,14 +96,14 @@ set_source_files_properties(
     PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${APP_TARGET} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
 # -------------------------
 # Include paths
 # -------------------------
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${APP_TARGET} PRIVATE
     . ../Cafe5 ../DBData ../TableRecord ../NTable ../Classes ../Cache ../Configs
     ../Controls ../DbData ../Forms ../Service ../Service5/worker ../StructModel
     ../Printing ../RESOURCES
@@ -112,7 +114,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # -------------------------
 # Compile Definitions & Options
 # -------------------------
-target_compile_definitions(${PROJECT_NAME} PRIVATE
+target_compile_definitions(${APP_TARGET} PRIVATE
     QT_DEPRECATED_WARNINGS NETWORKDB SHOP BORDERLESSDIALOGS NOMINMAX
     _DBDRIVER_="QMARIADB" _ORGANIZATION_="BreezeDevs" _APPLICATION_="Shop"
     _MODULE_="Shop" _CRYPT_KEY_="shop2022!!!"
@@ -120,15 +122,15 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /wd4834 /utf-8)
+    target_compile_options(${APP_TARGET} PRIVATE /wd4834 /utf-8)
 endif()
 
 # -------------------------
 # Link Libraries
 # -------------------------
-target_link_directories(${PROJECT_NAME} PRIVATE C:/Development/OpenSSL-Win64/lib/VC/x64/MD)
+target_link_directories(${APP_TARGET} PRIVATE C:/Development/OpenSSL-Win64/lib/VC/x64/MD)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${APP_TARGET} PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::PrintSupport Qt6::Network Qt6::Sql
     Qt6::Multimedia Qt6::WebSockets Qt6::Pdf Qt6::PdfWidgets
     Version.lib Ws2_32.lib libssl.lib libcrypto.lib Gdi32.lib User32.lib
@@ -139,7 +141,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # -------------------------
 set(CPACK_GENERATOR "" CACHE STRING "Disable CPack in QXlsx" FORCE)
 add_subdirectory(C:/Development/projects/qxlsx qxlsx_build)
-target_link_libraries(${PROJECT_NAME} PRIVATE QXlsx)
+target_link_libraries(${APP_TARGET} PRIVATE QXlsx)
 
 # -------------------------
 # Version & Translations
@@ -148,7 +150,7 @@ if (WIN32)
     add_custom_target(version_inc
         COMMAND powershell -NoProfile -ExecutionPolicy Bypass -File ${CMAKE_CURRENT_SOURCE_DIR}/increase_version.ps1
     )
-    add_dependencies(${PROJECT_NAME} version_inc)
+    add_dependencies(${APP_TARGET} version_inc)
 endif()
 
 # Просто говорим CMake, где лежит готовый TS файл
@@ -157,9 +159,9 @@ set(TS_V_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Shop.ts")
 # Оставляем ТОЛЬКО lrelease.
 # lupdate (обновление строк) будешь делать только когда сам захочешь
 # через контекстное меню или команду выше.
-qt_add_lrelease(${PROJECT_NAME}
+qt_add_lrelease(${APP_TARGET}
     TS_FILES ${TS_V_FILE}
     QM_FILES_OUTPUT_VARIABLE QM_FILES
 )
 
-target_sources(${PROJECT_NAME} PRIVATE ${QM_FILES})
+target_sources(${APP_TARGET} PRIVATE ${QM_FILES})

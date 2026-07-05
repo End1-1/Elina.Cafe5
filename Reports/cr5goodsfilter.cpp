@@ -9,6 +9,7 @@ CR5GoodsFilter::CR5GoodsFilter(QWidget *parent) :
     ui->setupUi(this);
     ui->leSupplier->setSelector(ui->leSupplierName, cache_goods_partners);
     ui->leGroup->setSelector(ui->leGroupName, cache_goods_group);
+    ui->leMark->setSelector(ui->leMarkName, cache_goods_mark);
     ui->leCurr->setSelector(ui->leCurrName, cache_currency);
 }
 
@@ -25,6 +26,9 @@ QString CR5GoodsFilter::condition()
     }
     if (!ui->leGroup->isEmpty()) {
         addCond(w, "gg.f_group in (" + ui->leGroup->text() + ") ");
+    }
+    if (!ui->leMark->isEmpty()) {
+        addCond(w, "g.f_mark in (" + ui->leMark->text() + ") ");
     }
     if (ui->rbService->isChecked()) {
         addCond(w, "gg.f_service=1 ");
@@ -53,6 +57,11 @@ int CR5GoodsFilter::currency()
 QString CR5GoodsFilter::group()
 {
     return ui->leGroup->text();
+}
+
+QString CR5GoodsFilter::mark()
+{
+    return ui->leMark->text();
 }
 
 void CR5GoodsFilter::addCond(QString &w, const QString &cond)

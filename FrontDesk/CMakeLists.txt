@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_UNITY_BUILD ON)
 
-project(OfficeN LANGUAGES CXX)
+project(ElinaOfficeN LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -132,6 +132,7 @@ set(APP_SOURCES
     ../Forms/dlgnewcl.ui
     ../Forms/dlgqty.ui
     ../Forms/dlgreservgoods.ui
+    ../Forms/dlgsalestockmatrix.ui
     ../NTable/ntablewidget.ui
     ../Forms/dlgselectcurrency.ui
     ../Forms/dlgsemireadyinout.ui
@@ -192,6 +193,7 @@ set(APP_SOURCES
     ../Editors/c5dishwidget.ui
     ../Editors/ce5menuname.ui
     ../Editors/ce5goodsgroup.ui
+    ../Editors/ce5goodsmark.ui
     ../Editors/ce5usergroup.ui
     ../Editors/ce5user.ui
     ../Editors/ce5creditcard.ui
@@ -344,6 +346,7 @@ set(APP_SOURCES
     ../Forms/dlgnewcl.h
     ../Forms/dlgqty.h
     ../Forms/dlgreservgoods.h
+    ../Forms/dlgsalestockmatrix.h
     ../Forms/dlgselectcurrency.h
     ../Forms/dlgsemireadyinout.h
     ../Forms/dlgsetwaiterordercl.h
@@ -457,6 +460,7 @@ set(APP_SOURCES
     ../Reports/c5settingswidget.h
     ../Reports/cr5goodsunit.h
     ../Reports/cr5goodsgroup.h
+    ../Reports/cr5goodsmark.h
     ../Reports/cr5goods.h
     ../Controls/c5lineeditwithselector.h
     ../Reports/cr5goodsstorages.h
@@ -486,6 +490,7 @@ set(APP_SOURCES
     ../Editors/c5dishwidget.h
     ../Editors/ce5menuname.h
     ../Editors/ce5goodsgroup.h
+    ../Editors/ce5goodsmark.h
     ../Editors/ce5usergroup.h
     ../Editors/ce5user.h
     ../Reports/cr5creditcards.h
@@ -662,6 +667,7 @@ set(APP_SOURCES
     ../Forms/dlgnewcl.cpp
     ../Forms/dlgqty.cpp
     ../Forms/dlgreservgoods.cpp
+    ../Forms/dlgsalestockmatrix.cpp
     ../Forms/dlgselectcurrency.cpp
     ../Forms/dlgsemireadyinout.cpp
     ../Forms/dlgsetwaiterordercl.cpp
@@ -779,6 +785,7 @@ set(APP_SOURCES
     ../Reports/c5settingswidget.cpp
     ../Reports/cr5goodsunit.cpp
     ../Reports/cr5goodsgroup.cpp
+    ../Reports/cr5goodsmark.cpp
     ../Reports/cr5goods.cpp
     ../Controls/c5lineeditwithselector.cpp
     ../Reports/cr5goodsstorages.cpp
@@ -808,6 +815,7 @@ set(APP_SOURCES
     ../Editors/c5dishwidget.cpp
     ../Editors/ce5menuname.cpp
     ../Editors/ce5goodsgroup.cpp
+    ../Editors/ce5goodsmark.cpp
     ../Editors/ce5usergroup.cpp
     ../Editors/ce5user.cpp
     ../Reports/cr5creditcards.cpp

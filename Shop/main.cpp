@@ -168,6 +168,18 @@ int main(int argc, char* argv[])
                               + __c5config.fMainJson["shop_hall_name"].toString() + "]");
         }
 
+        if (__c5config.cashId() == 0) {
+            dlgsplash->hide();
+            C5Message::error(("Cashdesk for cash not defined"));
+            exit(-1);
+        }
+
+        if (__c5config.nocashId() == 0) {
+            dlgsplash->hide();
+            C5Message::error(("Cashdesk for card not defined"));
+            exit(-1);
+        }
+
         if (mWorkStation.defaultStoreId() > 0) {
             w->setWindowTitle(w->windowTitle() + "[" + dbstore->name(mWorkStation.defaultStoreId()) + "]");
         } else {

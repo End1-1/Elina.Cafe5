@@ -337,6 +337,26 @@ $sql[$v] = <<<EOD
 EOD;
 
 
+$v = 218;
+$sql[$v] = <<<EOD
+    update s_app set f_version = '$v' where lower(f_app)='db';
+    create table if not exists c_goods_mark (f_id integer primary key auto_increment, f_name varchar(64));
+    alter table c_groups add column f_mark int default 0;
+EOD;
+
+
+$v = 219;
+$sql[$v] = <<<EOD
+    update s_app set f_version = '$v' where lower(f_app)='db';
+    create table if not exists s_online_log (
+        f_id integer primary key auto_increment,
+        f_datetime datetime,
+        f_request json,
+        f_result json
+    );
+EOD;
+
+
 $update_verision = intval(stmtall("select * from s_app where lower(f_app)='db'")->fetch_assoc()["f_version"]);
 for ($i = $update_verision + 1; $i <= $v; $i++) {
     if (isset($sql[$i])) {

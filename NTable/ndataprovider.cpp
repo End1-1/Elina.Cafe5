@@ -67,6 +67,7 @@ void NDataProvider::getData(const QString &route, const QJsonObject &data)
         jo[s] = data[s];
     }
 
+    mDebug = true;
     if(mDebug) {
         LogWriter::write(LogWriterLevel::verbose, "", url);
         LogWriter::write(LogWriterLevel::verbose, "", QJsonDocument(jo).toJson(QJsonDocument::Compact));
@@ -110,7 +111,7 @@ void NDataProvider::queryFinished(QNetworkReply *r)
     }
 
     if(httpCode == 500) {
-        emit error(ba);
+        emit error(ba.isEmpty() ? QStringLiteral("HTTP 500: empty server response") : QString::fromUtf8(ba));
         return;
     }
 
@@ -136,12 +137,13 @@ void NDataProvider::queryFinished(QNetworkReply *r)
     QJsonParseError err;
     QJsonObject jdoc = QJsonDocument::fromJson(ba, &err).object();
 
+    LogWriter::write(LogWriterLevel::errors, "", ba);
     if(err.error == QJsonParseError::NoError) {
         jdoc["query_start"] = mStartDate.toString("yyyy-MM-dd HH:mm:ss.zzz");
         emit done(jdoc);
     } else {
         LogWriter::write(LogWriterLevel::errors, err.errorString(), ba);
-        emit error(ba);
+        emit error(ba.isEmpty() ? QString("Invalid server response: %1").arg(err.errorString()) : QString::fromUtf8(ba));
     }
     deleteLater();
 }

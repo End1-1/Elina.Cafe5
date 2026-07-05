@@ -135,10 +135,10 @@ class Goods extends PClass
             $this->sinsert("c_goods_multiscancode", $v);
         }
 
-        $this->stmtall("delete from c_menu where f_dish=?", "i", [$this->params->goods->f_id]);
-        foreach ($this->params->menu as $m) {
-            $this->sinsert("c_menu", $m);
-        }
+        // $this->stmtall("delete from c_menu where f_dish=?", "i", [$this->params->goods->f_id]);
+        // foreach ($this->params->menu as $m) {
+        //     $this->sinsert("c_menu", $m);
+        // }
 
         $this->result["f_id"] = $this->params->goods->f_id;
         $this->result["isnew"] = $isnew;

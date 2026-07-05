@@ -535,8 +535,26 @@ void DlgReturnItem::on_btnReturn_clicked()
         p.print(oheader._id(), db);
     }
 
-    C5Message::info(tr("Return completed"));
-    accept();
+    const QString receiptNumber = saledoc.trimmed();
+    if(receiptNumber.startsWith(QLatin1String("O"), Qt::CaseInsensitive)) {
+        fHttp->createHttpQueryLambda(
+            "/engine/v2/shop/shop-order/adjust-delivery-after-return",
+            QJsonObject{{"id", headerid}, {"receipt", receiptNumber}},
+            [this](const QJsonObject &) {
+                C5Message::info(tr("Return completed"));
+                accept();
+            },
+            [this](const QJsonObject &jerr) {
+                C5Message::error(jerr.value("errorMessage").toString());
+                C5Message::info(tr("Return completed"));
+                accept();
+            },
+            QVariant(),
+            false);
+    } else {
+        C5Message::info(tr("Return completed"));
+        accept();
+    }
 }
 
 void DlgReturnItem::on_leExchange_returnPressed()

@@ -39,7 +39,7 @@ if (!empty($params->debug)) {
 
 require_once __DIR__ . "/v2/check-app.php";
 
-$bearerToken = $params->sessionkey;
+$bearerToken = $params->sessionkey ?? null;
 if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
 
 	$authHeader = $_SERVER['HTTP_AUTHORIZATION'];

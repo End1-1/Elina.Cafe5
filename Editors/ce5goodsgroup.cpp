@@ -9,6 +9,7 @@ CE5GoodsGroup::CE5GoodsGroup(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->leParentGroup->setSelector(ui->leParentGroupName, cache_goods_group);
+    ui->leMark->setSelector(ui->leMarkName, cache_goods_mark);
     connect(ui->leColor, &C5LineEditWithSelector::doubleClicked, this, &CE5GoodsGroup::setColor);
 }
 

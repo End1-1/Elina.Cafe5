@@ -67,6 +67,7 @@ CR5Goods::CR5Goods(QWidget *parent) :
     fSimpleQuery = false;
     fMainTable = "c_goods gg";
     fLeftJoinTables << "left join c_groups g on g.f_id=gg.f_group [g]"
+                    << "left join c_goods_mark gm on gm.f_id=g.f_mark [gm]"
                     << "left join c_partners cp on cp.f_id=gg.f_supplier [cp]"
                     << "left join c_goods_prices gpr on gpr.f_goods=gg.f_id [gpr]"
                     << "left join c_units u on u.f_id=gg.f_unit [u]"
@@ -77,6 +78,7 @@ CR5Goods::CR5Goods(QWidget *parent) :
     fColumnsFields << "gg.f_id"
                    << "cp.f_taxname"
                    << "g.f_name as f_groupname"
+                   << "gm.f_name as f_markname"
                    << "g.f_class as f_class"
                    << "u.f_name as f_unitname"
                    << "gg.f_name"
@@ -99,6 +101,7 @@ CR5Goods::CR5Goods(QWidget *parent) :
     fColumnsVisible["gg.f_id"] = true;
     fColumnsVisible["cp.f_taxname"] = true;
     fColumnsVisible["g.f_name as f_groupname"] = true;
+    fColumnsVisible["gm.f_name as f_markname"] = false;
     fColumnsVisible["g.f_class as f_class"] = true;
     fColumnsVisible["u.f_name as f_unitname"] = true;
     fColumnsVisible["gg.f_name"] = true;
@@ -120,6 +123,7 @@ CR5Goods::CR5Goods(QWidget *parent) :
     fTranslation["f_id"] = tr("Code");
     fTranslation["f_taxname"] = tr("Supplier");
     fTranslation["f_groupname"] = tr("Group");
+    fTranslation["f_markname"] = tr("Mark");
     fTranslation["f_class"] = tr("Class");
     fTranslation["f_unitname"] = tr("Unit");
     fTranslation["f_name"] = tr("Name");
@@ -331,6 +335,11 @@ void CR5Goods::exportToScales()
 
     if(static_cast<CR5GoodsFilter* >(fFilterWidget)->group().isEmpty() == false) {
         sql += " and f_group=" + static_cast<CR5GoodsFilter*>(fFilterWidget)->group();
+    }
+
+    if(static_cast<CR5GoodsFilter*>(fFilterWidget)->mark().isEmpty() == false) {
+        sql += " and f_group in (select f_id from c_groups where f_mark in ("
+            + static_cast<CR5GoodsFilter*>(fFilterWidget)->mark() + "))";
     }
 
     db.exec(sql);

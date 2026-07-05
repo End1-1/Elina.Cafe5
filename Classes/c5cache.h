@@ -60,6 +60,7 @@
 #define cache_goods_model 57
 #define cache_materials_actions 58
 #define cache_goal_products 59
+#define cache_goods_mark 60
 
 class C5Cache : public QObject
 {

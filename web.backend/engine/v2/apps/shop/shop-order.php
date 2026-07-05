@@ -55,4 +55,22 @@ class ShopOrder extends Auth
         }
         $this->echoResult();
     }
+
+    public function AdjustDeliveryAfterReturn($params)
+    {
+        require_once __DIR__ . "/../../worker/online-order-delivery-adjust.php";
+
+        $params = $this->ValidateParams($params, [
+            "id" => "required|string",
+            "receipt" => "string|nullable",
+        ]);
+
+        $result = OnlineOrderDeliveryAdjust::apply(
+            $this,
+            $params->id,
+            $params->receipt ?? ""
+        );
+        $this->result = array_merge($this->result, $result);
+        $this->echoResult();
+    }
 }

@@ -529,6 +529,50 @@ void Working::checkMessageResponse(const QJsonObject & jdoc)
                                 .arg(QString("%1 %2").arg(tr("End date")).arg(jjm["enddate"].toString())));
                 break;
 
+            case MSG_ONLINE_SALE:
+                p.ltext(jjm["label"].toString(), 0);
+                p.br();
+                if (!jjm["ordernumber"].toString().isEmpty()) {
+                    p.ltext(jjm["ordernumber"].toString(), 0);
+                    p.br();
+                }
+                p.ltext(jjm["time"].toString(), 0);
+                p.br();
+                p.ltext(jjm["goodsname"].toString(), 0);
+                p.br();
+                if (!jjm["scancode"].toString().isEmpty()) {
+                    p.ltext(jjm["scancode"].toString(), 0);
+                    p.br();
+                }
+                p.ltext(QString::number(jjm["qty"].toDouble()), 0);
+                p.br();
+                p.br();
+                p.line();
+                p.br();
+                if (!jjm["ordernumber"].toString().isEmpty()) {
+                    QString info = QString("%1<br>%2<br>%3<br>%4")
+                                     .arg(jjm["label"].toString())
+                                     .arg(jjm["ordernumber"].toString())
+                                     .arg(jjm["time"].toString())
+                                     .arg(jjm["goodsname"].toString());
+                    if (!jjm["scancode"].toString().isEmpty()) {
+                        info += "<br>" + jjm["scancode"].toString();
+                    }
+                    info += "<br>" + QString::number(jjm["qty"].toDouble());
+                    C5Message::info(info);
+                } else {
+                    QString info = QString("%1<br>%2<br>%3")
+                                     .arg(jjm["label"].toString())
+                                     .arg(jjm["time"].toString())
+                                     .arg(jjm["goodsname"].toString());
+                    if (!jjm["scancode"].toString().isEmpty()) {
+                        info += "<br>" + jjm["scancode"].toString();
+                    }
+                    info += "<br>" + QString::number(jjm["qty"].toDouble());
+                    C5Message::info(info);
+                }
+                break;
+
             case MSG_PRINT_RECEIPT: {
                 QString orderid = jjm["usermessage"].toString();
                 PrintReceiptGroup p;

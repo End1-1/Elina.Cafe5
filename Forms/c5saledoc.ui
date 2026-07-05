@@ -788,6 +788,11 @@
        <string>Stock</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Storage</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
@@ -1030,14 +1035,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>C5LineEditWithSelector</class>
-   <extends>QLineEdit</extends>
-   <header location="global">c5lineeditwithselector.h</header>
-  </customwidget>
-  <customwidget>
    <class>C5LineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">c5lineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>C5LineEditWithSelector</class>
+   <extends>QLineEdit</extends>
+   <header location="global">c5lineeditwithselector.h</header>
   </customwidget>
   <customwidget>
    <class>C5TableWidget</class>

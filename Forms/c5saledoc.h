@@ -34,7 +34,9 @@ public:
     bool openDraft(const QString &id);
 
 private:
-    void checkStock(int store, int goods);
+    void checkStock(int store, int goods, int row = -1);
+
+    int rowStore(int row) const;
 
 private slots:
     void makeDraftResponse(const QJsonObject &jdoc);
@@ -144,8 +146,8 @@ private:
     bool fOpenedFromDraft;
     QStringList fEmarks;
     QStringList fRowToDelete;
-    QMap<int, QString> fListOfStorages;
     QMap<int, double> fSpecialPrices;
+    bool writeDraftLocally(const QString &uuid, QString &err);
 
 };
 

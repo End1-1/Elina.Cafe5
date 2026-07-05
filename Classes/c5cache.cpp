@@ -20,6 +20,8 @@ C5Cache::C5Cache()
                                         .arg(tr("Code"), tr("Name"), tr("Full caption"));
         fCacheQuery[cache_goods_group] = QString("select f_id as `%1`, f_name as `%2` from c_groups")
                                          .arg(tr("Code"), tr("Name"));
+        fCacheQuery[cache_goods_mark] = QString("select f_id as `%1`, f_name as `%2` from c_goods_mark")
+                                        .arg(tr("Code"), tr("Name"));
         //fCacheQuery[cache_goods] = QString("select g.f_id as `%1`, gg.f_name as `%2`, concat(g.f_name, if(g.f_scancode is null, '', concat(' ', g.f_scancode))) as `%3`, u.f_name as `%4`,
         fCacheQuery[cache_goods] = QString(R"(
                                             select g.f_id as `%1`, gg.f_name as `%2`, g.f_name as `%3`, u.f_name as `%4`,
@@ -196,6 +198,7 @@ LEFT JOIN m_goal_product_status ms ON ms.f_id=gp.f_status
         fTableCache["c_partners"] = cache_goods_partners;
         fTableCache["c_units"] = cache_goods_unit;
         fTableCache["c_groups"] = cache_goods_group;
+        fTableCache["c_goods_mark"] = cache_goods_mark;
         fTableCache["c_goods"] = cache_goods;
         fTableCache["d_part1"] = cache_dish_part1;
         fTableCache["d_part2"] = cache_dish_part2;

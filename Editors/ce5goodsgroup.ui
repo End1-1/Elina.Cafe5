@@ -60,6 +60,42 @@
      </property>
     </widget>
    </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Mark</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="C5LineEditWithSelector" name="leMark">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="Field" stdset="0">
+      <string>f_mark</string>
+     </property>
+     <property name="Type" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Default" stdset="0">
+      <string>0</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="C5LineEditWithSelector" name="leMarkName">
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::NoFocus</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="7" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
@@ -199,6 +235,7 @@
   <tabstop>leColor</tabstop>
   <tabstop>lineEdit_2</tabstop>
   <tabstop>lineEdit_3</tabstop>
+  <tabstop>leMark</tabstop>
   <tabstop>lineEdit_4</tabstop>
   <tabstop>lineEdit_5</tabstop>
   <tabstop>leParentGroupName</tabstop>

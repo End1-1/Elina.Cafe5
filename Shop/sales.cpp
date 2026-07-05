@@ -1,7 +1,11 @@
 #include "sales.h"
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QPointer>
 #include <QPropertyAnimation>
 #include <QShortcut>
+#include <QThread>
+#include <QUuid>
 #include "c5config.h"
 #include "c5database.h"
 #include "c5message.h"
@@ -11,6 +15,9 @@
 #include "cashcollection.h"
 #include "dlgdate.h"
 #include "dlgreturnitem.h"
+#include "nloadingdlg.h"
+#include "oheader.h"
+#include "ogoods.h"
 #include "printreceiptgroup.h"
 #include "printtaxn.h"
 #include "selectprinters.h"
@@ -584,4 +591,297 @@ void Sales::on_btnShowMenu_clicked()
 void Sales::on_btnCloseMenu_clicked()
 {
     toggleMenu(false);
+}
+
+void Sales::on_btnOnlineOrderFiscal_clicked()
+{
+    toggleMenu(false);
+
+    bool ok = false;
+    const QString receipt = QInputDialog::getText(this,
+                                                  tr("ONLINE ORDER"),
+                                                  tr("Receipt number"),
+                                                  QLineEdit::Normal,
+                                                  QString(),
+                                                  &ok).trimmed();
+
+    if(!ok || receipt.isEmpty()) {
+        return;
+    }
+
+    const QChar first = receipt.at(0).toUpper();
+
+    if(first != QLatin1Char('O') && first != QLatin1Char('C')) {
+        C5Message::error(tr("This is not an online sale"));
+        return;
+    }
+
+    C5Database db;
+    db[":f_receipt"] = receipt;
+    db[":f_state"] = ORDER_STATE_CLOSE;
+    db.exec("select f_id from o_header "
+            "where concat(f_prefix, f_hallid)=:f_receipt and f_state=:f_state "
+            "limit 1");
+
+    if(!db.nextRow()) {
+        C5Message::error(tr("Order not found"));
+        return;
+    }
+
+    const QString orderId = db.getString("f_id");
+    OHeader header;
+    QList<OGoods> goods;
+
+    if(!loadOnlineOrder(orderId, header, goods)) {
+        C5Message::error(tr("Order not found"));
+        return;
+    }
+
+    db[":f_id"] = orderId;
+    db.exec("select f_receiptnumber from o_tax where f_id=:f_id");
+    const bool fiscalExists = db.nextRow() && db.getInt("f_receiptnumber") > 0;
+
+    const auto printReceiptStep = [this, orderId]() {
+        printOnlineOrderReceipt(orderId);
+    };
+
+    if(fiscalExists) {
+        printReceiptStep();
+        return;
+    }
+
+    FiscalMachine fm = getFiscalMachine(mWorkStation.fiscalMachineId());
+
+    if(fm.id == 0) {
+        printReceiptStep();
+        return;
+    }
+
+    printOnlineOrderFiscal(header, goods, [this, printReceiptStep](bool fiscalOk) {
+        if(fiscalOk) {
+            printReceiptStep();
+        }
+    });
+}
+
+bool Sales::loadOnlineOrder(const QString &orderId, OHeader &header, QList<OGoods> &goods)
+{
+    C5Database db;
+    db[":f_id"] = orderId;
+    db.exec("select * from o_header where f_id=:f_id");
+
+    if(!header.getRecord(db)) {
+        return false;
+    }
+
+    db[":f_id"] = orderId;
+    db.exec(R"(
+        select og.f_id, og.f_goods,
+               (og.f_qty - coalesce(og.f_returnedqty, 0)) as f_qty,
+               og.f_price, og.f_discountfactor, og.f_emarks,
+               coalesce(nullif(og.f_taxdept, 0), t.f_taxdept) as f_taxdept,
+               coalesce(nullif(og.f_adgcode, ''), t.f_adgcode) as f_adgcode,
+               g.f_name, g.f_fiscalname
+        from o_goods og
+        left join c_goods g on g.f_id=og.f_goods
+        left join c_groups t on t.f_id=g.f_group
+        where og.f_header=:f_id
+          and (og.f_qty - coalesce(og.f_returnedqty, 0)) > 0.000001
+        order by og.f_row
+    )");
+
+    goods.clear();
+
+    while(db.nextRow()) {
+        OGoods g;
+        g.id = db.getString("f_id");
+        g.goods = db.getInt("f_goods");
+        g.qty = db.getDouble("f_qty");
+        g.price = db.getDouble("f_price");
+        g.total = g.qty * g.price;
+        g.discountFactor = db.getDouble("f_discountfactor");
+        g.taxDept = db.getInt("f_taxdept");
+        g.adgCode = db.getString("f_adgcode");
+        g.emarks = db.getString("f_emarks");
+        g._goodsName = db.getString("f_name");
+        g._goodsFiscalName = db.getString("f_fiscalname");
+        goods.append(g);
+    }
+
+    return !goods.isEmpty();
+}
+
+void Sales::printOnlineOrderFiscal(const OHeader &header, const QList<OGoods> &goods,
+                                   std::function<void(bool)> done)
+{
+    if(__c5config.getValue(param_simple_fiscal).toInt() == 1) {
+        if(__c5config.fMainJson["tax_dept"].toString().toInt() == 0) {
+            C5Message::error(tr("Tax department is not set"));
+            done(false);
+            return;
+        }
+    }
+
+    struct FiscalJobData
+    {
+        QString ip, password, cashier, pin, extPos, orderId;
+        int saleType, port, taxDept;
+        double amountCard, amountPrepaid, amountCash;
+        bool simpleFiscal;
+        QList<OGoods> goods;
+    };
+
+    FiscalMachine fm = getFiscalMachine(mWorkStation.fiscalMachineId());
+    FiscalJobData job;
+    job.ip = fm.ip;
+    job.port = fm.port;
+    job.password = fm.machinePassword;
+    job.extPos = fm.externalPosString();
+    job.cashier = fm.opPin;
+    job.pin = fm.opPassword;
+    job.orderId = header.id.toString();
+    job.saleType = header.saleType;
+    job.amountCard = header.amountCard + header.amountIdram + header.amountTelcell;
+    job.amountPrepaid = header.amountPrepaid;
+    job.amountCash = header.amountCash;
+    job.simpleFiscal = (__c5config.getValue(param_simple_fiscal).toInt() == 1);
+    job.taxDept = __c5config.fMainJson["tax_dept"].toString().toInt();
+    job.goods = goods;
+
+    setEnabled(false);
+    const qint64 fiscalStartMs = QDateTime::currentMSecsSinceEpoch();
+    auto *loading = new NLoadingDlg(tr("Printing fiscal check"), this);
+    auto *thread = new QThread();
+    auto *pt = new PrintTaxN(job.ip, job.port, job.password, job.extPos, job.cashier, job.pin, nullptr);
+    pt->moveToThread(thread);
+
+    connect(thread, &QThread::started, pt, [=]() mutable {
+        //pt->fPartnerTin = job.partnerTin;
+
+        if(job.saleType != -1) {
+            for(const auto &g : job.goods) {
+                if(g.price < 0.0001) {
+                    continue;
+                }
+
+                if(!g.emarks.isEmpty()) {
+                    pt->fEmarks.append(g.emarks);
+                }
+
+                if(g.discountFactor > 0.999) {
+                    continue;
+                }
+
+                pt->addGoods(g.taxDept,
+                             g.adgCode,
+                             QString::number(g.goods),
+                             g._goodsFiscalName.isEmpty() ? g._goodsName : g._goodsFiscalName,
+                             g.price,
+                             g.qty,
+                             g.discountFactor * 100);
+            }
+
+            if(job.simpleFiscal) {
+                pt->makeJsonAndPrintSimple(job.taxDept, job.amountCard, job.amountPrepaid, "false");
+            } else {
+                pt->makeJsonAndPrint(job.amountCard, job.amountPrepaid);
+            }
+        } else if(job.simpleFiscal) {
+            pt->makeJsonAndPrintSimple(job.taxDept, job.amountCard, job.amountPrepaid, "false");
+        } else {
+            pt->printAdvanceJson(job.amountCash, job.amountCard);
+        }
+    });
+
+    QPointer<Sales> self(this);
+    connect(pt, &PrintTaxN::finished, this, [=](const QString &inJson, const QString &outJson, const QString &err, int result) {
+        if(!self) {
+            return;
+        }
+
+        self->setEnabled(true);
+        loading->close();
+        loading->deleteLater();
+
+        QJsonObject jtax;
+        jtax["f_order"] = job.orderId;
+        jtax["f_elapsed"] = static_cast<int>(QDateTime::currentMSecsSinceEpoch() - fiscalStartMs);
+        jtax["f_in"] = QJsonDocument::fromJson(inJson.toUtf8()).object();
+        jtax["f_out"] = QJsonDocument::fromJson(outJson.toUtf8()).object();
+        jtax["f_err"] = err;
+        jtax["f_result"] = result;
+        jtax["f_state"] = (result == pt_err_ok ? 1 : 0);
+        QString jtaxStr = QString(QJsonDocument(jtax).toJson(QJsonDocument::Compact));
+        C5Database db;
+        db.exec(QString("call sf_create_shop_tax('%1')").arg(jtaxStr.replace("'", "''")));
+
+        if(result != 0) {
+            QString finalErr = err;
+
+            if(finalErr.contains("-5")) {
+                finalErr = tr("Connection with fiscal machine lost");
+            }
+
+            const auto res = C5Message::question(finalErr, tr("Try again"), tr("Do not print fiscal"));
+
+            if(res == QDialog::Accepted) {
+                thread->quit();
+                thread->wait();
+                self->printOnlineOrderFiscal(header, goods, done);
+                return;
+            }
+
+            thread->quit();
+            done(false);
+            return;
+        }
+
+        thread->quit();
+        done(true);
+    });
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    connect(thread, &QThread::finished, pt, &QObject::deleteLater);
+
+    loading->show();
+    thread->start();
+}
+
+void Sales::printOnlineOrderReceipt(const QString &orderId)
+{
+    if(C5Config::localReceiptPrinter().isEmpty()) {
+        return;
+    }
+
+    PrintReceiptGroup p;
+
+    switch(C5Config::shopPrintVersion()) {
+    case 1: {
+        bool p1 = false;
+        bool p2 = false;
+
+        if(SelectPrinters::selectPrinters(p1, p2, mUser)) {
+            if(p1) {
+                p.print(orderId, 1);
+            }
+
+            if(p2) {
+                p.print(orderId, 2);
+            }
+        }
+
+        break;
+    }
+
+    case 2:
+        p.print2(orderId);
+        break;
+
+    case 3:
+        p.print3(orderId);
+        break;
+
+    default:
+        break;
+    }
 }

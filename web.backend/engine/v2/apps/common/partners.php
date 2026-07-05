@@ -30,9 +30,23 @@ class Partners extends Auth
 
     public function Save($params)
     {
+        if (property_exists($params, "f_id")) {
+            if (is_string($params->f_id)) {
+                $params->f_id = trim($params->f_id);
+            }
+            if ($params->f_id === "" || $params->f_id === "null" || $params->f_id === null
+                || $params->f_id === 0 || $params->f_id === "0") {
+                $params->f_id = null;
+            } elseif (filter_var($params->f_id, FILTER_VALIDATE_INT) !== false) {
+                $params->f_id = (int)$params->f_id;
+            } else {
+                $params->f_id = null;
+            }
+        }
 
         $data = $this->ValidateParams($params, $this->validator["save"]["c_partners"]);
         if (empty($data->f_id)) {
+            unset($data->f_id);
             $data->f_id = $this->insert("c_partners", $data);
         } else {
             $this->update("c_partners", $data, $data->f_id);

@@ -3,6 +3,10 @@
 
 #include "c5shopdialog.h"
 #include "c5database.h"
+#include "oheader.h"
+#include "ogoods.h"
+
+#include <functional>
 
 namespace Ui
 {
@@ -59,6 +63,8 @@ private slots:
 
     void on_btnCloseMenu_clicked();
 
+    void on_btnOnlineOrderFiscal_clicked();
+
 private:
     Ui::Sales* ui;
 
@@ -85,6 +91,13 @@ private:
     int sumOfColumnsWidghtBefore(int column);
 
     void toggleMenu(bool visible);
+
+    bool loadOnlineOrder(const QString &orderId, OHeader &header, QList<OGoods> &goods);
+
+    void printOnlineOrderFiscal(const OHeader &header, const QList<OGoods> &goods,
+                                std::function<void(bool)> done);
+
+    void printOnlineOrderReceipt(const QString &orderId);
 };
 
 #endif // SALES_H

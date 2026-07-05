@@ -3,14 +3,15 @@
 require_once __DIR__ . "/reports.php";
 
 $widget = ["icon" => "cash.png", "title" => "Վաճառք ըստ օրերի"];
-$cols = ["Խումբ", "Ուտեստ", "Գործընկեր"];
+$cols = ["Խանութ", "Խումբ"];
 $hiddencols = [];
 $handler = [];
 $filter = [
     ["type" => "date", "title" => tr("Date of begin"), "field" => "date1"],
     ["type" => "date", "title" => tr("Date of end"), "field" => "date2"],
-    ["type"=> "checkbox", "title"=>tr("Quantities"), "field" => "qnt"],
-    ["type"=> "checkbox", "title"=>tr("Amounts"), "field" => "amount"],
+    ["type" => "keyvalue", "title" => tr("Store"), "field" => "store", "filter" => "storages"],
+    ["type" => "checkbox", "title" => tr("Quantities"), "field" => "qnt"],
+    ["type" => "checkbox", "title" => tr("Amounts"), "field" => "amount"],
 ];
 $colsum = [];
 
@@ -33,64 +34,35 @@ if (empty($params->amount)) {
 $i = 3;
 if ($params->qnt > 0) {
     array_push($cols, "Քանակ");
-    array_push($colsum, [$i => 0]);
+    array_push($colsum, [2 => 0]);
     $i++;
 }
 if ($params->amount > 0) {
     array_push($cols, "Գումար");
-    array_push($colsum, [$i => 0]);
+    array_push($colsum, [3 => 0]);
     $i++;
 }
 
 $d1 = new DateTimeImmutable($params->date1);
 $d2 = (new DateTimeImmutable($params->date2))->modify("+1 day");
 
-$sql = "";
 
-do {
-    
-    if ($params->qnt > 0) {
-        if (!empty($sql)) {
-            $sql .= ",";
-        }
-    $sql .= "cast(coalesce(sum(case when h.f_date='" . $d1->format("Y-m-d") . "' then coalesce(ad.f_qty,0) end), 0) as float) ";
-    }
-    if ($params->amount > 0) {
-        if (!empty($sql)) {
-            $sql .= ",";
-        }
-        $sql .= "cast(coalesce(sum(case when h.f_date='" . $d1->format("Y-m-d") . "' then coalesce(ad.f_total,0) end), 0) as float) ";
-    }
-    array_push($cols, $d1->format("d/m/Y"));
-    if ($params->qnt > 0 && $params->amount > 0) {
-        array_push($cols, "");
-    }
-    array_push($colsum, [$i => 0]);
-    $i++;
-    if ($params->qnt > 0 && $params->amount > 0) {
-        array_push($colsum, [$i => 0]);
-        $i++;
-    }
-    $d1 = $d1->modify("+1 day");
-} while ($d1 < $d2);
-
-$totalfields = "";
-if ($params->qnt  > 0) {
-    $totalfields .= "cast(sum(ad.f_qty) as float),";
-}
-if ($params->amount  > 0) {
-    $totalfields .= "cast(sum(ad.f_total) as float),";
+$store_filter = "";
+if (!empty($params->store)) {
+    $store_filter = "and og.f_store in(" . $params->store . ") ";
+} else {
+    $store_filter = " and og.f_store in (2,3,5,11) ";
 }
 
-$sql = "select gr.f_name, d.f_name, p.f_taxname, " . $totalfields . $sql
-    . "from a_store ad "
-    . "left join a_header h on h.f_id=ad.f_document "
-    . "left join c_goods d on d.f_id=ad.f_goods "
+$sql = "select st.f_name, gr.f_name, sum(og.f_qty), sum(og.f_total)  "
+    . "from o_goods og "
+    . "left join o_header h on h.f_id=og.f_header "
+    . "left join c_goods d on d.f_id=og.f_goods "
     . "left join c_groups gr on gr.f_id=d.f_group "
-    . "left join c_partners p on p.f_id=h.f_partner "
-    . "where h.f_state=1  "
-    . "and h.f_type=1 and h.f_date between '$params->date1' and '$params->date2' "
-    . "group by 1,2,3 ";
+    . "left join c_storages st on st.f_id=og.f_store "
+    . "where h.f_state=2 $store_filter "
+    . "and h.f_datecash between '$params->date1' and '$params->date2' "
+    . "group by 1,2 ";
 
 $rows = stmtall($sql)->fetch_all(MYSQLI_NUM);
 

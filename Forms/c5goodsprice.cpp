@@ -107,6 +107,7 @@ void C5GoodsPriceOrder::addGroupResponse(const QJsonObject &jdoc)
         const QJsonObject &j = jgroup.at(i).toObject();
 
         if(j["f_id"].toInt() == jdoc["group"].toInt()) {
+            fHttp->httpQueryFinished(sender());
             C5Message::error(tr("Group already added"));
             return;
         }
