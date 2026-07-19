@@ -424,6 +424,40 @@ void C5MainWindow::menuListReponse(const QJsonObject &jdoc)
     http->httpQueryFinished(sender());
 }
 
+void C5MainWindow::c5ReportsListResponse(const QJsonObject &jdoc)
+{
+    const QJsonArray ja = jdoc["c5reports"].toArray();
+
+    for(const QJsonValue &v : ja) {
+        const QJsonObject j = v.toObject();
+        const int reportlevel = j["f_level"].toInt();
+        const int legacyId = j["f_id"].toInt();
+        const QString name = j["f_name"].toString();
+        const QString icon = QString(":/%1").arg(j["image"].toString().isEmpty()
+                                                  ? QStringLiteral("documents.png")
+                                                  : j["image"].toString());
+
+        for(QListWidget *menuList : qAsConst(fMenuLists)) {
+            if(menuList->property("reportlevel").toInt() == reportlevel) {
+                auto *l = addTreeL3Item(menuList, 0, name, icon);
+                l->setData(Qt::UserRole + 105, j["route"].toString());
+                l->setData(Qt::UserRole + 106, legacyId);
+                l->setData(Qt::UserRole + 110, icon);
+            }
+        }
+    }
+
+    for(QListWidget *ll : fMenuLists) {
+        int size = ll->count() == 0 ? 0 : (ll->count() * (ll->item(0)->sizeHint().height() + 1));
+        ll->setMinimumHeight(size);
+        ll->setMaximumHeight(ll->minimumHeight());
+        ll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        animateMenu(ll, __c5config.getRegValue(QString("btnmenushow-%1").arg(ll->property("cp").toInt()), false).toBool());
+    }
+
+    http->httpQueryFinished(sender());
+}
+
 void C5MainWindow::updateTimeout()
 {
     fTimer.stop();
@@ -596,7 +630,13 @@ void C5MainWindow::on_listWidgetItemClicked(const QModelIndex &index)
     QString route = item->data(Qt::UserRole + 105).toString();
 
     if(!route.isEmpty()) {
-        createNTab(route, item->data(Qt::UserRole + 110).toString());
+        QJsonObject initParams;
+
+        if(item->data(Qt::UserRole + 106).toInt() > 0) {
+            initParams["id"] = item->data(Qt::UserRole + 106).toInt();
+        }
+
+        createNTab(route, item->data(Qt::UserRole + 110).toString(), initParams);
         return;
     }
 
@@ -1193,24 +1233,6 @@ void C5MainWindow::setDB()
         addTreeL3Item(l, cp_t1_breeze, tr("Breeze service"), ":/configure.png");
     }
 
-    C5Database dbb;
-    dbb[":f_group"] = mUser->group();
-    dbb.exec("select r.f_id, rg.f_level, r.f_name as f_reportname "
-             "from reports r "
-             "inner join reports_group rg on rg.f_id=r.f_group "
-             "inner join reports_permissions ra on ra.f_report=r.f_id "
-             "where ra.f_access=1 and ra.f_group=:f_group ");
-
-    while(dbb.nextRow()) {
-        int reportlevel = dbb.getInt("f_level");
-
-        for(QListWidget *lw : qAsConst(fMenuLists)) {
-            if(lw->property("reportlevel").toInt() == reportlevel) {
-                addTreeL3Item(lw, -1 * dbb.getInt("f_id"), dbb.getString("f_reportname"), ":/documents.png");
-            }
-        }
-    }
-
     readFavoriteMenu();
 
     for(QListWidget *ll : fMenuLists) {
@@ -1222,6 +1244,7 @@ void C5MainWindow::setDB()
     }
 
     ui->lMenu->addStretch(1);
+    http->createHttpQuery("/engine/v2/reports/c5reports/list", QJsonObject(), SLOT(c5ReportsListResponse(QJsonObject)));
     http->createHttpQuery("/engine/reports/list.php", QJsonObject(), SLOT(menuListReponse(QJsonObject)));
 }
 

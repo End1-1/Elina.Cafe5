@@ -1,0 +1,1 @@
+C:\projects\elina_workshop\build\app\intermediates\cxx\RelWithDebInfo\1y1y131u\obj\arm64-v8a

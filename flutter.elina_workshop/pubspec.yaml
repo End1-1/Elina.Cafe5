@@ -1,0 +1,42 @@
+name: cafe5_mobile_client
+description: Cafe5MobileClient
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.3+40
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  shared_preferences: ^2.2.0
+  path: ^1.8.1
+  intl: ^0.19.0
+  percent_indicator: ^4.2.2
+  freezed: ^2.4.1
+  http: ^1.1.0
+  json_annotation: ^4.8.1
+  package_info_plus: ^8.1.0
+  equatable: ^2.0.5
+  flutter_bloc: ^8.1.5
+  flutter_svg: ^2.0.10+1
+  sqflite: ^2.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.1
+  json_serializable: ^6.6.1
+
+  flutter_lints: ^5.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - images/
+

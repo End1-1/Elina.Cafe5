@@ -158,14 +158,23 @@ void C5GoodsPriceOrder::removeLwName(const QJsonObject &jdoc)
 
 void C5GoodsPriceOrder::saveResponse(const QJsonObject &jdoc)
 {
+    applyStockChangeToCurrent(jdoc);
     fHttp->httpQueryFinished(sender());
     C5Message::info(tr("Saved"));
 }
 
 void C5GoodsPriceOrder::discountResponse(const QJsonObject &jdoc)
 {
+    applyStockChangeToCurrent(jdoc);
     fHttp->httpQueryFinished(sender());
     C5Message::info(tr("Saved"));
+}
+
+void C5GoodsPriceOrder::calcStockChangeResponse(const QJsonObject &jdoc)
+{
+    applyStockChangeToCurrent(jdoc);
+    fHttp->httpQueryFinished(sender());
+    showStockChange(jdoc["stock_change"].toObject());
 }
 
 void C5GoodsPriceOrder::refreshSaleStoreResponse(const QJsonObject &jdoc)
@@ -397,7 +406,16 @@ void C5GoodsPriceOrder::setGroupPriceJson(int row, int col, double price)
         if(ui->tblDoc->getInteger(row, 0) == j["f_id"].toInt()) {
             j["f_percent"] = ui->tblDoc->lineEdit(row, col1_percent)->getDouble();
             j["f_price1disc"] = ui->tblDoc->lineEdit(row, col1_retail)->getDouble();
-            j["f_price2disc"] = ui->tblDoc->lineEdit(row, col1_whosale)->getDouble();;
+            j["f_price2disc"] = ui->tblDoc->lineEdit(row, col1_whosale)->getDouble();
+            QJsonArray items = j["items"].toArray();
+
+            for(int k = 0; k < items.size(); k++) {
+                QJsonObject ji = items.at(k).toObject();
+                ji[field] = price;
+                items[k] = ji;
+            }
+
+            j["items"] = items;
             ja[i] = j;
             break;
         }
@@ -688,4 +706,60 @@ void C5GoodsPriceOrder::on_btnPrint_clicked()
     for(const QModelIndex &i : ml) {
         rows.insert(i.row());
     }
+}
+
+void C5GoodsPriceOrder::on_btnShowChanges_clicked()
+{
+    QListWidgetItem *item = ui->lwNames->currentItem();
+
+    if(!item) {
+        return;
+    }
+
+    ui->tblDoc->setCurrentCell(-1, -1);
+    fHttp->createHttpQuery("/engine/goods/create-group-discount.php",
+    QJsonObject{{"action", "calcStockChange"},
+        {"body", item->data(Qt::UserRole + 1).toString() }},
+    SLOT(calcStockChangeResponse(QJsonObject)));
+}
+
+void C5GoodsPriceOrder::applyStockChangeToCurrent(const QJsonObject &jdoc)
+{
+    if(!jdoc.contains("stock_change")) {
+        return;
+    }
+
+    QListWidgetItem *item = ui->lwNames->currentItem();
+
+    if(!item) {
+        return;
+    }
+
+    QJsonObject jo = __strjson(item->data(Qt::UserRole + 1).toString());
+    jo["stock_change"] = jdoc["stock_change"];
+    item->setData(Qt::UserRole + 1, __jsonstr(jo));
+}
+
+void C5GoodsPriceOrder::showStockChange(const QJsonObject &stockChange)
+{
+    QJsonArray byStore = stockChange["by_store"].toArray();
+
+    if(byStore.isEmpty()) {
+        C5Message::info(tr("No changes"));
+        return;
+    }
+
+    QStringList lines;
+
+    for(int i = 0; i < byStore.size(); i++) {
+        const QJsonObject s = byStore.at(i).toObject();
+        double delta = s["delta"].toDouble();
+        QString sign = delta > 0 ? "+" : "";
+        lines << QString("%1 - %2%3")
+              .arg(s["f_name"].toString())
+              .arg(sign)
+              .arg(QString::number(delta, 'f', 0));
+    }
+
+    C5Message::info(lines.join("<br>"));
 }

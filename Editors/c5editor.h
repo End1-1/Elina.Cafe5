@@ -26,6 +26,8 @@ public:
 
     bool getJsonObject(QJsonObject &j);
 
+    void setResultData(const QList<QMap<QString, QVariant> > &data);
+
     virtual void reject() override;
 
     void insertButton(QPushButton *b);

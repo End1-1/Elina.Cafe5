@@ -37,6 +37,8 @@ private slots:
 
     void discountResponse(const QJsonObject &jdoc);
 
+    void calcStockChangeResponse(const QJsonObject &jdoc);
+
     void refreshSaleStoreResponse(const QJsonObject &jdoc);
 
     void lwNamesContextMenu(const QPoint &p);
@@ -77,6 +79,8 @@ private slots:
 
     void on_btnPrint_clicked();
 
+    void on_btnShowChanges_clicked();
+
 private:
     Ui::C5GoodsPriceOrder *ui;
 
@@ -89,6 +93,10 @@ private:
     void getSaledQty();
 
     void setGroupPriceJson(int row, int col, double price);
+
+    void applyStockChangeToCurrent(const QJsonObject &jdoc);
+
+    void showStockChange(const QJsonObject &stockChange);
 };
 
 #endif // C5GoodsPriceOrder_H

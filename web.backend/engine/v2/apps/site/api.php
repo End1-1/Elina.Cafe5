@@ -20,7 +20,7 @@ $otp_ordinator = "HomeFood.am";
 
 $online_order_notify_phone = "+37433111777";
 
-$online_order_hall = 1;
+$online_order_hall = 10;
 
 
 
@@ -232,19 +232,31 @@ class Api extends Auth
 
         $this->onlineLogStep("transaction_started", ["hall_id" => $hallId]);
 
+        $hallSettings = $this->resolveOnlineHallSettings($hallId);
+        $docNumber = $this->reserveOnlineHallDocNumber($hallId);
 
+        $this->onlineLogStep("hall_settings_resolved", array_merge($hallSettings, $docNumber));
 
         $partnerId = $this->resolveOnlineOrderPartner($phone, $name, $address);
 
         $draftData = (array)$params;
 
-        $draftData["f_partner"] = $partnerId;
-
-        if ($hallId > 0) {
-
-            $draftData["f_hall"] = $hallId;
-
+        // payment-method: 1 = cash, 2 = card, other values are undefined for now.
+        $paymentMethod = (int)($params->{"payment-method"} ?? 1);
+        if (!in_array($paymentMethod, [1, 2], true)) {
+            $paymentMethod = 0;
         }
+        $draftData["payment-method"] = $paymentMethod;
+        $draftData["online"] = true;
+        $draftData["f_partner"] = $partnerId;
+        $draftData["f_hall"] = $hallId;
+        $draftData["f_table"] = $hallSettings["f_table"];
+        $draftData["f_store"] = $hallSettings["f_store"];
+        $draftData["f_prefix"] = $docNumber["f_prefix"];
+        $draftData["f_hallid"] = $docNumber["f_hallid"];
+        $draftData["f_docnumber"] = $docNumber["f_docnumber"];
+
+        $defaultStoreId = (int)$hallSettings["f_store"];
 
         $this->onlineLogStep("partner_resolved", ["partner_id" => $partnerId]);
 
@@ -280,7 +292,7 @@ class Api extends Auth
 
             "f_amount" => $total,
 
-            "f_payment" => (int)($params->{"payment-method"} ?? 1),
+            "f_payment" => $paymentMethod,
 
             "f_cashier" => 1,
 
@@ -308,7 +320,7 @@ class Api extends Auth
 
         foreach ($goodsRows as $i => $row) {
 
-            $this->insert("o_draft_sale_body", [
+            $bodyRow = [
 
                 "f_id" => uuid_v4(),
 
@@ -326,9 +338,17 @@ class Api extends Auth
 
                 "f_price" => (float)$row['price'],
 
-                "f_row" => $i
+                "f_row" => $i,
 
-            ]);
+            ];
+
+            if ($defaultStoreId > 0) {
+
+                $bodyRow["f_store"] = $defaultStoreId;
+
+            }
+
+            $this->insert("o_draft_sale_body", $bodyRow);
 
         }
 
@@ -479,6 +499,74 @@ class Api extends Auth
     }
 
 
+
+    private function resolveOnlineHallSettings(int $hallId): array
+    {
+        $hall = $this->select(
+            "select f_id, f_name, f_prefix, f_settings from h_halls where f_id=? limit 1",
+            "i",
+            [$hallId]
+        )->fetch_assoc();
+
+        if (!$hall) {
+            $this->onlineLogFail("Hall not found: " . $hallId);
+        }
+
+        $settings = [];
+        $settingsId = (int)($hall["f_settings"] ?? 0);
+        if ($settingsId > 0) {
+            $rows = $this->select(
+                "select f_key, trim(f_value) as f_value from s_settings_values where f_settings=? and f_key in (11, 12, 14, 32, 35)",
+                "i",
+                [$settingsId]
+            )->fetch_all(MYSQLI_ASSOC);
+            foreach ($rows as $row) {
+                $settings[(int)$row["f_key"]] = $row["f_value"];
+            }
+        }
+
+        $tableId = (int)($settings[12] ?? 0);
+        if ($tableId <= 0) {
+            $tableRow = $this->select(
+                "select f_id from h_tables where f_hall=? order by f_id limit 1",
+                "i",
+                [$hallId]
+            )->fetch_assoc();
+            $tableId = (int)($tableRow["f_id"] ?? 0);
+        }
+
+        return [
+            "f_hall" => $hallId,
+            "f_table" => $tableId,
+            "f_store" => (int)($settings[14] ?? 0),
+            "f_prefix" => (string)($hall["f_prefix"] ?? ""),
+            "f_settings" => $settingsId,
+        ];
+    }
+
+    private function reserveOnlineHallDocNumber(int $hallId): array
+    {
+        $row = $this->select(
+            "select f_counter + 1 as f_hallid, f_prefix from h_halls where f_id=? for update",
+            "i",
+            [$hallId]
+        )->fetch_assoc();
+
+        if (!$row) {
+            $this->onlineLogFail("Hall not found for doc number: " . $hallId);
+        }
+
+        $hallNumber = (int)$row["f_hallid"];
+        $prefix = (string)$row["f_prefix"];
+        $this->update("h_halls", ["f_counter" => $hallNumber], $hallId);
+
+        return [
+            "f_hall" => $hallId,
+            "f_hallid" => $hallNumber,
+            "f_prefix" => $prefix,
+            "f_docnumber" => $prefix . $hallNumber,
+        ];
+    }
 
     private function resolveOnlineOrderPartner(string $phone, string $name, string $address): int
 

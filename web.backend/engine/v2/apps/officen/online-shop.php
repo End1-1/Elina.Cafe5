@@ -12,7 +12,7 @@ class OnlineShop extends Auth
             dieWithCode("Empty goods list");
         }
 
-        $stores = $this->select("select f_id, f_name from c_storages order by f_name")->fetch_all(MYSQLI_ASSOC);
+        $allStores = $this->select("select f_id, f_name from c_storages order by f_name")->fetch_all(MYSQLI_ASSOC);
 
         $goodsIds = [];
         foreach ($params->rows as $row) {
@@ -68,8 +68,8 @@ class OnlineShop extends Auth
             $draftMap[$goodsId][$storeId] = (float)$draftRow["f_qty"];
         }
 
-        foreach ($draftMap as $goodsId => $stores) {
-            foreach ($stores as $storeId => $draftQty) {
+        foreach ($draftMap as $goodsId => $draftStores) {
+            foreach ($draftStores as $storeId => $draftQty) {
                 if ($draftQty < 0.000001) {
                     continue;
                 }
@@ -87,11 +87,11 @@ class OnlineShop extends Auth
             }
         }
 
-        $stores = array_values(array_filter(
-            $stores,
-            fn($store) => !empty($storeHasQty[(int)$store["f_id"]])
+        $visibleStores = array_values(array_filter(
+            $allStores,
+            fn($store) => is_array($store) && !empty($storeHasQty[(int)$store["f_id"]])
         ));
-        $this->result["stores"] = $stores;
+        $this->result["stores"] = $visibleStores;
 
         $resultRows = [];
         foreach ($params->rows as $row) {
@@ -101,7 +101,7 @@ class OnlineShop extends Auth
             }
 
             $stocks = [];
-            foreach ($stores as $store) {
+            foreach ($visibleStores as $store) {
                 $storeId = (int)$store["f_id"];
                 $stocks[] = [
                     "store_id" => $storeId,

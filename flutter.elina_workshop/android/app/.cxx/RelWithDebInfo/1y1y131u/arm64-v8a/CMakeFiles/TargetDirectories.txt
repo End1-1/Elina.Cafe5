@@ -1,0 +1,2 @@
+C:/projects/elina_workshop/android/app/.cxx/RelWithDebInfo/1y1y131u/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/projects/elina_workshop/android/app/.cxx/RelWithDebInfo/1y1y131u/arm64-v8a/CMakeFiles/rebuild_cache.dir

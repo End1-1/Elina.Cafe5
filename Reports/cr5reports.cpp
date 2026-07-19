@@ -6,8 +6,15 @@
 #include "c5saledoc.h"
 #include "cr5reportsfilter.h"
 #include "c5message.h"
+#include "c5config.h"
+#include "c5user.h"
 #include "ntablewidget.h"
 #include <QJsonObject>
+#include <QJsonDocument>
+#include <QEventLoop>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QSslConfiguration>
 
 #define REPORT_HANDLER_GIFT_CARD_TOTAL "ff64e987-a0b2-11ef-b479-022165c6dab1"
 
@@ -33,48 +40,80 @@ QToolBar* CR5Reports::toolBar()
     return fToolBar;
 }
 
+bool CR5Reports::fetchReportConfig(int id, QJsonObject &report)
+{
+    if(C5Config::fDBPath.isEmpty()) {
+        C5Message::error(tr("Database not configured"));
+        return false;
+    }
+
+    QJsonObject jo;
+    jo["call"] = "c5report";
+    jo["id"] = id;
+    jo["sessionkey"] = mUser ? mUser->mSessionKey : QString();
+
+    const QString netPath = QString("%1://%2/engine/reports/list.php")
+                            .arg(C5Config::fDBHost, C5Config::fDBPath);
+    QNetworkAccessManager m;
+    QNetworkRequest rq(netPath);
+    m.setTransferTimeout(60000);
+    rq.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    if(netPath.contains("https://")) {
+        QSslConfiguration sslConf = rq.sslConfiguration();
+        sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+        sslConf.setProtocol(QSsl::AnyProtocol);
+        rq.setSslConfiguration(sslConf);
+    }
+
+    auto *r = m.post(rq, QJsonDocument(jo).toJson());
+    QEventLoop loop;
+    connect(r, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if(r->error() != QNetworkReply::NoError) {
+        C5Message::error(r->errorString());
+        r->deleteLater();
+        return false;
+    }
+
+    const QByteArray ba = r->readAll();
+    r->deleteLater();
+    const QJsonObject response = QJsonDocument::fromJson(ba).object();
+
+    if(response["status"].toInt() != 1 || !response.contains("report")) {
+        C5Message::error(tr("Invalid report id"));
+        return false;
+    }
+
+    report = response["report"].toObject();
+    return true;
+}
+
 void CR5Reports::setReport(int id)
 {
-    C5Database db;
-    db[":f_id"] = id;
-    db.exec("select * from reports where f_id=:f_id");
-
-    if(db.nextRow() == false) {
-        C5Message::error(tr("Invalid report id"));
+    QJsonObject report;
+    if(!fetchReportConfig(id, report)) {
         return;
     }
 
-    fHandlerUuid = db.getString("f_handler");
-    fDeleteHandler = db.getString("f_deletehandler");
-    fFilterHandler = db.getString("f_filterhandler");
-    fQuery = db.getString("f_query");
-    fLabel = db.getString("f_name");
-    QStringList sumColumns = db.getString("f_sumcolumn_indexes").split(",", Qt::SkipEmptyParts);
+    fHandlerUuid = report["f_handler"].toString();
+    fDeleteHandler = report["f_deletehandler"].toString();
+    fFilterHandler = report["f_filterhandler"].toString();
+    fQuery = report["f_query"].toString();
+    fLabel = report["f_name"].toString();
+    QStringList sumColumns = report["f_sumcolumn_indexes"].toString().split(",", Qt::SkipEmptyParts);
 
     for(const QString &s : std::as_const(sumColumns)) {
         fColumnsSumIndex.append(s.toInt());
     }
 
-    db[":f_id"] = fFilterHandler;
-    db.exec("select * from reports_handler where f_id=:f_id");
-
-    if(db.nextRow()) {
-        fFilter->setFields(db.getString("f_query").split(",", Qt::SkipEmptyParts));
+    if(!fFilterHandler.isEmpty()) {
+        fFilter->setFields(fFilterHandler.split(",", Qt::SkipEmptyParts));
     }
 
     if(!fDeleteHandler.isEmpty()) {
-        db[":f_id"] = fDeleteHandler;
-        db.exec("select * from reports_handler where f_id=:f_id");
-
-        if(db.nextRow()) {
-            fDeleteHandler = db.getString("f_query");
-
-            if(!fDeleteHandler.isEmpty()) {
-                fToolBar->addAction(QIcon(":/delete.png"), tr("Remove"), this, SLOT(removeHandler(bool)));
-            }
-        }
-
-        //connect(a, &QAction::triggered, this, &CR5Reports::removeHandler);
+        fToolBar->addAction(QIcon(":/delete.png"), tr("Remove"), this, SLOT(removeHandler(bool)));
     }
 
     fFilter->restoreFilter(this);

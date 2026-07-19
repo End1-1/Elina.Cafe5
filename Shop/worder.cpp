@@ -1164,7 +1164,10 @@ void WOrder::on_leCode_textChanged(const QString &arg1)
 }
 void WOrder::on_leCode_returnPressed()
 {
-    QString code = ui->leCode->text().replace(";", "").replace("?", "");
+    QString code = ui->leCode->text().replace(";", "");
+    if (code.length() < 29) {
+        code.replace("?", "");
+    }
     C5ReplaceCharacter::replace(code);
 
     if (code.isEmpty()) {

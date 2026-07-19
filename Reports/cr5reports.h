@@ -2,6 +2,7 @@
 #define CR5REPORTS_H
 
 #include "c5reportwidget.h"
+#include <QJsonObject>
 
 class CR5ReportsFilter;
 
@@ -31,6 +32,8 @@ private:
     QString fFilterHandler;
     QString fQuery;
     CR5ReportsFilter *fFilter;
+
+    bool fetchReportConfig(int id, QJsonObject &report);
 
 private slots:
     void removeHandler(bool checked = false);

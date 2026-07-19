@@ -33,13 +33,20 @@ public:
 
     virtual QString savePathV2() const override;
 
+    virtual bool isOnline() override;
+
+    int savedPartnerId() const;
+
 private slots:
     void on_btnClearManager_clicked();
+
+    void saveResponse(const QJsonObject &jdoc);
 
 private:
     Ui::CE5Partner *ui;
 
     bool fNew;
+    int fSavedPartnerId;
 };
 
 #endif // CE5PARTNER_H

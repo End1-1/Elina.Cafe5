@@ -35,6 +35,10 @@
 #include "struct_workstationitem.h"
 #include "ui_c5saledoc.h"
 #include <xlsxdocument.h>
+#include <QSettings>
+#include "version.h"
+
+#define SETTINGS_ALWAYS_GEN "C5SaleDoc/alwaysGen"
 
 #define col_uuid 0
 #define col_checkbox 1
@@ -99,6 +103,9 @@ C5SaleDoc::C5SaleDoc(QWidget *parent)
     ui->cbCashDesk->setCurrentIndex(ui->cbCashDesk->findData(__c5config.getValue(param_default_table).toInt()));
     ui->tblGoods->setColumnHidden(col_none, true);
     fOpenedFromDraft = false;
+    fDocNumberReserved = false;
+    fAssignedHallNumber = 0;
+    fAssignedHall = 0;
     fActionSave = nullptr;
     fActionDraft = nullptr;
     fActionCopy = nullptr;
@@ -113,6 +120,11 @@ C5SaleDoc::C5SaleDoc(QWidget *parent)
     connect(ui->lePrepaid, &C5LineEdit::doubleClicked, this, &C5SaleDoc::amountDoubleClicked);
     connect(ui->leDebt, &C5LineEdit::doubleClicked, this, &C5SaleDoc::amountDoubleClicked);
     connect(ui->leBankTransfer, &C5LineEdit::doubleClicked, this, &C5SaleDoc::amountDoubleClicked);
+
+    QSettings settings(_ORGANIZATION_, _APPLICATION_ + QString("\\") + _MODULE_);
+    ui->chAlwaysGen->setChecked(settings.value(SETTINGS_ALWAYS_GEN, false).toBool());
+    ui->chAlwaysGen->setToolTip(tr("Always generate sale number when opening a new document"));
+    connect(ui->chAlwaysGen, &QPushButton::toggled, this, &C5SaleDoc::on_chAlwaysGen_toggled);
 }
 
 C5SaleDoc::~C5SaleDoc()
@@ -140,6 +152,198 @@ void C5SaleDoc::setMode(int mode)
         ui->btnEditPartner->setEnabled(false);
         ui->wtoolbar->setEnabled(false);
         break;
+    }
+
+    tryReserveDocNumber();
+}
+
+bool C5SaleDoc::parseDocNumberText(const QString &text, QString &prefix, int &hallId)
+{
+    const QString t = text.trimmed();
+    if (t.isEmpty()) {
+        return false;
+    }
+
+    int pos = t.size();
+    while (pos > 0 && t.at(pos - 1).isDigit()) {
+        --pos;
+    }
+
+    if (pos == t.size()) {
+        prefix = t;
+        hallId = 1;
+        return true;
+    }
+
+    prefix = t.left(pos);
+    hallId = t.mid(pos).toInt();
+    return hallId > 0;
+}
+
+bool C5SaleDoc::docNumberForSave(int &hallId, QString &prefix) const
+{
+    return parseDocNumberText(ui->leDocnumber->text(), prefix, hallId);
+}
+
+bool C5SaleDoc::canReserveDocNumber() const
+{
+    if (!ui->chAlwaysGen->isChecked()) {
+        return false;
+    }
+
+    if (hasDocNumberText()) {
+        return false;
+    }
+
+    if (fAssignedHallNumber > 0 || ui->leDocnumber->property("f_hallid").toInt() > 0) {
+        return false;
+    }
+
+    if (!ui->cbHall->currentData().isValid() || ui->cbHall->currentData().toInt() < 1) {
+        return false;
+    }
+
+    const QString uuid = ui->leUuid->text();
+    if (!uuid.isEmpty()) {
+        C5Database db;
+        db[":f_id"] = uuid;
+        if (db.exec("select f_id from o_header where f_id=:f_id") && db.nextRow()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool C5SaleDoc::reserveDocNumber(QString &err)
+{
+    const int hall = ui->cbHall->currentData().toInt();
+    if (hall < 1) {
+        err = tr("Hall is not valid");
+        return false;
+    }
+
+    C5Database db;
+    db[":f_id"] = hall;
+    if (!db.exec("select f_counter + 1, f_prefix from h_halls where f_id=:f_id for update")) {
+        err = db.fLastError;
+        return false;
+    }
+
+    if (!db.nextRow()) {
+        err = tr("No hall with id") + "<br>" + ui->cbHall->currentText();
+        return false;
+    }
+
+    const int hallNumber = db.getInt(0);
+    const QString prefix = db.getString(1);
+    db[":f_counter"] = hallNumber;
+    if (!db.update("h_halls", where_id(hall))) {
+        err = db.fLastError;
+        return false;
+    }
+
+    applyAssignedDocNumber(hall, prefix, hallNumber, true);
+    persistReservedDocNumber();
+    return true;
+}
+
+void C5SaleDoc::applyAssignedDocNumber(int hall, const QString &prefix, int hallNumber, bool locallyReserved)
+{
+    fAssignedHall = hall;
+    fAssignedPrefix = prefix;
+    fAssignedHallNumber = hallNumber;
+    fDocNumberReserved = locallyReserved;
+    ui->leDocnumber->setText(QString("%1%2").arg(prefix).arg(hallNumber));
+    ui->leDocnumber->setProperty("f_hallid", hallNumber);
+    ui->leDocnumber->setProperty("f_prefix", prefix);
+    ui->leDocnumber->setProperty("f_hall", hall);
+}
+
+void C5SaleDoc::clearAssignedDocNumber()
+{
+    fAssignedHall = 0;
+    fAssignedPrefix.clear();
+    fAssignedHallNumber = 0;
+    fDocNumberReserved = false;
+}
+
+bool C5SaleDoc::hasDocNumberText() const
+{
+    return !ui->leDocnumber->text().trimmed().isEmpty();
+}
+
+void C5SaleDoc::updateCashDesksForHall(int hallId, int defaultTableId)
+{
+    ui->cbCashDesk->clear();
+    QString sql;
+    if (defaultTableId > 0) {
+        sql = QString("select f_id, f_name from h_tables where f_hall=%1 or f_id=%2 order by 2")
+                .arg(hallId)
+                .arg(defaultTableId);
+    } else {
+        sql = QString("select f_id, f_name from h_tables where f_hall=%1 order by 2").arg(hallId);
+    }
+    ui->cbCashDesk->setDBValues(sql);
+
+    int tableId = defaultTableId;
+    if (tableId <= 0 && hallId == __c5config.getValue(param_default_hall).toInt()) {
+        tableId = __c5config.getValue(param_default_table).toInt();
+    }
+    if (tableId > 0) {
+        ui->cbCashDesk->setIndexForValue(tableId);
+    }
+}
+
+void C5SaleDoc::tryReserveDocNumber()
+{
+    if (fMode == 3 || fMode == 4) {
+        return;
+    }
+
+    if (!canReserveDocNumber()) {
+        return;
+    }
+
+    QString err;
+    if (!reserveDocNumber(err)) {
+        C5Message::error(err);
+    }
+}
+
+void C5SaleDoc::persistReservedDocNumber()
+{
+    if (fAssignedHallNumber < 1 || fAssignedPrefix.isEmpty() || fAssignedHall < 1) {
+        return;
+    }
+
+    QString uuid = ui->leUuid->text();
+    if (uuid.isEmpty()) {
+        uuid = C5Database::uuid();
+        ui->leUuid->setText(uuid);
+    }
+
+    QJsonObject draftData;
+    draftData["f_prefix"] = fAssignedPrefix;
+    draftData["f_hallid"] = fAssignedHallNumber;
+    draftData["f_hall"] = fAssignedHall;
+    draftData["f_docnumber"] = ui->leDocnumber->text();
+
+    C5Database db;
+    db[":f_id"] = uuid;
+    db[":f_data"] = QString::fromUtf8(QJsonDocument(draftData).toJson(QJsonDocument::Compact));
+    if (db.exec("select f_id from o_draft_sale where f_id=:f_id") && db.nextRow()) {
+        db.exec("update o_draft_sale set f_data=:f_data where f_id=:f_id");
+    }
+}
+
+void C5SaleDoc::on_chAlwaysGen_toggled(bool checked)
+{
+    QSettings settings(_ORGANIZATION_, _APPLICATION_ + QString("\\") + _MODULE_);
+    settings.setValue(SETTINGS_ALWAYS_GEN, checked);
+
+    if (checked) {
+        tryReserveDocNumber();
     }
 }
 
@@ -220,7 +424,10 @@ bool C5SaleDoc::openDoc(const QString &uuid)
         return false;
     }
 
+    ui->cbHall->blockSignals(true);
     ui->cbHall->setCurrentIndex(ui->cbHall->findData(o.hall));
+    ui->cbHall->blockSignals(false);
+    updateCashDesksForHall(o.hall);
     ui->cbCashDesk->setCurrentIndex(ui->cbCashDesk->findData(o.table));
     ui->leCashier->setProperty("f_cashier", db.getInt("f_cashier"));
     setMode(db.getInt("f_saletype"));
@@ -232,6 +439,7 @@ bool C5SaleDoc::openDoc(const QString &uuid)
     ui->leDocnumber->setText(QString("%1%2").arg(db.getString("f_prefix")).arg(db.getInt("f_hallid")));
     ui->leDocnumber->setProperty("f_hallid", db.getInt("f_hallid"));
     ui->leDocnumber->setProperty("f_prefix", db.getString("f_prefix"));
+    clearAssignedDocNumber();
     ui->leCash->setDouble(db.getDouble("f_amountcash"));
     ui->leCard->setDouble(db.getDouble("f_amountcard"));
     ui->leBankTransfer->setDouble(db.getDouble("f_amountbank"));
@@ -913,25 +1121,23 @@ void C5SaleDoc::saveDataChanges()
     jdoc["draft"] = jd;
     QJsonObject jh;
     jh["f_id"] = uuid;
-    int hallId = ui->leDocnumber->property("f_hallid").toInt();
-    QString prefix = ui->leDocnumber->property("f_prefix").toString();
-    if (hallId < 1 || prefix.isEmpty()) {
-        C5Database draftDb;
-        draftDb[":f_id"] = uuid;
-        if (draftDb.exec("select f_data from o_draft_sale where f_id=:f_id") && draftDb.nextRow()) {
-            const QJsonObject draftData = QJsonDocument::fromJson(draftDb.getString("f_data").toUtf8()).object();
-            if (hallId < 1) {
-                hallId = draftData.value("f_hallid").toInt();
-            }
-            if (prefix.isEmpty()) {
-                prefix = draftData.value("f_prefix").toString();
-            }
-        }
+    const int selectedHall = ui->cbHall->currentData().toInt();
+    int hallId = 0;
+    QString prefix;
+
+    C5Database headerDb;
+    headerDb[":f_id"] = uuid;
+    if (headerDb.exec("select f_prefix, f_hallid from o_header where f_id=:f_id") && headerDb.nextRow()) {
+        hallId = headerDb.getInt("f_hallid");
+        prefix = headerDb.getString("f_prefix");
+    } else if (!docNumberForSave(hallId, prefix)) {
+        hallId = 0;
+        prefix.clear();
     }
     jh["f_hallid"] = hallId;
     jh["f_prefix"] = prefix;
     jh["f_state"] = ORDER_STATE_CLOSE;
-    jh["f_hall"] = ui->cbHall->currentData().toInt();
+    jh["f_hall"] = selectedHall;
     jh["f_table"] = ui->cbCashDesk->currentData().toInt();
     jh["f_dateopen"] = QDate::currentDate().toString(FORMAT_DATE_TO_STR_MYSQL);
     jh["f_dateclose"] = QDate::currentDate().toString(FORMAT_DATE_TO_STR_MYSQL);
@@ -1036,13 +1242,24 @@ void C5SaleDoc::saveDataChanges()
         return ;
     }
 
-    hallId = jr.value("f_hallid").toInt();
-    prefix = jr.value("f_prefix").toString();
+    hallId = jr.value("f_hallid").toVariant().toInt();
+    prefix = jr.value("f_prefix").toVariant().toString();
+    if (hallId < 1 || prefix.isEmpty()) {
+        db[":f_id"] = uuid;
+        if (db.exec("select f_prefix, f_hallid from o_header where f_id=:f_id") && db.nextRow()) {
+            if (hallId < 1) {
+                hallId = db.getInt("f_hallid");
+            }
+            if (prefix.isEmpty()) {
+                prefix = db.getString("f_prefix");
+            }
+        }
+    }
     if (hallId > 0 && !prefix.isEmpty()) {
         ui->leDocnumber->setText(QString("%1%2").arg(prefix).arg(hallId));
-        ui->leDocnumber->setProperty("f_hallid", hallId);
-        ui->leDocnumber->setProperty("f_prefix", prefix);
     }
+
+    fDocNumberReserved = false;
 
     for(int r = 0; r < ui->tblGoods->rowCount(); r++) {
         for(int c = 0; c < ui->tblGoods->columnCount(); c++) {
@@ -1231,6 +1448,44 @@ void C5SaleDoc::countTotalQty()
     ui->leTotalQty->setDouble(totalqty);
 }
 
+void C5SaleDoc::applyDraftPayment(int payment)
+{
+    ui->leCash->clear();
+    ui->leCard->clear();
+    ui->leBankTransfer->clear();
+    ui->leDebt->clear();
+    ui->lePrepaid->clear();
+
+    const double amount = ui->leGrandTotal->getDouble() > 0.001
+            ? ui->leGrandTotal->getDouble()
+            : fDraftSale.amount;
+
+    switch(payment) {
+    case 1:
+        ui->leCash->setDouble(amount);
+        break;
+
+    case 2:
+        ui->leCard->setDouble(amount);
+        break;
+
+    case 3:
+        ui->leBankTransfer->setDouble(amount);
+        break;
+
+    case 6:
+        ui->leCard->setDouble(amount);
+        break;
+
+    case 7:
+        ui->leDebt->setDouble(amount);
+        break;
+
+    default:
+        break;
+    }
+}
+
 bool C5SaleDoc::openDraft(const QString &id)
 {
     toolBar();
@@ -1280,26 +1535,53 @@ bool C5SaleDoc::openDraft(const QString &id)
     ui->leComment->setText(fDraftSale.comment);
     ui->leUuid->setText(fDraftSale.id.toString());
     ui->leDelivery->setText(fDraftSale.deliveryDate.toString(FORMAT_DATE_TO_STR));
-    if (fDraftSale.hall > 0) {
-        ui->cbHall->setCurrentIndex(ui->cbHall->findData(fDraftSale.hall));
-    }
 
     db[":f_id"] = id;
     db.exec("select f_data from o_draft_sale where f_id=:f_id");
+    int draftHallId = fDraftSale.hall;
+    int draftPayment = fDraftSale.payment;
+    int draftTableId = 0;
+    int draftStoreId = 0;
     if (db.nextRow()) {
         const QJsonObject draftData = QJsonDocument::fromJson(db.getString("f_data").toUtf8()).object();
+        if (draftData.contains("payment-method")) {
+            draftPayment = draftData.value("payment-method").toInt(draftPayment);
+        }
         const QString prefix = draftData.value("f_prefix").toString();
         const int hallNumber = draftData.value("f_hallid").toInt();
         if (!prefix.isEmpty() && hallNumber > 0) {
-            ui->leDocnumber->setText(QString("%1%2").arg(prefix).arg(hallNumber));
-            ui->leDocnumber->setProperty("f_hallid", hallNumber);
-            ui->leDocnumber->setProperty("f_prefix", prefix);
+            const int draftHall = draftData.value("f_hall").toInt() > 0
+                    ? draftData.value("f_hall").toInt()
+                    : fDraftSale.hall;
+            applyAssignedDocNumber(draftHall, prefix, hallNumber, false);
         } else if (!draftData.value("f_docnumber").toString().isEmpty()) {
             ui->leDocnumber->setText(draftData.value("f_docnumber").toString());
         }
         if (draftData.value("f_hall").toInt() > 0) {
-            ui->cbHall->setCurrentIndex(ui->cbHall->findData(draftData.value("f_hall").toInt()));
+            draftHallId = draftData.value("f_hall").toInt();
         }
+        draftTableId = draftData.value("f_table").toInt();
+        draftStoreId = draftData.value("f_store").toInt();
+    }
+
+    if (draftTableId <= 0 && draftHallId > 0) {
+        db[":f_hall"] = draftHallId;
+        db.exec("select trim(sv.f_value) as f_table "
+                "from h_halls h "
+                "left join s_settings_values sv on sv.f_settings=h.f_settings and sv.f_key=12 "
+                "where h.f_id=:f_hall");
+        if (db.nextRow()) {
+            draftTableId = db.getInt("f_table");
+        }
+    }
+
+    ui->cbHall->blockSignals(true);
+    if (draftHallId > 0) {
+        ui->cbHall->setCurrentIndex(ui->cbHall->findData(draftHallId));
+    }
+    ui->cbHall->blockSignals(false);
+    if (draftStoreId > 0) {
+        ui->cbStorage->setCurrentIndex(ui->cbStorage->findData(draftStoreId));
     }
 
     setDeliveryMan();
@@ -1353,26 +1635,11 @@ bool C5SaleDoc::openDraft(const QString &id)
 
     fOpenedFromDraft = true;
 
-    switch(fDraftSale.payment) {
-    case 1:
-        ui->leCash->setDouble(ui->leGrandTotal->getDouble());
-        break;
+    countGrandTotal();
+    applyDraftPayment(draftPayment);
 
-    case 2:
-        ui->leCard->setDouble(ui->leGrandTotal->getDouble());
-        break;
-
-    case 3:
-        ui->leBankTransfer->setDouble(ui->leGrandTotal->getDouble());
-        break;
-
-    case 6:
-        ui->leCard->setDouble(ui->leGrandTotal->getDouble());
-        break;
-
-    case 7:
-        ui->leDebt->setDouble(ui->leGrandTotal->getDouble());
-        break;
+    if (draftHallId > 0) {
+        updateCashDesksForHall(draftHallId, draftTableId);
     }
 
     db[":f_header"] = id;
@@ -1384,6 +1651,7 @@ bool C5SaleDoc::openDraft(const QString &id)
 
     fActionSave->setEnabled(true);
     fActionCopy->setEnabled(false);
+    tryReserveDocNumber();
     for(int r = 0; r < ui->tblGoods->rowCount(); r++) {
         for(int c = 0; c < ui->tblGoods->columnCount(); c++) {
             QWidget *w = ui->tblGoods->cellWidget(r, c);
@@ -1720,12 +1988,28 @@ void C5SaleDoc::on_btnNewGoods_clicked()
 
 void C5SaleDoc::on_cbHall_currentIndexChanged(int index)
 {
-    ui->cbCashDesk->clear();
-    ui->cbCashDesk->setDBValues(QString("select f_id, f_name from h_tables where f_hall=%1").arg(ui->cbHall->itemData(index).toInt()));
+    const int hallId = ui->cbHall->itemData(index).toInt();
+    updateCashDesksForHall(hallId);
 
-    if(ui->cbHall->itemData(index).toInt() == __c5config.getValue(param_default_hall).toInt()) {
-        ui->cbCashDesk->setCurrentIndex(ui->cbCashDesk->findData(__c5config.getValue(param_default_table).toInt()));
+    if (hasDocNumberText()) {
+        return;
     }
+
+    if (!ui->chAlwaysGen->isChecked()) {
+        return;
+    }
+
+    const QString uuid = ui->leUuid->text();
+    if (!uuid.isEmpty()) {
+        C5Database db;
+        db[":f_id"] = uuid;
+        if (db.exec("select f_id from o_header where f_id=:f_id") && db.nextRow()) {
+            return;
+        }
+    }
+
+    clearAssignedDocNumber();
+    tryReserveDocNumber();
 }
 
 void C5SaleDoc::on_btnSearchTaxpayer_clicked()
@@ -1769,13 +2053,17 @@ void C5SaleDoc::on_btnEditPartner_clicked()
         QList<QMap<QString, QVariant> > data;
 
         if(e->getResult(data)) {
-            if(data.at(0)["f_id"].toInt() == 0) {
+            const int partnerId = data.isEmpty()
+                    ? ep->savedPartnerId()
+                    : data.at(0).value("f_id").toInt();
+            if(partnerId == 0) {
                 C5Message::error(tr("Cannot change partner without code"));
+                delete e;
                 return;
             }
 
             C5Database db;
-            fPartner.queryRecordOfId(db, fPartner.id.toInt());
+            fPartner.queryRecordOfId(db, partnerId);
             setPartner();
         }
 
@@ -2036,6 +2324,9 @@ bool C5SaleDoc::writeDraftLocally(const QString &uuid, QString &err)
         draftData["f_prefix"] = prefix;
         draftData["f_hallid"] = hallId;
         draftData["f_hall"] = fDraftSale.hall;
+        if (!ui->leDocnumber->text().isEmpty()) {
+            draftData["f_docnumber"] = ui->leDocnumber->text();
+        }
         db[":f_data"] = QString::fromUtf8(QJsonDocument(draftData).toJson(QJsonDocument::Compact));
         db[":f_id"] = uuid;
         db.exec("update o_draft_sale set f_data=:f_data where f_id=:f_id");
@@ -2167,6 +2458,10 @@ void C5SaleDoc::on_btnCopyUUID_clicked()
 
 void C5SaleDoc::on_btnStock_clicked()
 {
+    if (!hasDocNumberText()) {
+        tryReserveDocNumber();
+    }
+
     QJsonArray rows;
     for (int i = 0; i < ui->tblGoods->rowCount(); i++) {
         const int goodsId = ui->tblGoods->getInteger(i, col_goods_code);
@@ -2186,4 +2481,28 @@ void C5SaleDoc::on_btnStock_clicked()
     }
 
     DlgSaleStockMatrix::open(mUser, this, rows, ui->cbStorage->currentData().toInt(), ui->leDocnumber->text());
+}
+
+void C5SaleDoc::on_btnNewPartner_clicked()
+{
+    CE5Partner *ep = new CE5Partner();
+    C5Editor *e = C5Editor::createEditor(mUser, ep, 0);
+    QList<QMap<QString, QVariant> > data;
+
+    if (e->getResult(data)) {
+        const int partnerId = data.isEmpty()
+                ? ep->savedPartnerId()
+                : data.at(0).value("f_id").toInt();
+        if (partnerId == 0) {
+            C5Message::error(tr("Cannot add partner without code"));
+            delete e;
+            return;
+        }
+
+        C5Database db;
+        fPartner.queryRecordOfId(db, partnerId);
+        setPartner();
+    }
+
+    delete e;
 }

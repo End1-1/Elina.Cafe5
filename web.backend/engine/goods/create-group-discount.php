@@ -81,22 +81,26 @@ class CreateGroupDiscount extends PClass
 
     public function save()
     {
+        $body = $this->decodeBody($this->params->body);
+        $sc = $this->buildStockChange($body, false);
+        $body->stock_change = json_decode(json_encode($sc));
         $v["f_name"] = $this->params->name;
-        $v["f_body"] = $this->params->body;
+        $v["f_body"] = json_encode($body, JSON_UNESCAPED_UNICODE);
         $v["f_state"] = 1;
         $this->supdate("c_goods_price_order", $v, $this->params->itemid);
-        $this->result["result"] = "not implemented";
+        $this->result["stock_change"] = $sc;
         $this->echoResult();
     }
 
     public function discount()
     {
+        $body = $this->decodeBody($this->params->body);
+        $sc = $this->buildStockChange($body, false);
+        $body->stock_change = json_decode(json_encode($sc));
         $v["f_name"] = $this->params->name;
-        $v["f_body"] = $this->params->body;
+        $v["f_body"] = json_encode($body, JSON_UNESCAPED_UNICODE);
         $v["f_state"] = 1;
         $this->supdate("c_goods_price_order", $v, $this->params->itemid);
-        $body = json_decode($this->params->body);
-        //var_dump($body);
         foreach ($body->groups as $b) {
             foreach ($b->items as $i) {
                 $this->stmtall("update c_goods_prices set f_price1disc=?, f_price2disc=? where f_goods=? and f_currency=1", "ddi", [
@@ -106,17 +110,19 @@ class CreateGroupDiscount extends PClass
                 ]);
             }
         }
+        $this->result["stock_change"] = $sc;
         $this->echoResult();
     }
 
     public function rollback()
     {
+        $body = $this->decodeBody($this->params->body);
+        $sc = $this->buildStockChange($body, true);
+        $body->stock_change = json_decode(json_encode($sc));
         $v["f_name"] = $this->params->name;
-        $v["f_body"] = $this->params->body;
+        $v["f_body"] = json_encode($body, JSON_UNESCAPED_UNICODE);
         $v["f_state"] = 1;
         $this->supdate("c_goods_price_order", $v, $this->params->itemid);
-        $body = json_decode($this->params->body);
-        //var_dump($body);
         foreach ($body->groups as $b) {
             foreach ($b->items as $i) {
                 $this->stmtall("update c_goods_prices set f_price1disc=0, f_price2disc=0 where f_goods=? and f_currency=1", "i", [
@@ -124,6 +130,15 @@ class CreateGroupDiscount extends PClass
                 ]);
             }
         }
+        $this->result["stock_change"] = $sc;
+        $this->echoResult();
+    }
+
+    public function calcStockChange()
+    {
+        $body = $this->decodeBody($this->params->body);
+        $forRollback = !empty($this->params->rollback);
+        $this->result["stock_change"] = $this->buildStockChange($body, $forRollback);
         $this->echoResult();
     }
 
@@ -184,6 +199,185 @@ class CreateGroupDiscount extends PClass
         EOD;
         $row = $this->stmtall($sql, "ii", [$group, $group])->fetch_assoc();
         return $row["f_qty"];
+    }
+
+    private function decodeBody($body)
+    {
+        if (is_string($body)) {
+            $decoded = json_decode($body);
+            return $decoded ? $decoded : (object)["groups" => []];
+        }
+        if (is_object($body)) {
+            return $body;
+        }
+        return (object)["groups" => []];
+    }
+
+    private function buildStockChange($body, $forRollback = false)
+    {
+        $empty = [
+            "total_delta" => 0,
+            "items_count" => 0,
+            "calculated_at" => date("Y-m-d H:i:s"),
+            "by_store" => []
+        ];
+        if (!is_object($body) || !property_exists($body, "groups") || empty($body->groups)) {
+            return $empty;
+        }
+
+        $priceAfterByGoods = [];
+        $goodsIds = [];
+        foreach ($body->groups as $g) {
+            if (empty($g->items)) {
+                continue;
+            }
+            $groupDisc = isset($g->f_price1disc) ? floatval($g->f_price1disc) : 0.0;
+            foreach ($g->items as $i) {
+                $id = (int)$i->f_id;
+                $goodsIds[] = $id;
+                $afterDisc = isset($i->f_price1disc) ? floatval($i->f_price1disc) : 0.0;
+                if ($afterDisc <= 0 && $groupDisc > 0) {
+                    $afterDisc = $groupDisc;
+                }
+                $priceAfterByGoods[$id] = $afterDisc;
+            }
+        }
+        $goodsIds = array_values(array_unique($goodsIds));
+        if (empty($goodsIds)) {
+            return $empty;
+        }
+
+        $qtysByStore = $this->getQtyOfGoodsByStore($goodsIds);
+        $prices = $this->getRetailPrices($goodsIds);
+        $storeNames = $this->getStoreNames(array_keys($qtysByStore));
+
+        $totalDelta = 0.0;
+        $itemsCount = count($goodsIds);
+        $byStore = [];
+
+        foreach ($qtysByStore as $storeId => $goodsQty) {
+            $delta = 0.0;
+            foreach ($goodsQty as $goodsId => $qty) {
+                if (abs($qty) < 0.000001) {
+                    continue;
+                }
+                $p1 = isset($prices[$goodsId]) ? floatval($prices[$goodsId]["f_price1"]) : 0.0;
+                $p1d = isset($prices[$goodsId]) ? floatval($prices[$goodsId]["f_price1disc"]) : 0.0;
+                $before = $p1d > 0 ? $p1d : $p1;
+                if ($forRollback) {
+                    $after = $p1;
+                } else {
+                    $afterDisc = isset($priceAfterByGoods[$goodsId]) ? floatval($priceAfterByGoods[$goodsId]) : 0.0;
+                    $after = $afterDisc > 0 ? $afterDisc : $p1;
+                }
+                $delta += $qty * ($after - $before);
+            }
+            $delta = round($delta, 2);
+            if (abs($delta) < 0.01) {
+                continue;
+            }
+            $totalDelta += $delta;
+            $byStore[] = [
+                "f_id" => (int)$storeId,
+                "f_name" => isset($storeNames[$storeId]) ? $storeNames[$storeId] : ("#" . $storeId),
+                "delta" => $delta
+            ];
+        }
+
+        usort($byStore, function ($a, $b) {
+            return strcmp($a["f_name"], $b["f_name"]);
+        });
+
+        return [
+            "total_delta" => round($totalDelta, 2),
+            "items_count" => $itemsCount,
+            "calculated_at" => date("Y-m-d H:i:s"),
+            "by_store" => $byStore
+        ];
+    }
+
+    private function getQtyOfGoodsByStore($ids)
+    {
+        $result = [];
+        if (empty($ids)) {
+            return $result;
+        }
+        $in = implode(",", array_map("intval", $ids));
+
+        $rows = $this->stmtall(
+            "SELECT s.f_store, s.f_goods, SUM(s.f_qty*s.f_type) as f_qty
+            FROM a_store s
+            WHERE s.f_goods IN ($in)
+            GROUP BY s.f_store, s.f_goods"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($rows as $r) {
+            $storeId = (int)$r["f_store"];
+            $goodsId = (int)$r["f_goods"];
+            if (!isset($result[$storeId])) {
+                $result[$storeId] = [];
+            }
+            if (!isset($result[$storeId][$goodsId])) {
+                $result[$storeId][$goodsId] = 0.0;
+            }
+            $result[$storeId][$goodsId] += floatval($r["f_qty"]);
+        }
+
+        $rows2 = $this->stmtall(
+            "SELECT s.f_store, c.f_goods, SUM(s.f_qty*s.f_type*c.f_qty) as f_qty
+            FROM a_store s
+            INNER JOIN c_goods_complectation c ON c.f_base=s.f_goods
+            WHERE c.f_goods IN ($in)
+            GROUP BY s.f_store, c.f_goods"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($rows2 as $r) {
+            $storeId = (int)$r["f_store"];
+            $goodsId = (int)$r["f_goods"];
+            if (!isset($result[$storeId])) {
+                $result[$storeId] = [];
+            }
+            if (!isset($result[$storeId][$goodsId])) {
+                $result[$storeId][$goodsId] = 0.0;
+            }
+            $result[$storeId][$goodsId] += floatval($r["f_qty"]);
+        }
+
+        return $result;
+    }
+
+    private function getStoreNames($storeIds)
+    {
+        $result = [];
+        if (empty($storeIds)) {
+            return $result;
+        }
+        $in = implode(",", array_map("intval", $storeIds));
+        $rows = $this->stmtall(
+            "SELECT f_id, f_name FROM c_storages WHERE f_id IN ($in)"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($rows as $r) {
+            $result[(int)$r["f_id"]] = $r["f_name"];
+        }
+        return $result;
+    }
+
+    private function getRetailPrices($ids)
+    {
+        $result = [];
+        if (empty($ids)) {
+            return $result;
+        }
+        $in = implode(",", array_map("intval", $ids));
+        $rows = $this->stmtall(
+            "SELECT f_goods, f_price1, coalesce(f_price1disc, 0) as f_price1disc
+            FROM c_goods_prices WHERE f_currency=1 AND f_goods IN ($in)"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($rows as $r) {
+            $result[(int)$r["f_goods"]] = [
+                "f_price1" => floatval($r["f_price1"]),
+                "f_price1disc" => floatval($r["f_price1disc"])
+            ];
+        }
+        return $result;
     }
 }
 

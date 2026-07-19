@@ -1,6 +1,9 @@
 #include "ce5partner.h"
 #include "ui_ce5partner.h"
 #include "c5database.h"
+#include "c5editor.h"
+#include "c5mainwindow.h"
+#include "ninterface.h"
 #include <QCompleter>
 #include <stdexcept>
 
@@ -9,6 +12,7 @@ CE5Partner::CE5Partner(QWidget *parent) :
     ui(new Ui::CE5Partner)
 {
     ui->setupUi(this);
+    fSavedPartnerId = 0;
 
     QCompleter *c = new QCompleter();
     c->setCaseSensitivity(Qt::CaseInsensitive);
@@ -46,15 +50,50 @@ void CE5Partner::setId(int id)
 
 bool CE5Partner::save(QString &err, QList<QMap<QString, QVariant> > &data)
 {
-    C5Database db;
+    Q_UNUSED(data);
+
     if (fNew && ui->leCode->getInteger() > 0) {
+        C5Database db;
         db[":f_id"] = ui->leCode->getInteger();
         db.insert("c_partners", false);
     }
-    if (!CE5Editor::save(err, data)) {
+
+    if (!checkData(err)) {
         return false;
     }
+
+    NInterface::query1("/engine/v2/common/" + savePathV2() + "/save",
+                       __mainWindow->mUser->mSessionKey,
+                       this,
+                       toJson(),
+                       [this](const QJsonObject &jo) { saveResponse(jo); });
     return true;
+}
+
+bool CE5Partner::isOnline()
+{
+    return true;
+}
+
+int CE5Partner::savedPartnerId() const
+{
+    return fSavedPartnerId > 0 ? fSavedPartnerId : ui->leCode->getInteger();
+}
+
+void CE5Partner::saveResponse(const QJsonObject &jdoc)
+{
+    fSavedPartnerId = jdoc["partner"].toObject()["f_id"].toInt();
+    if (fSavedPartnerId > 0) {
+        ui->leCode->setInteger(fSavedPartnerId);
+    }
+
+    QMap<QString, QVariant> row;
+    row["f_id"] = savedPartnerId();
+    if (fEditor) {
+        static_cast<C5Editor*>(fEditor)->setResultData({row});
+    }
+
+    emit Accept();
 }
 
 bool CE5Partner::checkData(QString &err)

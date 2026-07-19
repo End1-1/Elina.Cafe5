@@ -79,6 +79,8 @@ private slots:
 
     void menuListReponse(const QJsonObject &jdoc);
 
+    void c5ReportsListResponse(const QJsonObject &jdoc);
+
     void updateTimeout();
 
     void hotKey();

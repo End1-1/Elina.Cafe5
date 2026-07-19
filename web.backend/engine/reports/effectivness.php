@@ -204,8 +204,8 @@ class Effectivness extends Report
             f_groupid, 
             -- Если имя группы в интерфейсе должно остаться строго одинаковым, f_groupname оставляем здесь
             f_groupname,
-            -- А вот и наш виновник торжества: группируем по логическому условию (выдаст 1 или 0)
-            if(f_retail <> f_retaildisc and f_retaildisc > 0, 1, 0)
+            f_retail,
+            f_retaildisc
         EOD;
         return $this->execSql('select_group', $s)->fetch_all();
     }
@@ -231,7 +231,7 @@ class Effectivness extends Report
         EOD;
         $this->execSql('create_temp_table', $sql);
 
-$sql = <<<EOD
+        $sql = <<<EOD
 insert into t_rep
 select 
 g.f_id, 
@@ -258,10 +258,10 @@ GROUP BY f_goods
 left join c_groups gr ON gr.f_id = g.f_group
 EOD;
 
-if (!empty($this->params->gr)) {
-$sql .= " where g.f_group in ({$this->params->gr}) ";
-}
-$this->execSql('insert_goods', $sql);
+        if (!empty($this->params->gr)) {
+            $sql .= " where g.f_group in ({$this->params->gr}) ";
+        }
+        $this->execSql('insert_goods', $sql);
 
         #begin qty store
         $sql = <<<EOD
@@ -294,12 +294,12 @@ $this->execSql('insert_goods', $sql);
         $this->execSql('begin_store_complect', $sql);
         $this->heartbeat('begin_store_complect');
 
-#  begin qty shop (Обычные товары)
-$goodsFilter = "g.f_unit <> 10";
-if (!empty($this->params->gr)) {
-    $goodsFilter .= " AND g.f_group IN ({$this->params->gr})";
-}
-$sql = <<<EOD
+        #  begin qty shop (Обычные товары)
+        $goodsFilter = "g.f_unit <> 10";
+        if (!empty($this->params->gr)) {
+            $goodsFilter .= " AND g.f_group IN ({$this->params->gr})";
+        }
+        $sql = <<<EOD
 UPDATE t_rep t
 LEFT JOIN (
     SELECT s.f_goods, SUM(s.f_qty * s.f_type) as f_qty
@@ -315,15 +315,15 @@ SET t.f_startqty = COALESCE(s.f_qty, 0)
 EOD;
         $this->execSql('begin_shop', $sql);
 
-# Подготавливаем фильтр для комплектов
-$complectFilter = "g.f_unit = 10";
-if (!empty($this->params->gr)) {
-    $complectFilter .= " AND g.f_group IN ({$this->params->gr})";
-}
+        # Подготавливаем фильтр для комплектов
+        $complectFilter = "g.f_unit = 10";
+        if (!empty($this->params->gr)) {
+            $complectFilter .= " AND g.f_group IN ({$this->params->gr})";
+        }
 
-# begin qty shop complect (Комплекты)
+        # begin qty shop complect (Комплекты)
 
-$sql = <<<EOD
+        $sql = <<<EOD
 UPDATE t_rep t
 LEFT JOIN (
     SELECT gc.f_goods, SUM(gc.f_qty * s.f_qty * s.f_type) as f_qty
@@ -386,7 +386,7 @@ EOD;
         set t.f_sale=t.f_sale+COALESCE(s.f_qty, 0)
         EOD;
         $this->execSql('sale_complect', $sql);
-		$this->heartbeat('sale_complect');
+        $this->heartbeat('sale_complect');
 
         #other output
         $sql = <<<EOD
@@ -447,7 +447,7 @@ EOD;
         set t.f_final2=t.f_final2+COALESCE(s.f_qty, 0)
         EOD;
         $this->execSql('final_store_complect', $sql);
-		$this->heartbeat('final_store_complect');
+        $this->heartbeat('final_store_complect');
 
         #final qty shop
         $sql = <<<EOD

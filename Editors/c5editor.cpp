@@ -67,6 +67,11 @@ bool C5Editor::getJsonObject(QJsonObject &j)
     return false;
 }
 
+void C5Editor::setResultData(const QList<QMap<QString, QVariant> > &data)
+{
+    fData = data;
+}
+
 void C5Editor::reject()
 {
     fEditor->clear();

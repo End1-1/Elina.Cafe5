@@ -2,26 +2,48 @@
 #include "ui_cr5reportsfilter.h"
 #include "c5cache.h"
 #include "c5lineeditwithselector.h"
+#include <QDate>
+#include <QSettings>
 
 CR5ReportsFilter::CR5ReportsFilter(QWidget *parent) :
     C5FilterWidget(parent),
     ui(new Ui::CR5ReportsFilter)
 {
     ui->setupUi(this);
+    ui->label->show();
+    ui->label_2->show();
+    ui->leDate1->show();
+    ui->leDate2->show();
+    ui->leDate1->setDate(QDate::currentDate());
+    ui->leDate2->setDate(QDate::currentDate());
+    setMinimumWidth(320);
+    setMinimumHeight(90);
 }
-
 
 CR5ReportsFilter::~CR5ReportsFilter()
 {
     delete ui;
 }
 
+void CR5ReportsFilter::restoreFilter(QWidget *parent)
+{
+    C5FilterWidget::restoreFilter(parent);
+
+    // Dates must always be available; base restoreFilter only applies them when fixDates is on.
+    QSettings s(_ORGANIZATION_, QString("%1\\%2\\reportfilter\\%3")
+                .arg(_APPLICATION_, _MODULE_, metaObject()->className()));
+    const QDate d1 = s.value("date1", QDate::currentDate()).toDate();
+    const QDate d2 = s.value("date2", QDate::currentDate()).toDate();
+    ui->leDate1->setDate(d1.isValid() ? d1 : QDate::currentDate());
+    ui->leDate2->setDate(d2.isValid() ? d2 : QDate::currentDate());
+}
+
 void CR5ReportsFilter::setFields(const QStringList &cache)
 {
-    int r = 2;
-    for (const QString &c: cache) {
+    int r = 0;
+    for(const QString &c : cache) {
         QStringList kv = c.split("-", Qt::SkipEmptyParts);
-        switch (kv.at(0).toInt()) {
+        switch(kv.at(0).toInt()) {
         case cache_goods_partners:
             addFilterField(tr("Partner"), c, r);
             r++;
@@ -66,9 +88,9 @@ QString CR5ReportsFilter::condition()
 QString CR5ReportsFilter::replacement()
 {
     QString cond = " ";
-    for (QMap<int, C5LineEditWithSelector*>::const_iterator it = fCache.constBegin(); it != fCache.constEnd(); it++) {
-        if (!it.value()->isEmpty()) {
-            switch (it.key()) {
+    for(QMap<int, C5LineEditWithSelector*>::const_iterator it = fCache.constBegin(); it != fCache.constEnd(); it++) {
+        if(!it.value()->isEmpty()) {
+            switch(it.key()) {
             case cache_goods_partners:
             case cache_goods_group:
             case cache_goods_store:

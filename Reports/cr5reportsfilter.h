@@ -2,6 +2,7 @@
 #define CR5REPORTSFILTER_H
 
 #include "c5filterwidget.h"
+#include <QMap>
 
 namespace Ui
 {
@@ -17,6 +18,8 @@ public:
     ~CR5ReportsFilter();
 
     void setFields(const QStringList &cache);
+
+    virtual void restoreFilter(QWidget *parent) override;
 
     virtual QString condition() override;
 

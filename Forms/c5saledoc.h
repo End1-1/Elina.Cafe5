@@ -38,6 +38,26 @@ private:
 
     int rowStore(int row) const;
 
+    bool canReserveDocNumber() const;
+
+    bool reserveDocNumber(QString &err);
+
+    void tryReserveDocNumber();
+
+    void persistReservedDocNumber();
+
+    void applyAssignedDocNumber(int hall, const QString &prefix, int hallNumber, bool locallyReserved);
+
+    void clearAssignedDocNumber();
+
+    void updateCashDesksForHall(int hallId, int defaultTableId = 0);
+
+    bool hasDocNumberText() const;
+
+    bool docNumberForSave(int &hallId, QString &prefix) const;
+
+    static bool parseDocNumberText(const QString &text, QString &prefix, int &hallId);
+
 private slots:
     void makeDraftResponse(const QJsonObject &jdoc);
 
@@ -119,6 +139,10 @@ private slots:
 
     void on_btnStock_clicked();
 
+    void on_chAlwaysGen_toggled(bool checked);
+
+    void on_btnNewPartner_clicked();
+
 private:
     Ui::C5SaleDoc* ui;
     CPartners fPartner;
@@ -138,12 +162,17 @@ private:
                  const QString &unitname, double qty, double price, double discount, int isService, const QString &returnFrom, const QString &adgt);
     void countGrandTotal();
     void countTotalQty();
+    void applyDraftPayment(int payment);
     void setPartner();
     void setPartner(const CPartners &p);
     void setDeliveryMan();
     void exportToAs(int doctype);
     void getFiscalNum();
     bool fOpenedFromDraft;
+    bool fDocNumberReserved;
+    int fAssignedHallNumber;
+    QString fAssignedPrefix;
+    int fAssignedHall;
     QStringList fEmarks;
     QStringList fRowToDelete;
     QMap<int, double> fSpecialPrices;

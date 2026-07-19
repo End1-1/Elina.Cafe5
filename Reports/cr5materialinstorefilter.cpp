@@ -13,6 +13,7 @@ CR5MaterialInStoreFilter::CR5MaterialInStoreFilter(QWidget *parent) :
     ui->leUnit->setSelector(ui->leUnitName, cache_goods_unit).setMultiselection(true);
     ui->leCurrency->setSelector(ui->leCurrencyName, cache_currency);
     ui->lePartner->setSelector(ui->lePartnerName, cache_goods_partners);
+    ui->leMarkCode->setSelector(ui->leMarkName, cache_goods_mark);
     restoreFilter(this);
 }
 
@@ -47,6 +48,7 @@ QString CR5MaterialInStoreFilter::condition()
     in(cond, "h.f_currency", ui->leCurrency);
     in(cond, "gpr.f_currency", ui->leCurrency);
     in(cond, "g.f_supplier", ui->lePartner);
+    in(cond, "gg.f_mark", ui->leMarkCode);
     return cond;
 }
 
