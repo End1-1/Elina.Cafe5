@@ -1,20 +1,31 @@
 #pragma once
 
+#include <QStringList>
+#include <QJsonDocument>
+#include <QJsonParseError>
 #include "c5jsonparser.h"
-#include "struct_waiter_dish.h"
+#include "c5utils.h"
 #include "dict_dish_state.h"
+#include "dict_goods_types.h"
 #include "dict_payment_type.h"
 #include "format_date.h"
-#include <QStringList>
+#include "struct_waiter_dish.h"
+
+struct WaiterOrderCalculatedAmounts {
+    double subtotal = 0;
+    double serviceAmount = 0;
+    double discountAmount = 0;
+    double totalDue = 0;
+};
 
 struct WaiterOrder {
     QString id;
     int state = 0;
-    int cashSessionId = 0;
     double totalDue = 0;
     QString receiptNumber;
     int table = 0;
     int cashierId;
+    int cashSessionId = 0;
     QString cashierName;
     int staffId;
     QString staffName;
@@ -23,8 +34,10 @@ struct WaiterOrder {
     QJsonObject data;
     QList<WaiterDish> dishes;
     QList<WaiterDish> precheckDishes;
+    QJsonArray calcQueue;
     QString nameLower;
     QStringList words;
+    QJsonObject rawBody;
     bool isEmpty()
     {
         for(auto d : dishes) {
@@ -42,8 +55,10 @@ struct WaiterOrder {
                 continue;
             }
 
-            if(!d.isPrinted()) {
-                return false;
+            if (d.type == GOODS_TYPE_GOODS || d.type == GOODS_TYPE_DISH || d.type == GOODS_TYPE_PACKAGE) {
+                if (!d.isPrinted()) {
+                    return false;
+                }
             }
         }
 
@@ -79,10 +94,7 @@ struct WaiterOrder {
     {
         return data["f_discount_amount"].toDouble();
     }
-    double prepaidAmount() const
-    {
-        return data["f_prepaid_amount"].toDouble();
-    }
+    double prepaidAmount() const { return data.value("f_deposit_prepaid").toVariant().toDouble(); }
 
     double amountPaid() const
     {
@@ -128,6 +140,71 @@ struct WaiterOrder {
     {
         return data.value(key);
     }
+    int normalDishesCount() const
+    {
+        int c = 0;
+        for (auto const &d : dishes) {
+            if (d.state == 1) {
+                c++;
+            }
+        }
+        return c;
+    }
+
+    /** Client-side bill amounts (same rules as waiter order.php CountAmounts). */
+    WaiterOrderCalculatedAmounts calculatedAmounts(bool includeUnprinted = false) const
+    {
+        const bool isPreorder = (state == ORDER_STATE_PREORDER);
+        const double orderServiceFactor = serviceFactor();
+        const double orderDiscountFactor = qAbs(discountFactor());
+
+        WaiterOrderCalculatedAmounts amounts;
+
+        for (const WaiterDish &d : dishes) {
+            if (d.state != DISH_STATE_OK) {
+                continue;
+            }
+            if (d.data.value(QStringLiteral("f_complimentary")).toBool()) {
+                continue;
+            }
+
+            if (!d.parent.isEmpty()) {
+                bool packageChild = false;
+                for (const WaiterDish &p : dishes) {
+                    if (p.id == d.parent && p.type == GOODS_TYPE_PACKAGE) {
+                        packageChild = true;
+                        break;
+                    }
+                }
+                if (packageChild) {
+                    continue;
+                }
+            }
+
+            if (!isPreorder && !includeUnprinted && !d.isPrinted()) {
+                continue;
+            }
+
+            amounts.subtotal += d.price * d.qty;
+
+            if (d.countService()) {
+                amounts.serviceAmount += d.price * orderServiceFactor * d.qty;
+            }
+            if (d.countDiscount()) {
+                amounts.discountAmount += d.price * orderDiscountFactor * d.qty;
+            }
+
+            amounts.totalDue += d.lineAmount(isPreorder, includeUnprinted,
+                                             orderServiceFactor, orderDiscountFactor);
+        }
+
+        return amounts;
+    }
+
+    double calculatedTotalDue(bool includeUnprinted = false) const
+    {
+        return calculatedAmounts(includeUnprinted).totalDue;
+    }
 };
 
 template<>
@@ -135,6 +212,7 @@ struct JsonParser<WaiterOrder> {
     static WaiterOrder fromJson(const QJsonObject &jo)
     {
         WaiterOrder wo;
+        wo.rawBody = jo;
         wo.id = jo["f_id"].toString();
         wo.cashSessionId = jo["f_cash_session_id"].toInt();
         wo.state = jo["f_state"].toInt();
@@ -147,7 +225,19 @@ struct JsonParser<WaiterOrder> {
         wo.hallName = jo["f_hall_name"].toString();
         wo.tableName = jo["f_table_name"].toString();
         wo.totalDue = jo["f_amounttotal"].toDouble();
-        wo.data = QJsonDocument::fromJson(jo["f_data"].toString().toUtf8()).object();
+        {
+            const QJsonValue fd = jo.value(QStringLiteral("f_data"));
+
+            if(fd.isObject()) {
+                wo.data = fd.toObject();
+            } else if(fd.isString()) {
+                QJsonParseError pe{};
+                const QJsonDocument doc = QJsonDocument::fromJson(fd.toString().toUtf8(), &pe);
+                wo.data = doc.isObject() ? doc.object() : QJsonObject{};
+            } else {
+                wo.data = QJsonObject{};
+            }
+        }
         const QJsonArray dishes = jo["dishes"].toArray();
 
         for(const QJsonValue &v : dishes) {
@@ -159,6 +249,8 @@ struct JsonParser<WaiterOrder> {
         for(const QJsonValue &v : precheckdishes) {
             wo.precheckDishes.append(JsonParser<WaiterDish>::fromJson(v.toObject()));
         }
+
+        wo.calcQueue = jo.value(QStringLiteral("calc_queue")).toArray();
 
         return wo;
     }

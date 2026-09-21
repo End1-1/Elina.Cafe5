@@ -17,10 +17,16 @@
 #include "logwriter.h"
 #include "store_doc_status.h"
 #include "store_doc_type.h"
+#include "struct_cashbox.h"
+#include "struct_currency.h"
+#include "struct_employee.h"
+#include "struct_employee_group.h"
+#include "struct_goods_group.h"
 #include "struct_goods_item.h"
+#include "struct_goods_type.h"
 #include "struct_partner.h"
+#include "struct_payment_type.h"
 #include "struct_storage_item.h"
-#include "waiter.h"
 
 QMutex mSocketMutex;
 
@@ -353,20 +359,19 @@ void ServerThread::onTextMessage(const QString &msg)
             unregisterSocket(jdoc, ws);
             return;
         } else {
-            QThreadPool::globalInstance()->start(QRunnable::create([this, jdoc, wsCopy, uuid, ws]() {
+            SocketStruct ss;
+            {
+                QMutexLocker ml(&mSocketMutex);
+                auto it = fSockets.find(ws);
+                if (it == fSockets.end())
+                    return;
+                ss = it.value();
+            }
+
+            QThreadPool::globalInstance()->start(QRunnable::create([this, jdoc, wsCopy, uuid, ss]() {
                 if(!wsCopy)
                     return;
 
-                SocketStruct ss;
-                {
-                    QMutexLocker ml(&mSocketMutex);
-                    auto it = fSockets.find(ws);
-                    if (it == fSockets.end())
-                        return;
-                    ss = it.value();
-                }
-
-                QJsonObject jresponse;
                 QString repMsg;
                 handleCommand(ss, jdoc, repMsg);
 
@@ -408,20 +413,19 @@ void ServerThread::onBinaryMessage(const QByteArray &msg)
             return;
         } else {
             LogWriter::write(LogWriterLevel::verbose, "REQUEST " + uuid, msg);
-            QThreadPool::globalInstance()->start(QRunnable::create([this, jdoc, wsCopy, uuid, ws]() {
+            SocketStruct ss;
+            {
+                QMutexLocker ml(&mSocketMutex);
+                auto it = fSockets.find(ws);
+                if (it == fSockets.end())
+                    return;
+                ss = it.value();
+            }
+
+            QThreadPool::globalInstance()->start(QRunnable::create([this, jdoc, wsCopy, uuid, ss]() {
                 if(!wsCopy)
                     return;
 
-                SocketStruct ss;
-                {
-                    QMutexLocker ml(&mSocketMutex);
-                    auto it = fSockets.find(ws);
-                    if (it == fSockets.end())
-                        return;
-                    ss = it.value();
-                }
-
-                QJsonObject jresponse;
                 QString repMsg;
                 handleCommand(ss, jdoc, repMsg);
 
@@ -482,34 +486,50 @@ void ServerThread::handleCommand(SocketStruct ws, const QJsonObject &jdoc, QStri
             repMsg = getDbList(jdoc);
         } else if(command == "get_connection") {
             repMsg = getConnection(jdoc);
-        } else if(command == "waiter") {
-            Waiter w(jdoc);
-            repMsg = w.process();
-        } else if(command == "hotel_cache_update") {
+        } else if (command == "hotel_cache_update") {
             repMsg = updateHotelCache(jdoc);
-        } else if(command == "search_engine_reload") {
+        } else if (command == "search_engine_reload") {
+            for (auto it = mDatabases.constBegin(); it != mDatabases.constEnd(); ++it) {
+                C5SearchEngine::init(it.value(), it.key());
+            }
             C5SearchEngine::init(fDbList);
             LogWriter::write(LogWriterLevel::verbose, "Initialized databases", fDbList.join(","));
-        } else if(command == "search_text") {
+        } else if (command == "search_engine_reload_dict") {
+            repMsg = C5SearchEngine::mInstance->reloadDictionary(jdoc, ws);
+        } else if (command == "search_text") {
             repMsg = C5SearchEngine::mInstance->search(jdoc);
-        } else if(command == SelectorName<StorageItem>::value) {
+        } else if (command == SelectorName<StorageItem>::value) {
             repMsg = C5SearchEngine::mInstance->searchStorage(jdoc, ws);
-        } else if(command == SelectorName<GoodsItem>::value) {
+        } else if (command == SelectorName<GoodsItem>::value) {
             repMsg = C5SearchEngine::mInstance->searchGoodsItem(jdoc, ws);
-        } else if(command == SelectorName<PartnerItem>::value) {
+        } else if (command == SelectorName<PartnerItem>::value) {
             repMsg = C5SearchEngine::mInstance->searchPartnerItem(jdoc, ws);
         } else if (command == SelectorName<StoreDocStatusItem>::value) {
             repMsg = C5SearchEngine::mInstance->searchStoreDocStatus(jdoc, ws);
         } else if (command == SelectorName<StoreDocTypeItem>::value) {
             repMsg = C5SearchEngine::mInstance->searchStoreDocType(jdoc, ws);
+        } else if (command == SelectorName<StructCurrency>::value) {
+            repMsg = C5SearchEngine::mInstance->searchCurrency(jdoc, ws);
+        } else if (command == SelectorName<StructCashbox>::value) {
+            repMsg = C5SearchEngine::mInstance->searchCashbox(jdoc, ws);
+        } else if (command == SelectorName<StructPaymentType>::value) {
+            repMsg = C5SearchEngine::mInstance->searchPaymentType(jdoc, ws);
+        } else if (command == SelectorName<StructGoodsType>::value) {
+            repMsg = C5SearchEngine::mInstance->searchGoodsType(jdoc, ws);
+        } else if (command == SelectorName<StructEmployee>::value) {
+            repMsg = C5SearchEngine::mInstance->searchEmployee(jdoc, ws);
+        } else if (command == SelectorName<StructEmployeeGroup>::value) {
+            repMsg = C5SearchEngine::mInstance->searchEmployeeGroup(jdoc, ws);
         } else if (command == "search_partner") {
             repMsg = C5SearchEngine::mInstance->searchPartner(jdoc);
-        } else if (command == "search_goods_groups") {
-            repMsg = C5SearchEngine::mInstance->searchGoodsGroups(jdoc);
+        } else if (command == SelectorName<GoodsGroupItem>::value) {
+            repMsg = C5SearchEngine::mInstance->searchGoodsGroups(jdoc, ws);
         } else if (command == "search_store") {
             repMsg = C5SearchEngine::mInstance->searchStore(jdoc);
         } else if (command == "search_update_partner_cache") {
             repMsg = C5SearchEngine::mInstance->searchUpdatePartnerCache(jdoc);
+        } else if (command == "update_goods_last_input_prices") {
+            repMsg = C5SearchEngine::mInstance->searchUpdateGoodsLastInputPrices(jdoc, ws);
         } else if (command == "armsoft") {
             repMsg = armsoft(jdoc);
         } else if (command == "dict_event") {

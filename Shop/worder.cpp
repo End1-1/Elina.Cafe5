@@ -379,46 +379,59 @@ void WOrder::writeOrder(std::function<void()> nextStep)
         jdoc["flags"] = jflags;
         jdoc["fiscal"] = jtax["out"].toObject();
 
-        NInterface::query1("/engine/v2/shop/shop-order/create", fUser->mSessionKey, this, jdoc, [this, nextStep](const QJsonObject &jdoc) {
-            if (fOHeader.partner > 0) {
-                OutputOfHeader ooh;
-                ooh.make(fOHeader._id());
-            }
-            if (!C5Config::localReceiptPrinter().isEmpty()) {
-                PrintReceiptGroup p;
+        NInterface::query(
+            "/engine/v2/shop/shop-order/create",
+            fUser->mSessionKey,
+            this,
+            jdoc,
+            [this, nextStep](const QJsonObject &jdoc) {
+                Q_UNUSED(jdoc);
+                if (fOHeader.partner > 0) {
+                    OutputOfHeader ooh;
+                    ooh.make(fOHeader._id());
+                }
+                if (!C5Config::localReceiptPrinter().isEmpty()) {
+                    PrintReceiptGroup p;
 
-                switch (C5Config::shopPrintVersion()) {
-                case 1: {
-                    bool p1, p2;
+                    switch (C5Config::shopPrintVersion()) {
+                    case 1: {
+                        bool p1, p2;
 
-                    if (SelectPrinters::selectPrinters(p1, p2, fUser)) {
-                        if (p1) {
-                            p.print(fOHeader._id(), 1);
+                        if (SelectPrinters::selectPrinters(p1, p2, fUser)) {
+                            if (p1) {
+                                p.print(fOHeader._id(), 1);
+                            }
+
+                            if (p2) {
+                                p.print(fOHeader._id(), 2);
+                            }
                         }
 
-                        if (p2) {
-                            p.print(fOHeader._id(), 2);
-                        }
+                        break;
                     }
 
-                    break;
+                    case 2:
+                        p.print2(fOHeader._id());
+                        break;
+
+                    case 3:
+                        p.print3(fOHeader._id());
+                        break;
+
+                    default:
+                        break;
+                    }
                 }
 
-                case 2:
-                    p.print2(fOHeader._id());
-                    break;
-
-                case 3:
-                    p.print3(fOHeader._id());
-                    break;
-
-                default:
-                    break;
-                }
-            }
-
-            nextStep();
-        });
+                nextStep();
+            },
+            [](const QJsonObject &jerr) {
+                Q_UNUSED(jerr);
+                return false;
+            },
+            true,
+            180000,
+            false);
     });
 }
 
@@ -1219,7 +1232,7 @@ void WOrder::on_leCode_returnPressed()
 
 void WOrder::on_btnSearchPartner_clicked()
 {
-    QVector<PartnerItem> result = C5StructTableView::get<PartnerItem>(SelectorName<PartnerItem>::value, false, false, QPoint(-1, -1));
+    QVector<PartnerItem> result = C5StructTableView::get<PartnerItem>(SelectorName<PartnerItem>::value, true, false, QPoint(-1, -1));
 
     if (result.isEmpty()) {
         return;

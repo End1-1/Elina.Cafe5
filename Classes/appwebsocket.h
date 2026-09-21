@@ -31,6 +31,8 @@ public:
 
     void sendMessage(const QJsonObject &json);
 
+    bool isRegistered() const;
+
 public slots:
     void connectToServer();
 
@@ -42,6 +44,10 @@ private:
     QString mUsername;
 
     QString mPassword;
+
+    bool mRegistered = false;
+
+    void dispatchJsonMessage(const QJsonObject &jo);
 
 private slots:
     void pingServer();

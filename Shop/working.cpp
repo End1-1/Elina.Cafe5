@@ -817,9 +817,15 @@ void Working::on_btnWriteOrder_clicked()
         w->deleteLater();
 
         if (C5Config::fMainJson["remind_out_of_stock"].toBool()) {
-            auto *dp = new NDataProvider(this);
-            connect(dp, &NDataProvider::done, this, &Working::qtyRemains);
-            dp->getData("/engine/shop/check-qty-remain.php", QJsonObject{{"header", id}});
+            const QString orderId = id;
+            QTimer::singleShot(3000, this, [this, orderId]() {
+                auto *dp = new NDataProvider(this);
+                dp->changeTimeout(180000);
+                connect(dp, &NDataProvider::done, this, &Working::qtyRemains);
+                connect(dp, &NDataProvider::error, dp, &QObject::deleteLater);
+                connect(dp, &NDataProvider::transportError, dp, &QObject::deleteLater);
+                dp->getData("/engine/shop/check-qty-remain.php", QJsonObject{{"header", orderId}});
+            });
         }
     });
 }

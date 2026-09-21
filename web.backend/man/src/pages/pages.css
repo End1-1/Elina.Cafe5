@@ -1,0 +1,140 @@
+/* --- Основная сетка страницы --- */
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.layout-sidebar {
+  width: 260px;
+  border-right: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.page,
+.content,
+.main-content {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.main-content {
+  padding: 16px;
+}
+
+/* --- Контейнер страницы --- */
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 25px 40px;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  justify-content: space-between;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+.page-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- Карточки --- */
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* --- Формы и фильтры --- */
+.filter-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.input:focus {
+  border-color: #6c63ff;
+  outline: none;
+}
+
+/* --- Кнопки --- */
+.btn {
+  padding: 8px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+  margin-left: 10px;
+}
+
+.btn.primary {
+  background: #6c63ff;
+  color: #fff;
+}
+
+.btn.secondary {
+  background: #f2f2f2;
+  color: #333;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* --- Таблицы --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.table th,
+.table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background: #fafafa;
+  text-align: left;
+  font-weight: 600;
+}
+
+/* --- Служебные состояния --- */
+.loading {
+  padding: 10px;
+  color: #777;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.hide-col {
+  display: none;
+}

@@ -1,7 +1,9 @@
 #include "c5structtableview.h"
 #include <QHeaderView>
 #include <QJsonDocument>
+#include <QDebug>
 #include "appwebsocket.h"
+#include "c5message.h"
 #include "store_doc_status.h"
 #include "store_doc_type.h"
 #include "struct_goods_group.h"
@@ -24,22 +26,52 @@ C5StructTableView::C5StructTableView(C5User *user)
             this, &C5StructTableView::sendSearchRequest);
     connect(AppWebSocket::instance, &AppWebSocket::bMessageReceived,
     this, [this](const QJsonObject & jo) {
-        if(!jo.contains("result"))
+        if(jo.contains("errorCode") && jo.value("errorCode").toInt() != 0) {
+            if(mLastRequestId.isEmpty() || jo.value("requestId").toString() == mLastRequestId) {
+                qWarning() << "Search error" << jo;
+                C5Message::error(jo.value("errorMessage").toString());
+            }
+
             return;
+        }
+
+        if(!jo.contains("result")) {
+            return;
+        }
+
+        if(!mLastRequestId.isEmpty() && jo.contains("requestId")
+            && jo.value("requestId").toString() != mLastRequestId) {
+            return;
+        }
 
         QJsonArray arr = jo["result"].toArray();
+        qDebug() << "Search result" << mSearchEngine << "count" << arr.size();
 
         if(mSearchEngine == SelectorName<StorageItem>::value) {
             handleSearchResult<StorageItem>(arr, static_cast<C5StructModel<StorageItem>*>(ui->tbl->model()));
         } else if(mSearchEngine == SelectorName<GoodsItem>::value) {
             handleSearchResult<GoodsItem>(arr, static_cast<C5StructModel<GoodsItem>*>(ui->tbl->model()));
         } else if(mSearchEngine == SelectorName<PartnerItem>::value) {
-            handleSearchResult<PartnerItem>(arr, static_cast<C5StructModel<PartnerItem>*>(ui->tbl->model()));
+            // Service5 sends f_contact; JsonParser reads f_name
+            QVector<PartnerItem> data;
+            data.reserve(arr.size());
+
+            for(const QJsonValue &v : arr) {
+                QJsonObject row = v.toObject();
+
+                if(!row.contains("f_name") && row.contains("f_contact")) {
+                    row["f_name"] = row["f_contact"];
+                }
+
+                data.append(JsonParser<PartnerItem>::fromJson(row));
+            }
+
+            static_cast<C5StructModel<PartnerItem>*>(ui->tbl->model())->setData(std::move(data));
         } else if (mSearchEngine == SelectorName<StoreDocStatusItem>::value) {
             handleSearchResult<StoreDocStatusItem>(arr, static_cast<C5StructModel<StoreDocStatusItem> *>(ui->tbl->model()));
         } else if (mSearchEngine == SelectorName<StoreDocTypeItem>::value) {
             handleSearchResult<StoreDocTypeItem>(arr, static_cast<C5StructModel<StoreDocTypeItem> *>(ui->tbl->model()));
-        } else if (mSearchEngine == SelectorName<StoreDocTypeItem>::value) {
+        } else if (mSearchEngine == SelectorName<GoodsGroupItem>::value) {
             handleSearchResult<GoodsGroupItem>(arr, static_cast<C5StructModel<GoodsGroupItem> *>(ui->tbl->model()));
         } else {
             Q_ASSERT_X(false, Q_FUNC_INFO, qPrintable(QString("Unknown search engine: %1").arg(mSearchEngine)));
@@ -77,11 +109,18 @@ void C5StructTableView::on_leSearchText_textChanged(const QString &arg1)
 
 void C5StructTableView::sendSearchRequest()
 {
+    if(!AppWebSocket::instance || !AppWebSocket::instance->isRegistered()) {
+        qWarning() << "Search deferred: websocket not registered yet";
+        mSearchTimer->start(500);
+        return;
+    }
+
     QString text = ui->leSearchText->text().trimmed();
     QJsonObject jo;
     jo["command"] = mSearchEngine;
     jo["lower_name"] = text.toLower();
-    jo["requestId"] = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    mLastRequestId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    jo["requestId"] = mLastRequestId;
     qDebug() << "Sending request" << jo;
     AppWebSocket::instance->sendBinaryMessage(QJsonDocument(jo).toJson());
 }
@@ -99,7 +138,7 @@ void C5StructTableView::on_btnSelect_clicked()
             isAcceptable = true;
         }
     } else if(mSearchEngine == SelectorName<PartnerItem>::value) {
-        if(static_cast<C5StructModel<GoodsItem>*>(ui->tbl->model())->hasSelectedData()) {
+        if(static_cast<C5StructModel<PartnerItem>*>(ui->tbl->model())->hasSelectedData()) {
             isAcceptable = true;
         }
     } else if (mSearchEngine == SelectorName<StoreDocStatusItem>::value) {

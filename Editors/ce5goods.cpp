@@ -668,6 +668,26 @@ static QString makePriceRow(C5TableWidget *tbl, int row)
     return h;
 }
 
+static QString makeCostPriceRow(C5TableWidget *tbl, double cost, int baseCurrency,
+                                const QMap<QString, double> &crossRate)
+{
+    QString h;
+    QTextStream s(&h);
+
+    for(int i = 0; i < tbl->columnCount(); ++i) {
+        int cur = tbl->lineEdit(0, i)->property("c").toInt();
+        double val = cost;
+
+        if(cur != baseCurrency) {
+            val = cost * crossRate.value(QString("%1-%2").arg(baseCurrency).arg(cur));
+        }
+
+        s << "<td class='right'>" << htmlEscape(float_str(val, 2)) << "</td>";
+    }
+
+    return h;
+}
+
 static QString makeComplectationTable2(C5TableWidget *tbl)
 {
     QString h;
@@ -724,9 +744,12 @@ void CE5Goods::printCard()
     v["internal_code"] =
         htmlEscape(tr("Internal code") + ": " + ui->leCode->text());
     v["price_type"] = htmlEscape(tr("Price type"));
-    v["retail_label"] = htmlEscape(tr("Retail price"));
-    v["wholesale_label"] = htmlEscape(tr("Wholesale price"));
+    v["cost_label"] = htmlEscape(tr("Cost price"));
+    v["retail_label"] = htmlEscape(tr("Retail price") + " " + ui->leMargin->text() + "%");
+    v["wholesale_label"] = htmlEscape(tr("Wholesale price") + " " + ui->leMargin2->text() + "%");
     v["price_headers"] = makePriceHeaders(ui->tblPricing);
+    v["cost_values"] = makeCostPriceRow(ui->tblPricing, ui->leCostPrice->getDouble(),
+                                        ui->cbCurrency->currentData().toInt(), fCrossRate);
     v["retail_values"] = makePriceRow(ui->tblPricing, 0);
     v["wholesale_values"] = makePriceRow(ui->tblPricing, 1);
 
@@ -849,7 +872,7 @@ void CE5Goods::tblTotalChanged(const QString &arg1)
 
 void CE5Goods::uploadImage()
 {
-    QString fn = QFileDialog::getOpenFileName(this, tr("Image"), "", "*.jpg;*.png;*.bmp");
+    QString fn = QFileDialog::getOpenFileName(this, tr("Image"), "", "*.jpg;*.jpeg;*.png;*.bmp;*.webp");
 
     if(fn.isEmpty()) {
         return;
@@ -857,26 +880,27 @@ void CE5Goods::uploadImage()
 
     QPixmap pm;
 
-    if(!pm.load(fn)) {
-        C5Message::error(tr("Could not load image"));
+    QString loadError;
+
+    if(!loadImageAsRgb(fn, pm, &loadError)) {
+        C5Message::error(tr("Could not load image") + "\n" + loadError);
         return;
     }
 
     QByteArray ba;
     QBuffer bigBuff(&ba);
+    bigBuff.open(QIODevice::WriteOnly);
     pm.save(&bigBuff, "JPG");
     fBigImage = ba.toBase64();
 
-    do {
-        if(fBigImage.isEmpty()) {
-        }
-
-        pm = pm.scaled(pm.width() * 0.8,  pm.height() * 0.8);
+    const int maxImageBytes = 200 * 1024;
+    while(ba.size() > maxImageBytes) {
+        pm = pm.scaled(pm.width() * 0.9, pm.height() * 0.9, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         ba.clear();
         QBuffer buff(&ba);
         buff.open(QIODevice::WriteOnly);
         pm.save(&buff, "JPG");
-    } while(ba.size() > 100000);
+    }
 
     ui->lbImage->setPixmap(pm.scaled(ui->lbImage->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     fImage = QString(ba.toBase64());
@@ -1291,4 +1315,44 @@ void CE5Goods::on_btnFromProduct_clicked()
     }
 
     countTotal();
+}
+
+void CE5Goods::swapGoodsRows(int row1, int row2)
+{
+    for(int c = 0; c < ui->tblGoods->columnCount(); c++) {
+        if(ui->tblGoods->lineEdit(row1, c) && ui->tblGoods->lineEdit(row2, c)) {
+            QString t = ui->tblGoods->lineEdit(row1, c)->text();
+            ui->tblGoods->lineEdit(row1, c)->setText(ui->tblGoods->lineEdit(row2, c)->text());
+            ui->tblGoods->lineEdit(row2, c)->setText(t);
+            continue;
+        }
+
+        QVariant t = ui->tblGoods->getData(row1, c);
+        ui->tblGoods->setData(row1, c, ui->tblGoods->getData(row2, c));
+        ui->tblGoods->setData(row2, c, t);
+    }
+}
+
+void CE5Goods::on_btnPosDown_clicked()
+{
+    int row = ui->tblGoods->currentRow();
+
+    if(row < 0 || row >= ui->tblGoods->rowCount() - 1) {
+        return;
+    }
+
+    swapGoodsRows(row, row + 1);
+    ui->tblGoods->setCurrentCell(row + 1, 2);
+}
+
+void CE5Goods::on_btnPosUp_clicked()
+{
+    int row = ui->tblGoods->currentRow();
+
+    if(row <= 0) {
+        return;
+    }
+
+    swapGoodsRows(row, row - 1);
+    ui->tblGoods->setCurrentCell(row - 1, 2);
 }

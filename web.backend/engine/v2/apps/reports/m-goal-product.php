@@ -108,51 +108,151 @@ class MGoalProduct extends Report
 
     public function Put($params)
     {
-
-        $image = $_FILES['image'] ?? null;
-        $this->result["image"] = $image ? "yes" : "null";
-        if ($image && $image['tmp_name']) {
-            $dir = $_SERVER['DOCUMENT_ROOT'] . "/engine/media/production/";
-            $this->result["dir"] = $dir;
-            if (!is_dir($dir)) {
-                $this->result["mkdir"] = mkdir($dir, 0777, true);
+        try {
+            $image = $_FILES['image'] ?? null;
+            $this->result["image"] = ($image && !empty($image['tmp_name'])) ? "yes" : "null";
+            if ($image && !empty($image['tmp_name']) && is_uploaded_file($image['tmp_name'])) {
+                $dir = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\') . "/engine/media/production/";
+                if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+                    throw new RuntimeException("Cannot create media dir: " . $dir);
+                }
+                $ext = strtolower(pathinfo($image['name'] ?? 'img', PATHINFO_EXTENSION) ?: 'jpg');
+                $ext = preg_replace('/[^a-z0-9]/', '', $ext) ?: 'jpg';
+                $filename = "prod_" . time() . "_" . rand(1000, 9999) . "." . $ext;
+                $targetPath = $dir . $filename;
+                if (!move_uploaded_file($image['tmp_name'], $targetPath)) {
+                    throw new RuntimeException("Failed to save uploaded image");
+                }
+                $params->f_image_url = "/engine/media/production/" . $filename;
             }
-            $ext = pathinfo($image['name'], PATHINFO_EXTENSION);
-            $filename = "prod_" . time() . "_" . rand(1000, 9999) . "." . $ext;
-            $targetPath = $dir . $filename;
-            move_uploaded_file($image['tmp_name'], $targetPath);
-            $params->f_image_url = "/engine/media/production/" . $filename;
-        }
 
-        $v = clone $params;
-        unset($v->_files);
-        unset($v->f_name);
-        unset($v->materials);
-        unset($v->other);
-        unset($v->_imageFile);
-        if ($params->f_id > 0) {
-            $this->update("m_goal_product", $v, $params->f_id);
-        } else {
-            $this->insert("m_goal_product", $params);
+            // Keep only DB columns; never pass nested materials/other into insert/update
+            $allowed = [
+                'f_date', 'f_status', 'f_product', 'f_width', 'f_height',
+                'f_width_doublerin', 'f_height_doublerin',
+                'f_width_doublerin_fabric', 'f_height_doublerin_fabric',
+                'f_width_lining', 'f_height_lining',
+                'f_34', 'f_36', 'f_38', 'f_40', 'f_42', 'f_44', 'f_46',
+                'f_image_url',
+            ];
+            $row = [];
+            foreach ($allowed as $col) {
+                if (!property_exists($params, $col)) {
+                    continue;
+                }
+                $val = $params->{$col};
+                if ($col === 'f_image_url' && is_string($val) && $val !== '') {
+                    // Edit returns absolute URL — store path only
+                    $path = parse_url($val, PHP_URL_PATH);
+                    $val = $path ?: $val;
+                }
+                if (in_array($col, ['f_34', 'f_36', 'f_38', 'f_40', 'f_42', 'f_44', 'f_46', 'f_status', 'f_product'], true)) {
+                    $val = (int)$val;
+                }
+                if (in_array($col, [
+                    'f_width', 'f_height',
+                    'f_width_doublerin', 'f_height_doublerin',
+                    'f_width_doublerin_fabric', 'f_height_doublerin_fabric',
+                    'f_width_lining', 'f_height_lining',
+                ], true)) {
+                    $val = (float)$val;
+                }
+                $row[$col] = $val;
+            }
+            $rowObj = (object)$row;
+
+            $id = (int)($params->f_id ?? 0);
+            if ($id > 0) {
+                $this->update("m_goal_product", $rowObj, $id);
+            } else {
+                $id = (int)$this->insert("m_goal_product", $rowObj);
+                $params->f_id = $id;
+            }
+            if ($id <= 0) {
+                throw new RuntimeException("Failed to save product header");
+            }
+
+            $this->delete("m_goal_product_material", $id, "f_product");
+
+            $this->insertMaterialList($params->materials ?? [], $id, 1, 0);
+            $this->insertMaterialList($params->doublerin ?? [], $id, 1, 10);
+            $this->insertMaterialList($params->doublerin_fabric ?? [], $id, 1, 11);
+            $this->insertMaterialList($params->lining ?? [], $id, 1, 12);
+
+            $others = $params->other ?? [];
+            if (is_object($others)) {
+                $others = (array)$others;
+            }
+            if (!is_array($others)) {
+                $others = [];
+            }
+            foreach ($others as $m) {
+                $m = is_array($m) ? (object)$m : $m;
+                $reason = (int)($m->f_reason ?? 0);
+                if ($reason <= 1) {
+                    $reason = 2;
+                }
+                $this->insert("m_goal_product_material", $this->materialRow($m, $id, $reason, 0));
+            }
+
+            $this->result["status"] = 1;
+            $this->result["f_id"] = $id;
+            $this->echoResult();
+        } catch (Throwable $e) {
+            http_response_code(500);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => 0,
+                'message' => $e->getMessage(),
+                'file' => basename($e->getFile()),
+                'line' => $e->getLine(),
+            ], JSON_UNESCAPED_UNICODE);
         }
-        $this->delete("m_goal_product_material", $params->f_id, "f_product");
-        $materials = $params->materials;
-        foreach ($materials as $m) {
-            unset($m->f_name);
-            unset($m->f_materialname);
-            unset($m->f_reasonname);
-            $m->f_product = $params->f_id;
-            $m->f_reason = 1;
-            $this->insert("m_goal_product_material", $m);
+    }
+
+    private function insertMaterialList($list, int $productId, int $reason, int $parent): void
+    {
+        if (is_object($list)) {
+            $list = (array)$list;
         }
-        $others = $params->other;
-        foreach ($others as $m) {
-            unset($m->f_materialname);
-            unset($m->f_reasonname);
-            $m->f_product = $params->f_id;
-            $this->insert("m_goal_product_material", $m);
+        if (!is_array($list)) {
+            $list = [];
         }
-        $this->echoResult();
+        foreach ($list as $m) {
+            $m = is_array($m) ? (object)$m : $m;
+            $this->insert("m_goal_product_material", $this->materialRow($m, $productId, $reason, $parent));
+        }
+    }
+
+    private function materialRow(object $m, int $productId, int $reason, int $parent = 0): object
+    {
+        return (object)[
+            'f_product' => $productId,
+            'f_parent' => $parent,
+            'f_material' => (int)($m->f_material ?? 0),
+            'f_code' => (string)($m->f_code ?? ''),
+            'f_color' => (string)($m->f_color ?? ''),
+            'f_qty1' => (float)($m->f_qty1 ?? 0),
+            'f_qty2' => (float)($m->f_qty2 ?? 0),
+            'f_totalqty' => (float)($m->f_totalqty ?? 0),
+            'f_qtyperone' => (float)($m->f_qtyperone ?? 0),
+            'f_colorqty' => (float)($m->f_colorqty ?? 0),
+            'f_row' => (int)($m->f_row ?? 0),
+            'f_reason' => $reason,
+        ];
+    }
+
+    private function loadSectionMaterials(int $productId, int $reason, int $parent): array
+    {
+        $sql = <<<EOD
+        select mm.f_id, mm.f_material, ma.f_name as f_materialname, mm.f_code, mm.f_color, mm.f_qty1, mm.f_qty2, mm.f_totalqty, mm.f_qtyperone, mm.f_colorqty,
+        mm.f_row, coalesce(mm.f_parent,0) as f_parent
+        from m_goal_product_material mm
+        left join c_goods ma on ma.f_id=mm.f_material
+        where mm.f_product=? and mm.f_reason=? and coalesce(mm.f_parent,0)=?
+        order by mm.f_row
+        EOD;
+        return $this->select($sql, "iii", [$productId, $reason, $parent])->fetch_all(MYSQLI_ASSOC);
     }
 
     public function Edit($params)
@@ -163,7 +263,10 @@ class MGoalProduct extends Report
 
         $sql = <<<EOD
         SELECT g.f_id, g.f_date, gn.f_name, mf.f_name,
-        g.f_width, g.f_height, 
+        g.f_width, g.f_height,
+        g.f_width_doublerin, g.f_height_doublerin,
+        g.f_width_doublerin_fabric, g.f_height_doublerin_fabric,
+        g.f_width_lining, g.f_height_lining,
         g.f_34, g.f_36, g.f_38, g.f_40, g.f_42, g.f_44, g.f_46,
         concat('$baseUrl', f_image_url) as f_image_url
         FROM m_goal_product g
@@ -176,25 +279,21 @@ class MGoalProduct extends Report
             dieWithCode(Translator::t("No data"));
         }
         $this->result["data"] = $data;
-        $sql = <<<EOD
-        select mm.f_id, mm.f_material, ma.f_name as f_materialname, mm.f_code, mm.f_color, mm.f_qty1, mm.f_qty2, mm.f_totalqty, mm.f_qtyperone, mm.f_colorqty,
-        mm.f_row
-        from m_goal_product_material mm
-        left join c_goods ma on ma.f_id=mm.f_material 
-        where mm.f_product=? and f_reason=1
-        order by mm.f_row
-        EOD;
-        $this->result["materials"] = $this->select($sql, "i", [$params->id])->fetch_all(MYSQLI_ASSOC);
+        $productId = (int)$params->id;
+        $this->result["materials"] = $this->loadSectionMaterials($productId, 1, 0);
+        $this->result["doublerin"] = $this->loadSectionMaterials($productId, 1, 10);
+        $this->result["doublerin_fabric"] = $this->loadSectionMaterials($productId, 1, 11);
+        $this->result["lining"] = $this->loadSectionMaterials($productId, 1, 12);
         $sql = <<<EOD
         select mm.f_id,mm.f_reason, mn.f_name as f_reasonname, mm.f_material, ma.f_name as f_materialname, mm.f_code, mm.f_color, mm.f_qty1, mm.f_qty2, mm.f_totalqty, mm.f_qtyperone, mm.f_colorqty,
         mm.f_row
         from m_goal_product_material mm
         left join c_goods ma on ma.f_id=mm.f_material 
         left join m_goal_product_reason mn on mn.f_id=mm.f_reason
-        where mm.f_product=? and f_reason<>1
+        where mm.f_product=? and f_reason<>1 and coalesce(mm.f_parent,0)=0
         order by mm.f_row
         EOD;
-        $this->result["other"] = $this->select($sql, "i", [$params->id])->fetch_all(MYSQLI_ASSOC);
+        $this->result["other"] = $this->select($sql, "i", [$productId])->fetch_all(MYSQLI_ASSOC);
         $this->echoResult();
     }
 }

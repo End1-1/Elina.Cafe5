@@ -24,6 +24,11 @@ C5ServerName::~C5ServerName()
 
 bool C5ServerName::getServers()
 {
+    return getServers(__c5config.getRegValue("ss_server_key").toString());
+}
+
+bool C5ServerName::getServers(const QString &serverKey)
+{
     connect(&mTimer, &QTimer::timeout, this, []() {
         qDebug() << "Websocket timeout";
     });
@@ -58,7 +63,7 @@ bool C5ServerName::getServers()
     connect(&mTimer, &QTimer::timeout, &l2, &QEventLoop::quit);
     QJsonObject jo;
     jo["command"] = "get_db_list";
-    jo["server_key"] = __c5config.getRegValue("ss_server_key").toString();
+    jo["server_key"] = serverKey;
     jo["handler"] = "office";
     qDebug() << "Getting databases list" << jo;
     s->sendTextMessage(QJsonDocument(jo).toJson(QJsonDocument::Compact));
@@ -109,4 +114,48 @@ bool C5ServerName::getConnection(const QString &connectionName)
     l2.exec();
     s->deleteLater();
     return true;
+}
+
+QString C5ServerName::resolveTenantKey(const QString &serverKey, const QString &settingsOrName)
+{
+    auto buildKey = [](const QJsonObject &js) -> QString {
+        const QString key = js.value("key").toString();
+        const QString db = js.value("db").toString();
+
+        if(key.isEmpty() || db.isEmpty()) {
+            return {};
+        }
+
+        return QString("%1.%2").arg(key, db);
+    };
+
+    QJsonObject matched;
+    QJsonObject byServerKey;
+
+    for(const QJsonValue &v : mServers) {
+        const QJsonObject js = v.toObject();
+
+        if(!settingsOrName.isEmpty()
+            && (js.value("settings").toString() == settingsOrName
+                || js.value("name").toString() == settingsOrName)) {
+            matched = js;
+            break;
+        }
+
+        if(byServerKey.isEmpty() && js.value("key").toString() == serverKey) {
+            byServerKey = js;
+        }
+    }
+
+    if(matched.isEmpty()) {
+        matched = byServerKey;
+    }
+
+    const QString tenantKey = buildKey(matched);
+
+    if(!tenantKey.isEmpty()) {
+        return tenantKey;
+    }
+
+    return serverKey;
 }

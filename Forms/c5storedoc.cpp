@@ -989,7 +989,7 @@ bool C5StoreDoc::docCheck(QString &err, int state)
         }
 
         if(ui->leStoreInput->getInteger() == ui->leStoreOutput->getInteger() && ui->leStoreInput->getInteger() != 0) {
-            err += tr("Input store and output store cannot be same") + "<br>";
+            // err += tr("Input store and output store cannot be same") + "<br>";
         }
 
         break;

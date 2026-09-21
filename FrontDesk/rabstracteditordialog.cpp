@@ -1,10 +1,9 @@
 #include "rabstracteditordialog.h"
-#include "ui_rabstracteditordialog.h"
+#include <QShowEvent>
+#include "c5user.h"
 #include "ninterface.h"
 #include "rwaiterstationconfig.h"
-#include "rwaiterorder.h"
-#include "c5user.h"
-#include <QShowEvent>
+#include "ui_rabstracteditordialog.h"
 
 RAbstractEditorDialog::RAbstractEditorDialog(C5User *user, const QString &editorName)
     : C5Dialog(user), ui(new Ui::RAbstractEditorDialog),
@@ -43,10 +42,6 @@ void RAbstractEditorDialog::createWidget()
 {
     if(mEditorName == "Workstations") {
         mWidget = new RWaiterStationConfig();
-    }
-
-    if(mEditorName == "CashSessions") {
-        mWidget = new RWaiterOrder();
     }
 
     if(mWidget) {

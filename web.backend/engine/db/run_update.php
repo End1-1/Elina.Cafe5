@@ -356,6 +356,17 @@ $sql[$v] = <<<EOD
     );
 EOD;
 
+$v = 220;
+$sql[$v] = <<<EOD
+    update s_app set f_version = '$v' where lower(f_app)='db';
+    alter table m_goal_product add column f_width_doublerin float default 0 after f_height;
+    alter table m_goal_product add column f_height_doublerin float default 0 after f_width_doublerin;
+    alter table m_goal_product add column f_width_doublerin_fabric float default 0 after f_height_doublerin;
+    alter table m_goal_product add column f_height_doublerin_fabric float default 0 after f_width_doublerin_fabric;
+    alter table m_goal_product add column f_width_lining float default 0 after f_height_doublerin_fabric;
+    alter table m_goal_product add column f_height_lining float default 0 after f_width_lining;
+EOD;
+
 
 $update_verision = intval(stmtall("select * from s_app where lower(f_app)='db'")->fetch_assoc()["f_version"]);
 for ($i = $update_verision + 1; $i <= $v; $i++) {

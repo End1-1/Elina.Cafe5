@@ -21,10 +21,10 @@ class Docs extends Auth
             }
         }
         $product_group = $this->select("select f_goods_group from mf_actions_group where f_id=?", "i", [$product["f_product"]])->fetch_assoc();
-        $materials_with_code = $this->select("select * from m_goal_product_material where f_product=? and length(f_code)>0 and f_reason=1 ", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
-        $materials_without_code = $this->select("select * from m_goal_product_material where f_product=? and length(coalesce(f_code, ''))=0 and f_reason=1", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
-        $materials_brak = $this->select("select m.*, rn.f_name as f_reasonname from m_goal_product_material m left join m_goal_product_reason rn on rn.f_id=m.f_reason where f_product=? and f_reason>1", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
-        $totalqty = $this->select("select sum(f_colorqty)  as totalqty from m_goal_product_material where f_product=? and length(f_code)>0 and f_reason=1 ", "i", [$params->product])->fetch_assoc()["totalqty"];
+        $materials_with_code = $this->select("select * from m_goal_product_material where f_product=? and length(f_code)>0 and f_reason=1 and coalesce(f_parent,0)=0", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
+        $materials_without_code = $this->select("select * from m_goal_product_material where f_product=? and length(coalesce(f_code, ''))=0 and f_reason=1 and coalesce(f_parent,0)=0", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
+        $materials_brak = $this->select("select m.*, rn.f_name as f_reasonname from m_goal_product_material m left join m_goal_product_reason rn on rn.f_id=m.f_reason where f_product=? and f_reason>1 and coalesce(f_parent,0)=0", "i", [$params->product])->fetch_all(MYSQLI_ASSOC);
+        $totalqty = $this->select("select sum(f_colorqty)  as totalqty from m_goal_product_material where f_product=? and length(f_code)>0 and f_reason=1 and coalesce(f_parent,0)=0", "i", [$params->product])->fetch_assoc()["totalqty"];
 
         $complete_codes = [];
         $barcode_done = [];

@@ -1,0 +1,19 @@
+# Serve Vite build from /man/ while keeping source for `npm run dev`.
+DirectoryIndex dist/index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /man/
+
+  # Built assets live under dist/
+  RewriteRule ^assets/(.*)$ dist/assets/$1 [L]
+  RewriteRule ^vite\.svg$ dist/vite.svg [L]
+
+  # Already inside dist — leave alone
+  RewriteRule ^dist/ - [L]
+
+  # SPA history fallback (login, dashboard, …)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ dist/index.html [L]
+</IfModule>

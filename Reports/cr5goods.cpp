@@ -13,9 +13,15 @@
 #include "c5permissions.h"
 #include "c5message.h"
 #include "c5config.h"
+#include "c5utils.h"
 #include "ndataprovider.h"
 #include <math.h>
 #include <QFile>
+#include <QFileDialog>
+#include <QBuffer>
+#include <QPixmap>
+#include <QMenu>
+#include <QSet>
 #include <QWebSocket>
 #include <QEventLoop>
 
@@ -184,6 +190,121 @@ bool CR5Goods::on_tblView_doubleClicked(const QModelIndex &index)
     }
 
     return C5ReportWidget::on_tblView_doubleClicked(index);
+}
+
+QMenu* CR5Goods::buildTableViewContextMenu(const QPoint &point)
+{
+    QMenu *m = C5Grid::buildTableViewContextMenu(point);
+    m->addSeparator();
+    m->addAction(QIcon(":/images.png"), tr("Assign image"), this, SLOT(assignImage()));
+    return m;
+}
+
+void CR5Goods::assignImage()
+{
+    if(!fColumnsVisible["gg.f_id"]) {
+        C5Message::info(tr("ID Column must be included in report"));
+        return;
+    }
+
+    QModelIndexList ml = fTableView->selectionModel()->selectedIndexes();
+
+    if(ml.count() == 0) {
+        C5Message::info(tr("Nothing was selected"));
+        return;
+    }
+
+    int colId = fModel->indexForColumnName("f_id");
+    QSet<int> selectedRows;
+    QList<int> ids;
+
+    foreach(const QModelIndex &mi, ml) {
+        if(!selectedRows.contains(mi.row())) {
+            selectedRows << mi.row();
+            int id = fModel->data(mi.row(), colId, Qt::EditRole).toInt();
+
+            if(id > 0) {
+                ids << id;
+            }
+        }
+    }
+
+    if(ids.isEmpty()) {
+        C5Message::info(tr("Nothing was selected"));
+        return;
+    }
+
+    QString fn = QFileDialog::getOpenFileName(this, tr("Image"), "", "*.jpg;*.jpeg;*.png;*.bmp;*.webp");
+
+    if(fn.isEmpty()) {
+        return;
+    }
+
+    QPixmap pm;
+
+    QString loadError;
+
+    if(!loadImageAsRgb(fn, pm, &loadError)) {
+        C5Message::error(tr("Could not load image") + "\n" + loadError);
+        return;
+    }
+
+    QByteArray ba;
+    QBuffer bigBuff(&ba);
+    bigBuff.open(QIODevice::WriteOnly);
+    pm.save(&bigBuff, "JPG");
+    QString fBigImage = ba.toBase64();
+    const int maxImageBytes = 200 * 1024;
+
+    while(ba.size() > maxImageBytes) {
+        pm = pm.scaled(pm.width() * 0.9, pm.height() * 0.9, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        ba.clear();
+        QBuffer buff(&ba);
+        buff.open(QIODevice::WriteOnly);
+        pm.save(&buff, "JPG");
+    }
+
+    QString fImage = QString(ba.toBase64());
+
+    if(C5Message::question(tr("Assign image to %1 goods?").arg(ids.count())) != QDialog::Accepted) {
+        return;
+    }
+
+    C5Database db;
+
+    foreach(int id, ids) {
+        db[":f_id"] = id;
+        db.exec("select f_id from c_goods_images where f_id=:f_id");
+        bool exists = db.nextRow();
+        db[":f_image"] = fImage;
+        db[":f_size"] = fImage.size();
+        db[":f_bigimage"] = fBigImage;
+        db[":f_bigimagesize"] = fBigImage.size();
+
+        if(exists) {
+            if(!db.update("c_goods_images", where_id(id))) {
+                C5Message::error(db.fLastError);
+                return;
+            }
+        } else {
+            db[":f_id"] = id;
+
+            if(!db.insert("c_goods_images", false)) {
+                C5Message::error(db.fLastError);
+                return;
+            }
+        }
+    }
+
+    int colSize = fModel->indexForColumnName("f_size");
+
+    if(colSize >= 0) {
+        foreach(int row, selectedRows) {
+            fModel->setData(row, colSize, fImage.size());
+        }
+    }
+
+    C5Message::info(tr("Done"));
 }
 
 void CR5Goods::pricing()

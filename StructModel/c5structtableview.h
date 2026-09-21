@@ -53,8 +53,9 @@ private:
 
     bool mEmptySearch = true;
 
-    QMap<QString, QString> selectorTitles();
+    QString mLastRequestId;
 
+    QMap<QString, QString> selectorTitles();
 };
 
 template<typename T>

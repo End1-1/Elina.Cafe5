@@ -58,7 +58,7 @@ set(APP_SOURCES
     # UI Files
     ../NTable/nsearchdlg.ui
     ../NTable/ntreewidget.ui
-    rwaiterorder.ui
+
     ../Reports/cr5consuptionbysalesqty.ui
     ../Classes/calculator.ui
     ../Classes/notificationwidget.ui
@@ -239,7 +239,7 @@ set(APP_SOURCES
     ../NTable/treemodel.h
     ../classes/c5codenameselectorfunctions.h
     rfilterproxymodel.h
-    rwaiterorder.h
+
     ../NTable/ntablemodel.h
     ../NTable/ndataprovider.h
     ../NTable/nloadingdlg.h
@@ -533,7 +533,7 @@ set(APP_SOURCES
     ../Service5/worker/struct_storage_item.h
     ../Service5/worker/struct_table.h
     ../Service5/worker/struct_waiter_dish.h
-    ../Service5/worker/struct_waiter_order.h
+
     ../Service5/worker/struct_workstationitem.h
     ../StructModel/c5structmodel.h
     ../StructModel/c5structtableview.h
@@ -568,7 +568,7 @@ set(APP_SOURCES
     ../NTable/treemodel.cpp
     dict_dish_state.cpp
     rfilterproxymodel.cpp
-    rwaiterorder.cpp
+
     ../NTable/ntablemodel.cpp
     ../NTable/ndataprovider.cpp
     ../NTable/ntablewidget.cpp

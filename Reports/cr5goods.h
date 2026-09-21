@@ -18,12 +18,17 @@ public:
 public slots:
     virtual bool on_tblView_doubleClicked(const QModelIndex &index);
 
+protected:
+    virtual QMenu *buildTableViewContextMenu(const QPoint &point) override;
+
 private:
     CR5GoodsFilter *fFilter;
 
     QTimer mTimer;
 
 private slots:
+    void assignImage();
+
     void pricing();
 
     void groupPrice();

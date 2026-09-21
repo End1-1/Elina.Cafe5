@@ -9,17 +9,26 @@ struct WaiterDish {
     QString header;
     int state;
     int type;
-    int parent;
+    QString parent;
     int dishId;
     int store;
     QString dishName;
+    QString unitName;
     double qty;
     double price;
     int row;
+    /** Только для PACKAGE (тип 5): Σ(qty×price) состава − qty×price строки пакета; считается на клиенте. */
+    double packageNominalDelta = 0;
     QString emarks() const { return data.value("f_emarks").toString(); }
     QJsonObject data;
     QString nameLower;
     QStringList words;
+
+    bool isService() const { return data.value("f_is_service").toBool(); }
+
+    bool isPiece() const { return data.value("f_is_piece").toBool(); }
+
+    QString barcode() const { return data.value("f_barcode").toString(); }
 
     QString comment()const
     {
@@ -49,10 +58,33 @@ struct WaiterDish {
             delta += serviceFactor();
         }
         if (countDiscount()) {
-            delta -= discountFactor();
+            delta -= qAbs(discountFactor());
         }
         total += total * delta;
         return total;
+    }
+
+    /** Line amount for display / client totals (order-level service/discount factors). */
+    double lineAmount(bool isPreorder, bool includeUnprinted,
+                      double orderServiceFactor, double orderDiscountFactor) const
+    {
+        if (data.value(QStringLiteral("f_complimentary")).toBool()) {
+            return 0;
+        }
+        if (!isPreorder && !includeUnprinted && !isPrinted()) {
+            return 0;
+        }
+
+        double priceModificator = 0;
+
+        if (countService()) {
+            priceModificator += orderServiceFactor;
+        }
+        if (countDiscount()) {
+            priceModificator -= qAbs(orderDiscountFactor);
+        }
+
+        return qty * price * (1.0 + priceModificator);
     }
     QString appendedTime()
     {
@@ -68,8 +100,8 @@ struct WaiterDish {
         return data["f_remove_time"].toString();
     }
 
-    QString adgtCode() { return data["f_adgt_code"].toString(); }
-    QString translated()
+    QString adgtCode() { return data["f_adgt"].toString(); }
+    QString translated() const
     {
         return dishName;
     }
@@ -97,6 +129,8 @@ struct WaiterDish {
     {
         return data["f_fiscal_department"].toInt();
     }
+    QString fiscalName() const { return data.value("f_fiscal_name").toString(); }
+    QString adgt() const { return data.value("f_adgt").toString(); }
     double serviceFactor() const { return data.value("f_service_factor").toDouble(); }
     double discountFactor() const
     {
@@ -124,7 +158,13 @@ struct WaiterDish {
         j["f_price"] = price;
         j["f_row"] = row;
         j["f_emarks"] = emarks();
-        j["f_data"] = data;
+        j[QStringLiteral("f_data")] = data;
+        if(data.contains(QStringLiteral("f_kitchen_status"))) {
+            j[QStringLiteral("f_process_status")] = data.value(QStringLiteral("f_kitchen_status"));
+        }
+        if(data.contains(QStringLiteral("f_goods_process"))) {
+            j[QStringLiteral("f_goods_process")] = data.value(QStringLiteral("f_goods_process"));
+        }
         return j;
     }
 };
@@ -137,28 +177,52 @@ struct JsonParser<WaiterDish> {
         wd.id = jo["f_id"].toString();
         wd.header = jo["f_header"].toString();
         wd.type = jo["f_type"].toInt();
-        wd.parent = jo["f_parent"].toInt();
+        wd.parent = jo.value("f_parent").toString();
         wd.state = jo["f_state"].toInt();
         wd.store = jo["f_store"].toInt();
         wd.dishId = jo["f_dish"].toInt();
         wd.dishName = jo["f_dish_name"].toString();
+        wd.unitName = jo["f_unit_name"].toString();
         wd.row = jo["f_row"].toInt();
         wd.qty = jo["f_qty"].toDouble();
         wd.price = jo["f_price"].toDouble();
         wd.data = {};
 
-        if(jo.contains("f_data") && jo["f_data"].isString()) {
-            QJsonParseError err;
-            const QByteArray raw = jo["f_data"].toString().toUtf8();
-            QJsonDocument doc = QJsonDocument::fromJson(raw, &err);
+        if(jo.contains(QStringLiteral("f_data"))) {
+            const QJsonValue fd = jo.value(QStringLiteral("f_data"));
+            if(fd.isObject()) {
+                wd.data = fd.toObject();
+            } else if(fd.isString()) {
+                QJsonParseError err;
+                const QByteArray raw = fd.toString().toUtf8();
+                const QJsonDocument doc = QJsonDocument::fromJson(raw, &err);
 
-            if(err.error == QJsonParseError::NoError && doc.isObject()) {
-                wd.data = doc.object();
-            } else {
-                qWarning() << "f_data parse error:" << err.errorString()
-                           << "raw:" << raw;
+                if(err.error == QJsonParseError::NoError && doc.isObject()) {
+                    wd.data = doc.object();
+                } else {
+                    qWarning() << "f_data parse error:" << err.errorString()
+                               << "raw:" << raw;
+                }
             }
         }
+
+        if(jo.contains(QStringLiteral("f_process_status"))) {
+            wd.data.insert(QStringLiteral("f_kitchen_status"), jo.value(QStringLiteral("f_process_status")).toInt(0));
+        }
+
+        const QJsonValue processRaw = jo.value(QStringLiteral("f_process_data"));
+        if(processRaw.isObject()) {
+            wd.data.insert(QStringLiteral("f_goods_process"), processRaw.toObject());
+        } else if(processRaw.isString() && !processRaw.toString().trimmed().isEmpty()) {
+            QJsonParseError err;
+            const QJsonDocument doc = QJsonDocument::fromJson(processRaw.toString().toUtf8(), &err);
+            if(err.error == QJsonParseError::NoError && doc.isObject()) {
+                wd.data.insert(QStringLiteral("f_goods_process"), doc.object());
+            }
+        }
+
+        wd.data["f_fiscal_department"] = jo["f_fiscal_department"];
+        wd.data["f_adgt"] = jo["f_adgt"];
 
         return wd;
     }

@@ -7,6 +7,7 @@
 #include "c5user.h"
 #include "c5database.h"
 #include "appwebsocket.h"
+#include "c5servername.h"
 #include "c5connectiondialog.h"
 #include <QKeyEvent>
 #include <QJsonObject>
@@ -107,11 +108,26 @@ void DlgPin::on_btnEnter_clicked()
                                                           C5ConnectionDialog::instance()->serverAddress());
                 __c5config.setValues(settings);
                 __c5config.fMainJson = mUser->fConfig;
+
+                if(C5ServerName::mServers.isEmpty()) {
+                    const QString wsHost = QString("%1://%2")
+                                              .arg(C5ConnectionDialog::instance()->connectionType() == C5ConnectionDialog::noneSecure
+                                                       ? "ws"
+                                                       : "wss",
+                                                   C5ConnectionDialog::instance()->serverAddress());
+                    C5ServerName sn(wsHost);
+                    sn.getServers(C5ConnectionDialog::instance()->serverKey());
+                }
+
+                const QString tenantKey = C5ServerName::resolveTenantKey(
+                    C5ConnectionDialog::instance()->serverKey(),
+                    C5ConnectionDialog::instance()->settings());
+                qDebug() << "AppWebSocket tenantKey" << tenantKey << "servers" << C5ServerName::mServers.size();
                 AppWebSocket::reconnect((C5ConnectionDialog::instance()->connectionType() == C5ConnectionDialog::instance()->noneSecure
                                              ? "ws://"
                                              : "wss://")
                                             + C5ConnectionDialog::instance()->serverAddress() + "/ws",
-                                        C5ConnectionDialog::instance()->serverKey(),
+                                        tenantKey,
                                         ui->leUser->text(),
                                         ui->lePin->text());
                 accept();

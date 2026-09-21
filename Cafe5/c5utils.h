@@ -75,11 +75,15 @@ public:
     QString pwd(const QString &value);
 };
 
+class QPixmap;
+
 QString hostusername();
 
 QString password(const QString &value);
 
 QString columnNumberToLetter(int n);
+
+bool loadImageAsRgb(const QString &fileName, QPixmap &pm, QString *error = nullptr);
 
 extern C5Utils __c5utils;
 

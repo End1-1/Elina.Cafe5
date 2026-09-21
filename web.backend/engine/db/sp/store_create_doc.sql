@@ -284,11 +284,18 @@ BEGIN
     if ((CAST(@STATUS AS unsigned) = 1) AND (JSON_VALUE(@header, '$.f_state') = 1) AND
         JSON_VALUE(@header, '$.f_nodebtop') IS null) then
         if (JSON_VALUE(@partner, '$.partner') > 0) then
-            SELECT f_hall
-            INTO @thall
-            FROM c_storages
-            WHERE f_id = JSON_VALUE(@header, '$.f_storein')
-               OR f_id = JSON_VALUE(@header, '$.f_storeout');
+            -- For move (type 3) both storein and storeout are set; SELECT INTO must return 1 row.
+            -- Debts use @thall only for input/output (types 1/2), so resolve hall by document type.
+            SET @thall = NULL;
+            IF (JSON_VALUE(@header, '$.f_type') IN (1, 2)) THEN
+                SELECT f_hall
+                INTO @thall
+                FROM c_storages
+                WHERE f_id = CASE JSON_VALUE(@header, '$.f_type')
+                                 WHEN 1 THEN JSON_VALUE(@header, '$.f_storein')
+                                 WHEN 2 THEN JSON_VALUE(@header, '$.f_storeout')
+                    END;
+            END IF;
             case JSON_VALUE(@header, '$.f_type')
                 When 1 then BEGIN
                     # decrease debt if goods return from partner

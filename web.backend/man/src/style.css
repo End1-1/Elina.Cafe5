@@ -1,0 +1,39 @@
+* {
+
+  box-sizing: border-box;
+}
+
+h1 {
+  color: #3f3f3f;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 8px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 8px;
+  font-size: 16px;
+  min-width: 50px;
+  max-width: 150px;
+  width: max-content;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.error {
+  color: red;
+  margin-top: 5px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.hide-col {
+  display: none;
+}

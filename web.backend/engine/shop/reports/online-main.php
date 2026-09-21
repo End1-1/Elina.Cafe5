@@ -5,6 +5,32 @@ require_once __DIR__ . "/index.php";
 
 class OnlineMainReport extends PClass
 {
+    private function cashCommentOkForHandznum(?string $comment): bool
+    {
+        $comment = $comment ?? '';
+        return strpos($comment, 'Կանխիկի հ') !== 0;
+    }
+
+    private function cashCommentOkForSpent(?string $comment): bool
+    {
+        $comment = $comment ?? '';
+        return strpos($comment, 'Կանխիկի հանձնում') !== 0
+            && strpos($comment, 'Պահեստի մուտք') !== 0
+            && strpos($comment, 'Կոպեկ') !== 0
+            && mb_strpos($comment, 'վերադարձ') === false;
+    }
+
+    private function updateCashreportColumn(string $column, array $totalsByHall): void
+    {
+        foreach ($totalsByHall as $hallName => $amount) {
+            $this->stmtall(
+                "UPDATE cashreport SET {$column}=? WHERE f_hallname=?",
+                "ds",
+                [$amount, $hallName]
+            );
+        }
+    }
+
     public function report()
     {
         $sql = <<<EOD
@@ -64,41 +90,58 @@ class OnlineMainReport extends PClass
         EOD;
         $this->stmtall($sql);
 
-        //canxiki handznmum
+        //canxiki handznmum — comment filter in PHP (avoid NOT LIKE on ah.f_comment)
         $sql = <<<EOD
-        UPDATE cashreport crt
-        inner JOIN (
-        SELECT hh.f_name, abs( SUM(e.f_amount*e.f_sign)) AS f_amount
+        SELECT hh.f_name, e.f_amount, e.f_sign, ah.f_comment
         FROM h_halls hh
         LEFT JOIN sys_json_config sn ON sn.f_id=hh.f_settings
         inner JOIN e_cash e ON e.f_cash=JSON_VALUE(sn.f_config, '$.cashbox_id')
         LEFT JOIN a_header ah ON ah.f_id=e.f_header
         WHERE hh.f_onlinereport=1 AND ah.f_date between '{$this->params->date1}' and '{$this->params->date2}'
-        and coalesce(ah.f_comment, '') not LIKE 'Կանխիկի հ%' and ah.f_state=1
-        GROUP BY 1) ee ON ee.f_name=crt.f_hallname
-        SET crt.f_handznum=ee.f_amount;
+        and ah.f_state=1
         EOD;
-        $this->stmtall($sql);
+        // NOTE: SQL used abs(SUM(e.f_amount*e.f_sign)) per hall.
+        // We must keep the same aggregation (not SUM(ABS(...))).
+        $handznumSignedByHall = [];
+        foreach ($this->stmtall($sql)->fetch_all(MYSQLI_ASSOC) as $row) {
+            if (!$this->cashCommentOkForHandznum($row["f_comment"] ?? null)) {
+                continue;
+            }
+            $hall = $row["f_name"];
+            if (!isset($handznumSignedByHall[$hall])) {
+                $handznumSignedByHall[$hall] = 0.0;
+            }
+            $handznumSignedByHall[$hall] += (float)$row["f_amount"] * (float)$row["f_sign"];
+        }
+        $handznumByHall = [];
+        foreach ($handznumSignedByHall as $hallName => $signedSum) {
+            $handznumByHall[$hallName] = abs($signedSum);
+        }
+        $this->updateCashreportColumn("f_handznum", $handznumByHall);
 
-        //cash spent
+        //cash spent — comment filter in PHP
         $sql = <<<EOD
-        UPDATE cashreport crt
-        inner JOIN (
-        SELECT hh.f_name, sum(e.f_amount) as f_amount
+        SELECT hh.f_name, e.f_amount, ah.f_comment
         FROM h_halls hh
         LEFT JOIN sys_json_config sn ON sn.f_id=hh.f_settings
         inner JOIN e_cash e ON e.f_cash=JSON_VALUE(sn.f_config, '$.cashbox_id')
         LEFT JOIN a_header ah ON ah.f_id=e.f_header
         WHERE ah.f_date between '{$this->params->date1}' and '{$this->params->date2}'
         and ah.f_state=1
-        AND coalesce(ah.f_comment, '') NOT LIKE 'Կանխիկի հանձնում%' 
-        AND coalesce(ah.f_comment, '') NOT LIKE 'Պահեստի մուտք%' 
-        AND coalesce(ah.f_comment, '') NOT LIKE 'Կոպեկ%' 
-        AND coalesce(ah.f_comment, '') NOT LIKE '%վերադարձ%'
-        and hh.f_onlinereport=1  and e.f_sign<0  GROUP BY 1) ee ON ee.f_name=crt.f_hallname
-        SET crt.f_spent=ee.f_amount;
+        and hh.f_onlinereport=1 and e.f_sign<0
         EOD;
-        $this->stmtall($sql);
+        $spentByHall = [];
+        foreach ($this->stmtall($sql)->fetch_all(MYSQLI_ASSOC) as $row) {
+            if (!$this->cashCommentOkForSpent($row["f_comment"] ?? null)) {
+                continue;
+            }
+            $hall = $row["f_name"];
+            if (!isset($spentByHall[$hall])) {
+                $spentByHall[$hall] = 0;
+            }
+            $spentByHall[$hall] += (float)$row["f_amount"];
+        }
+        $this->updateCashreportColumn("f_spent", $spentByHall);
 
         //kopek total
         $sql = <<<EOD

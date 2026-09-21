@@ -110,6 +110,10 @@ private slots:
 
     void on_btnFromProduct_clicked();
 
+    void on_btnPosDown_clicked();
+
+    void on_btnPosUp_clicked();
+
 private:
     Ui::CE5Goods* ui;
 
@@ -132,6 +136,8 @@ private:
     void setComplectFlag();
 
     void countSalePrice(int r, double margin);
+
+    void swapGoodsRows(int row1, int row2);
 };
 
 #endif // CE5GOODS_H
