@@ -1,5 +1,6 @@
 #include "dlgreturnitem.h"
 #include <QJsonArray>
+#include <QJsonArray>
 #include "c5checkbox.h"
 #include "c5config.h"
 #include "c5lineedit.h"
@@ -130,6 +131,7 @@ void DlgReturnItem::on_tblOrder_cellClicked(int row, int column)
                 ui->tblBody->setData(r, 9, jt["f_return"].toInt());
                 ui->tblBody->setData(r, 9, jt["f_returnedqty"].toDouble());
                 ui->tblBody->setData(r, 11, jt["f_discountfactor"].toDouble());
+                ui->tblBody->item(r, 0)->setData(Qt::UserRole + 20, jt["f_emarks"].toString());
                 auto *l = ui->tblBody->createLineEdit(r, 10);
                 l->setEnabled(__c5config.fMainJson["change_qty_return_items"].toBool());
                 l->setDouble(0);
@@ -245,30 +247,81 @@ void DlgReturnItem::on_btnReturn_clicked()
 
     if(db.nextRow() && ui->cbPaymentType->currentIndex() != 2) {
         QJsonObject jout = __strjson(db.getString("f_out"));
+        QJsonObject jin = __strjson(db.getString("f_in"));
         QString crn = jout["crn"].toString();
         int rseq = jout["rseq"].toInt();
         FiscalMachine fm = getFiscalMachine(mWorkStation.fiscalMachineId());
         PrintTaxN pt(fm.ip, fm.port, fm.machinePassword, fm.externalPosString(), fm.opPin, fm.opPassword, this);
 
+        double originalTotal = oldAmountsMap["f_amounttotal"].toDouble();
+        if(originalTotal < 0.01) {
+            originalTotal = oldAmountsMap["f_amountcash"].toDouble()
+                            + oldAmountsMap["f_amountcard"].toDouble()
+                            + oldAmountsMap["f_amountidram"].toDouble()
+                            + oldAmountsMap["f_amounttelcell"].toDouble()
+                            + oldAmountsMap["f_amountprepaid"].toDouble();
+        }
+
+        // §4.5.7: amounts and returnItemList only for a partial return.
+        bool fullReturn = qAbs(ui->leReturnAmount->getDouble() - originalTotal) < 0.05;
+
         for(int i = 0; i < ui->tblBody->rowCount(); i++) {
             auto *l = ui->tblBody->lineEdit(i, 10);
-
-            if(l->getDouble() < 0.001) {
-                continue;
+            const double avail = ui->tblBody->getDouble(i, 4) - ui->tblBody->getDouble(i, 9);
+            if(avail > 0.001 && qAbs(l->getDouble() - avail) > 0.001) {
+                fullReturn = false;
+                break;
             }
+        }
 
-            pt.addReturnItem(i, l->getDouble());
+        if(!fullReturn) {
+            for(int i = 0; i < ui->tblBody->rowCount(); i++) {
+                auto *l = ui->tblBody->lineEdit(i, 10);
+                if(l->getDouble() < 0.001) {
+                    continue;
+                }
+
+                pt.addReturnItem(i, l->getDouble());
+                const QString emark = ui->tblBody->item(i, 0)->data(Qt::UserRole + 20).toString();
+                if(!emark.isEmpty()) {
+                    pt.fEmarks.append(emark);
+                }
+            }
+        }
+
+        if(pt.fEmarks.isEmpty()) {
+            QJsonArray saleMarks = jin["eMarks"].toArray();
+            if(saleMarks.isEmpty()) {
+                saleMarks = jin["emarks"].toArray();
+            }
+            for(const QJsonValue &v : saleMarks) {
+                if(!v.toString().isEmpty()) {
+                    pt.fEmarks.append(v.toString());
+                }
+            }
+        }
+
+        if(pt.fEmarks.isEmpty()) {
+            C5Database dbMarks;
+            dbMarks[":f_header"] = headerid;
+            dbMarks.exec("select f_emarks from o_goods where f_header=:f_header "
+                         "and f_emarks is not null and f_emarks<>'' order by f_row");
+            while(dbMarks.nextRow()) {
+                pt.fEmarks.append(dbMarks.getString(0));
+            }
         }
 
         QString jsnin, jsnout, err;
         int result;
 
-        if(oldAmountsMap["f_amountcash"].toDouble() > 0) {
-            pt.fCashAmountForReturn = ui->leReturnAmount->getDouble();
-        } else if(oldAmountsMap["f_amountcard"].toDouble() > 0 || oldAmountsMap["f_amountidram"].toDouble() > 0) {
-            pt.fCardAmountForReturn = ui->leReturnAmount->getDouble();
-        } else if(oldAmountsMap["f_amountprepaid"].toDouble() > 0) {
-            pt.fPrepaymentAmountForReturn = ui->leReturnAmount->getDouble();
+        if(!fullReturn) {
+            if(oldAmountsMap["f_amountcash"].toDouble() > 0) {
+                pt.fCashAmountForReturn = ui->leReturnAmount->getDouble();
+            } else if(oldAmountsMap["f_amountcard"].toDouble() > 0 || oldAmountsMap["f_amountidram"].toDouble() > 0) {
+                pt.fCardAmountForReturn = ui->leReturnAmount->getDouble();
+            } else if(oldAmountsMap["f_amountprepaid"].toDouble() > 0) {
+                pt.fPrepaymentAmountForReturn = ui->leReturnAmount->getDouble();
+            }
         }
 
         result = pt.printTaxback(rseq, crn, jsnin, jsnout, err);
@@ -410,6 +463,9 @@ void DlgReturnItem::on_btnReturn_clicked()
         g.storeRec = adraftid;
         g.returnFrom = ui->tblBody->getString(j, 0);
         g.tax = ui->tblOrder->getInteger(ui->tblOrder->currentRow(), 4);
+        const QString emark = ui->tblBody->item(j, 0)->data(Qt::UserRole + 20).toString();
+        const double returnedQty = l->getDouble() + ui->tblBody->getDouble(j, 9);
+        const bool emarkFullyReturned = !emark.isEmpty() && returnedQty + 0.001 >= ui->tblBody->getDouble(j, 4);
 
         if(!g.write(db, err)) {
             C5Message::error(err);
@@ -433,6 +489,26 @@ void DlgReturnItem::on_btnReturn_clicked()
             C5Message::error(dw.fErrorMsg);
             ui->btnReturn->setEnabled(true);
             return;
+        }
+
+        if(emarkFullyReturned) {
+            if(!dw.updateField("o_goods", "f_emarks", QVariant(), "f_id", ui->tblBody->getString(j, 0))) {
+                C5Message::error(dw.fErrorMsg);
+                ui->btnReturn->setEnabled(true);
+                return;
+            }
+            db[":f_emarks"] = emark;
+            if(!db.exec("update o_draft_sale_body set f_emarks=null where f_emarks=:f_emarks")) {
+                C5Message::error(db.fLastError);
+                ui->btnReturn->setEnabled(true);
+                return;
+            }
+            db[":f_emarks"] = emark;
+            if(!db.exec("update o_body set f_emarks=null where f_emarks=:f_emarks")) {
+                C5Message::error(db.fLastError);
+                ui->btnReturn->setEnabled(true);
+                return;
+            }
         }
 
         if(!dw.updateField("o_header", "f_comment", QString("%1 %2").arg(tr("Return from"), saledoc), "f_id", oheader.id)) {

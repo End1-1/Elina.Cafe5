@@ -40,7 +40,7 @@ class Fiscal extends Auth
         select og.f_id, og.f_goods, g.f_name, og.f_qty, 
         gu.f_name as f_unitname, og.f_price, og.f_total,
         t.f_taxdept, t.f_adgcode, 
-        og.f_store 
+        og.f_store, og.f_emarks, og.f_discountfactor 
         from o_goods og 
         left join c_goods g on g.f_id=og.f_goods 
         left join c_units gu on gu.f_id=g.f_unit 

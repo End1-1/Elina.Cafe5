@@ -32,6 +32,41 @@ static QMutex fTaxMutex;
         .remove(QRegularExpression("\\.0+$")) \
         .remove(QRegularExpression("\\.$"))
 
+static const QChar kEmarkGs(29);
+
+static QString prepareEmarkForFiscal(QString e)
+{
+    e.replace(QStringLiteral("\\u001d"), QString(kEmarkGs));
+    e.replace(QStringLiteral("\\u001D"), QString(kEmarkGs));
+
+    if (!e.contains(kEmarkGs)) {
+        static const QRegularExpression re9192(
+            QStringLiteral("^01(\\d{14})21([\\x21-\\x7E]{1,20})91([\\x21-\\x7E]{4})92([\\x21-\\x7E]{44})$"));
+        const QRegularExpressionMatch m = re9192.match(e);
+        if (m.hasMatch()) {
+            e = QStringLiteral("01") + m.captured(1) + QStringLiteral("21") + m.captured(2) + kEmarkGs
+                + QStringLiteral("91") + m.captured(3) + kEmarkGs + QStringLiteral("92") + m.captured(4);
+        }
+    }
+
+    e.replace(QLatin1Char('\\'), QStringLiteral("\\\\"));
+    e.replace(QLatin1Char('"'), QStringLiteral("\\\""));
+    e.replace(kEmarkGs, QStringLiteral("\\u001d"));
+    return e;
+}
+
+static QString joinEmarksForFiscal(const QStringList &list)
+{
+    QString emarks;
+    for (const QString &raw : list) {
+        if (!emarks.isEmpty()) {
+            emarks += QLatin1Char(',');
+        }
+        emarks += QLatin1Char('"') + prepareEmarkForFiscal(raw) + QLatin1Char('"');
+    }
+    return emarks;
+}
+
 int PrintTaxNO::connectToHost(QString &err)
 {
     fTcpSocket.connectToHost(QHostAddress(fIP), fPort);
@@ -480,18 +515,7 @@ void PrintTaxNO::addReturnItem(int row, double qty)
 
 int PrintTaxNO::makeJsonAndPrint(double card, double prepaid, QString &outInJson, QString &outOutJson, QString &err)
 {
-    QString emarks;
-
-    for(QString e : fEmarks) {
-        if(!emarks.isEmpty()) {
-            emarks += ",";
-        }
-
-        //e.replace("'", "\\\\'");
-        e.replace("\\", "\\\\");
-        e.replace("\"", "\\\"");
-        emarks += QString("\"%1\"").arg(e);
-    }
+    const QString emarks = joinEmarksForFiscal(fEmarks);
 
     fJsonHeader["paidAmountCard"] = card;
     fJsonHeader["prePaymentAmount"] = prepaid;
@@ -545,18 +569,6 @@ int PrintTaxNO::makeJsonAndPrint(double card, double prepaid, QString &outInJson
     outInJson = json;
     outOutJson = jdata;
 
-    if(result != 0) {
-#ifdef QT_DEBUG
-        outOutJson =
-            QString("{\"rseq\":%1,\"crn\":\"63219817\",\"sn\":\"V98745506068\",\"tin\":\"01588771\",\"taxpayer\":\"«Ռոգա էնդ կոպիտա ՍՊԸ»\",\"address\":\"Արշակունյանց 34\",\"time\":1676794194840,\"fiscal\":\"98198105\",\"lottery\":\"00000000\",\"prize\":0,\"total\":1540.0,\"change\":0.0}")
-            .arg(mDebugRseq);
-        outOutJson =
-            QString("{\"address\":\"ԿԵՆՏՐՈՆ ԹԱՂԱՄԱՍ Ամիրյան 4/3 \",\"change\":0.0,\"crn\":\"53235782\",\"fiscal\":\"54704153\",\"lottery\":\"\",\"prize\":0,\"rseq\":%1,\"sn\":\"00022154380\",\"taxpayer\":\"«ՊԼԱԶԱ ՍԻՍՏԵՄՍ»\",\"time\":1709630105632,\"tin\":\"02596277\",\"total\":93600.0}")
-            .arg(mDebugRseq);
-        result = DEBUG_RESULT;
-#endif
-    }
-
     if(result == 0) {
         while(outOutJson.length() > 0 && outOutJson.at(outOutJson.length() - 1) != "}") {
             outOutJson.remove(outOutJson.length() - 1, 1);
@@ -569,18 +581,7 @@ int PrintTaxNO::makeJsonAndPrint(double card, double prepaid, QString &outInJson
 int PrintTaxNO::makeJsonAndPrint(double cash, double card, double prepaid, QString &outInJson, QString &outOutJson, QString &err)
 {
     emit started();
-    QString emarks;
-
-    for(QString e : fEmarks) {
-        if(!emarks.isEmpty()) {
-            emarks += ",";
-        }
-
-        //e.replace("'", "\\\\'");
-        e.replace("\\", "\\\\");
-        e.replace("\"", "\\\"");
-        emarks += QString("\"%1\"").arg(e);
-    }
+    const QString emarks = joinEmarksForFiscal(fEmarks);
 
     fJsonHeader["paidAmountCard"] = card;
     fJsonHeader["prePaymentAmount"] = prepaid;
@@ -633,18 +634,6 @@ int PrintTaxNO::makeJsonAndPrint(double cash, double card, double prepaid, QStri
     outInJson = json;
     outOutJson = jdata;
 
-    if(result != 0) {
-#ifdef QT_DEBUG
-        outOutJson =
-            QString("{\"rseq\":%1,\"crn\":\"63219817\",\"sn\":\"V98745506068\",\"tin\":\"01588771\",\"taxpayer\":\"«Ռոգա էնդ կոպիտա ՍՊԸ»\",\"address\":\"Արշակունյանց 34\",\"time\":1676794194840,\"fiscal\":\"98198105\",\"lottery\":\"00000000\",\"prize\":0,\"total\":1540.0,\"change\":0.0}")
-            .arg(mDebugRseq);
-        outOutJson =
-            QString("{\"address\":\"ԿԵՆՏՐՈՆ ԹԱՂԱՄԱՍ Ամիրյան 4/3 \",\"change\":0.0,\"crn\":\"53235782\",\"fiscal\":\"54704153\",\"lottery\":\"\",\"prize\":0,\"rseq\":%1,\"sn\":\"00022154380\",\"taxpayer\":\"«ՊԼԱԶԱ ՍԻՍՏԵՄՍ»\",\"time\":1709630105632,\"tin\":\"02596277\",\"total\":93600.0}")
-            .arg(mDebugRseq++);
-        result = DEBUG_RESULT;
-#endif
-    }
-
     if(result == 0) {
         while(outOutJson.length() > 0 && outOutJson.at(outOutJson.length() - 1) != "}") {
             outOutJson.remove(outOutJson.length() - 1, 1);
@@ -657,18 +646,7 @@ int PrintTaxNO::makeJsonAndPrint(double cash, double card, double prepaid, QStri
 int PrintTaxNO::makeJsonAndPrintSimple(
     int dep, double card, double prepaid, const QString &useExtPos, QString &outInJson, QString &outOutJson, QString &err)
 {
-    QString emarks;
-
-    for(QString e : fEmarks) {
-        if(!emarks.isEmpty()) {
-            emarks += ",";
-        }
-
-        //e.replace("'", "\\\\'");
-        e.replace("\\", "\\\\");
-        e.replace("\"", "\\\"");
-        emarks += QString("\"%1\"").arg(e);
-    }
+    const QString emarks = joinEmarksForFiscal(fEmarks);
 
     fJsonHeader["paidAmountCard"] = card;
     fJsonHeader["prePaymentAmount"] = prepaid;
@@ -689,22 +667,6 @@ int PrintTaxNO::makeJsonAndPrintSimple(
     //json.replace("\\\"", "\\\\\"");
     outInJson = json;
     outOutJson = jdata;
-
-    if (result != 0) {
-#ifdef QT_DEBUG
-        outOutJson = QString("{\"rseq\":%1,\"crn\":\"63219817\",\"sn\":\"V98745506068\",\"tin\":\"01588771\",\"taxpayer\":\"«Ռոգա էնդ "
-                             "կոպիտա ՍՊԸ»\",\"address\":\"Արշակունյանց "
-                             "34\",\"time\":1676794194840,\"fiscal\":\"98198105\",\"lottery\":\"00000000\",\"prize\":0,\"total\":1540.0,"
-                             "\"change\":0.0}")
-                         .arg(mDebugRseq);
-        outOutJson = QString("{\"address\":\"ԿԵՆՏՐՈՆ ԹԱՂԱՄԱՍ Ամիրյան 4/3 "
-                             "\",\"change\":0.0,\"crn\":\"53235782\",\"fiscal\":\"54704153\",\"lottery\":\"\",\"prize\":0,\"rseq\":%1,"
-                             "\"sn\":\"00022154380\",\"taxpayer\":\"«ՊԼԱԶԱ "
-                             "ՍԻՍՏԵՄՍ»\",\"time\":1709630105632,\"tin\":\"02596277\",\"total\":93600.0}")
-                         .arg(mDebugRseq);
-        result = DEBUG_RESULT;
-#endif
-    }
 
     if (result == 0) {
         while (outOutJson.length() > 0 && outOutJson.at(outOutJson.length() - 1) != "}") {
@@ -728,20 +690,6 @@ int PrintTaxNO::printAdvanceJson(double advanceCash, double advanceCard, QString
     int result = printJSON(jdata, err, opcode_print_receipt);
 
     outOutJson = jdata;
-#ifdef QT_DEBUG
-    outOutJson
-        = QString(
-              "{\"rseq\":%1,\"crn\":\"63219817\",\"sn\":\"V98745506068\",\"tin\":\"01588771\",\"taxpayer\":\"«Ռոգա էնդ կոպիտա "
-              "ՍՊԸ»\",\"address\":\"Արշակունյանց "
-              "34\",\"time\":1676794194840,\"fiscal\":\"98198105\",\"lottery\":\"00000000\",\"prize\":0,\"total\":1540.0,\"change\":0.0}")
-              .arg(mDebugRseq);
-    outOutJson = QString("{\"address\":\"ԿԵՆՏՐՈՆ ԹԱՂԱՄԱՍ Ամիրյան 4/3 "
-                         "\",\"change\":0.0,\"crn\":\"53235782\",\"fiscal\":\"54704153\",\"lottery\":\"\",\"prize\":0,\"rseq\":%1,\"sn\":"
-                         "\"00022154380\",\"taxpayer\":\"«ՊԼԱԶԱ "
-                         "ՍԻՍՏԵՄՍ»\",\"time\":1709630105632,\"tin\":\"02596277\",\"total\":93600.0}")
-                     .arg(mDebugRseq);
-    result = DEBUG_RESULT;
-#endif
 
     if (result == 0) {
         while (outOutJson.length() > 0 && outOutJson.at(outOutJson.length() - 1) != "}") {
@@ -754,20 +702,9 @@ int PrintTaxNO::printAdvanceJson(double advanceCash, double advanceCard, QString
 
 int PrintTaxNO::printTaxback(int number, const QString &crn, QString &outInJson, QString &outOutJson, QString &err)
 {
-    QString emarksStr;
+    QString emarksStr = joinEmarksForFiscal(fEmarks);
 
-    for (QString e : fEmarks) {
-        if (!emarksStr.isEmpty()) {
-            emarksStr += ",";
-        }
-
-        //e.replace("'", "\\\\'");
-        e.replace("\\", "\\\\");
-        e.replace("\"", "\\\"");
-        emarksStr += QString("\"%1\"").arg(e);
-    }
-
-    emarksStr = ", \"emarks\": [ " + emarksStr + " ]";
+    emarksStr = ", \"eMarks\":[" + emarksStr + "]";
     outInJson = QString("{\"crn\":\"%1\",\"returnTicketId\":\"%2\",\"seq\":1 %3 %4 %5}")
                     .arg(crn, QString::number(number))
                     .arg(fReturnItemList.isEmpty() ? ""
@@ -781,9 +718,6 @@ int PrintTaxNO::printTaxback(int number, const QString &crn, QString &outInJson,
                     .arg(fEmarks.isEmpty() ? "" : emarksStr);
     QByteArray jdata = outInJson.toUtf8();
     int result = printJSON(jdata, err, opcode_taxback);
-#ifdef QT_DEBUG
-    result = DEBUG_RESULT;
-#endif
     outOutJson = jdata;
     return result;
 }

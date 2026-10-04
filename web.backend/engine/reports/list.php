@@ -13,11 +13,13 @@ class ReportList extends PClass
                 ["title" => $this->tr("Effectivness"), "route" => "/engine/reports/effectivness.php", "image" => "effectiveness.png"],
                 ["title" => "Պահեստի մնացորդ", "route" => "/engine/reports/out-of-stock.php", "image" => "goods.png"],
                 ["title" => "Պահեստ 8 vs վաճառքի պահեստներ", "route" => "/engine/reports/store8-vs-sale-stores.php", "image" => "goods.png"],
+                ["title" => "Վաճառք մարքեթինգի համար", "route" => "/engine/reports/sale-for-marketing.php", "image" => "goods.png"],
                 ["title" => "Ապրանքների առկայություն", "route" => "/engine/goods/store.php", "image" => "goods.png"],
                 ["title" => "Ապրանքի շարժ վաճառք/պահեստ", "route" => "/engine/reports/sale-store-relation.php", "image" => "goods.png"],
                 ["title" => $this->tr("Draft sales"), "route" => "/engine/reports/draft-sales.php", "image" => "goods.png"],
                 ["title" => $this->tr("Daily shop report"), "route" => "/engine/reports/elina_daily_rep.php", "image" => "goods.png"],
                 ["title" => $this->tr("Complectation additions"), "route" => "/engine/reports/complectation_additions.php", "image" => "goods.png"],
+                ["title" => $this->tr("Վաճարք, մարկետինգ"), "route" => "/engine/reports/sale-for-marketing.php", "image" => "goods.png"],
             ]
         ];
         $this->echoResult();

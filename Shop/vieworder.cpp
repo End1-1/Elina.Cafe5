@@ -30,6 +30,25 @@
 
 using std::function;
 
+static void appendUniqueEmark(QStringList &list, const QString &emark)
+{
+    const QString value = emark.trimmed();
+    if (!value.isEmpty() && !list.contains(value)) {
+        list.append(value);
+    }
+}
+
+static void appendStoredEmarks(QStringList &list, const QString &orderId)
+{
+    C5Database db;
+    db[":f_header"] = orderId;
+    db.exec("select f_emarks from o_goods where f_header=:f_header "
+            "and f_emarks is not null and f_emarks<>'' order by f_row");
+    while (db.nextRow()) {
+        appendUniqueEmark(list, db.getString(0));
+    }
+}
+
 ViewOrder::ViewOrder(Working *w, const QString &order, C5User *user)
     : C5ShopDialog(user)
     , ui(new Ui::ViewOrder)
@@ -200,10 +219,27 @@ void ViewOrder::on_btnTaxReturn_clicked()
     }
 
     QJsonObject jout = __strjson(db.getString("f_out"));
+    QJsonObject jin = __strjson(db.getString("f_in"));
     QString crn = jout["crn"].toString();
     QString rseq = ui->leTaxNumber->text();
     FiscalMachine fm = getFiscalMachine(mWorkStation.fiscalMachineId());
     PrintTaxN pt(fm.ip, fm.port, fm.machinePassword, fm.externalPosString(), fm.opPin, fm.opPassword, this);
+    QJsonArray emarks = jin["eMarks"].toArray();
+    if (emarks.isEmpty()) {
+        emarks = jin["emarks"].toArray();
+    }
+    for (const QJsonValue &v : emarks) {
+        pt.fEmarks << v.toString();
+    }
+    if (pt.fEmarks.isEmpty()) {
+        C5Database dbMarks;
+        dbMarks[":f_header"] = ui->leUUID->text();
+        dbMarks.exec("select f_emarks from o_goods where f_header=:f_header "
+                     "and f_emarks is not null and f_emarks<>'' order by f_row");
+        while (dbMarks.nextRow()) {
+            pt.fEmarks.append(dbMarks.getString(0));
+        }
+    }
     QString jsnin, jsnout, err;
     int result;
     result = pt.printTaxback(rseq.toInt(), crn, jsnin, jsnout, err);
@@ -385,6 +421,10 @@ void ViewOrder::printCheckWithTax(const QString &id, std::function<void(const QS
 
         for (int i = 0; i < jgoods.size(); i++) {
             const QJsonObject &jg = jgoods.at(i).toObject();
+            const QString emark = jg.value("f_emarks").toString();
+            if (!emark.isEmpty()) {
+                pt->fEmarks.append(emark);
+            }
             pt->addGoods(jg.value("f_taxdept").toInt(),
                          jg.value("f_adgcode").toString(),
                          jg.value("f_goods").toString(),
@@ -393,20 +433,30 @@ void ViewOrder::printCheckWithTax(const QString &id, std::function<void(const QS
                          jg.value("f_qty").toDouble(),
                          jg.value("f_discountfactor").toDouble() * 100);
         }
+        if (pt->fEmarks.isEmpty()) {
+            appendStoredEmarks(pt->fEmarks, id);
+        }
 
         // Подписываемся на результат
         connect(pt,
                 &PrintTaxN::finished,
                 this,
                 [this, id, funcSuccess, pt](const QString &jsonIn, const QString &jsonOut, const QString &err, int result) {
+                    QJsonObject joutObj = QJsonDocument::fromJson(jsonOut.toUtf8()).object();
+                    const int rseq = joutObj.value("rseq").toInt();
+                    const bool fiscalOk = result == pt_err_ok && rseq > 0 && !joutObj.value("crn").toString().isEmpty();
+                    QString fiscalErr = err;
+                    if (result == pt_err_ok && !fiscalOk) {
+                        fiscalErr = tr("Fiscal machine did not return a receipt");
+                    }
+
                     QJsonObject reply{{"f_id", QUuid::createUuid().toString(QUuid::WithoutBraces)},
                                       {"f_order", id},
                                       {"in", QJsonDocument::fromJson(jsonIn.toUtf8()).object()},
-                                      {"out", QJsonDocument::fromJson(jsonOut.toUtf8()).object()},
-                                      {"error", err},
-                                      {"result", result}};
+                                      {"out", joutObj},
+                                      {"error", fiscalErr},
+                                      {"result", fiscalOk ? 0 : (result == pt_err_ok ? -1 : result)}};
 
-                    // Логируем результат на сервер
                     NInterface::query(
                         "/engine/v2/common/fiscal/log",
                         mUser->mSessionKey,
@@ -415,12 +465,11 @@ void ViewOrder::printCheckWithTax(const QString &id, std::function<void(const QS
                         [](const QJsonObject &) {},
                         [](const QJsonObject &) { return true; });
 
-                    if (result == pt_err_ok) {
-                        QJsonObject joutObj = QJsonDocument::fromJson(jsonOut.toUtf8()).object();
-                        funcSuccess(QString::number(joutObj["rseq"].toInt()));
+                    if (fiscalOk) {
+                        funcSuccess(QString::number(rseq));
                         C5Message::info(tr("Printed"));
                     } else {
-                        C5Message::error(err.isEmpty() ? tr("Fiscal error") : err);
+                        C5Message::error(fiscalErr.isEmpty() ? tr("Fiscal error") : fiscalErr);
                     }
 
                     // Удаляем объект pt после завершения работы

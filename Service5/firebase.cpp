@@ -9,11 +9,10 @@
 
 Firebase *Firebase::fInstance = nullptr;
 
-Firebase::Firebase(QObject *parent) :
-    QObject(parent)
+Firebase::Firebase(QObject *parent) : QObject(parent)
 {
     fNetworkAccessManager = new QNetworkAccessManager(this);
-    connect(fNetworkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)), Qt::DirectConnection);
+    connect(fNetworkAccessManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(finished(QNetworkReply *)), Qt::DirectConnection);
 }
 
 Firebase::~Firebase()
@@ -23,7 +22,8 @@ Firebase::~Firebase()
 
 Firebase *Firebase::instance()
 {
-    if (fInstance == nullptr) {
+    if (fInstance == nullptr)
+    {
         fInstance = new Firebase();
     }
     return fInstance;
@@ -51,7 +51,7 @@ void Firebase::sendMessage(const QString &token, const QString &msg)
     QByteArray requestData = QJsonDocument(jo).toJson(QJsonDocument::Compact);
     QUrl url("https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send");
     QNetworkRequest request(url);
-    request.setRawHeader("Authorization", "Bearer AIzaSyBhPq9j-KVryNw-T3evesRW35MG43qKdbo");
+    request.setRawHeader("Authorization", "Bearer AIhhhhhhhhhhhhhhhhhh-nokey-qKdbo");
     request.setRawHeader("Content-Type", "application/json");
     fNetworkAccessManager->post(request, requestData);
 }

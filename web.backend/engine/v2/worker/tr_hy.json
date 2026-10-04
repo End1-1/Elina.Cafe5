@@ -118,5 +118,10 @@
     "Created date": "Ստեղծման ամսաթիվ",
     "Document not found": "Փասթաթուղթը չի գտնվել",
     "Hall": "Սրահ",
-    "Table": "Սեղան"
+    "Table": "Սեղան",
+    "Select complect": "Ընտրեք կոմպլեկտը",
+    "Empty document": "Դատարկ փաստաթուղթ",
+    "Wrong barcode": "Սխալ բարկոդ",
+    "Document id is empty": "Փաստաթղթի ID-ն դատարկ է",
+    "Cannot remove document": "Փաստաթուղթը հնարավոր չէ հեռացնել"
 }

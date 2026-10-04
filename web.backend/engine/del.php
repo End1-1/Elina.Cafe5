@@ -1,7 +1,7 @@
 
 <?php
-$serverKey = 'AIzaSyAf4_GEcJzwdZXE1ISZ1-sFS0t_FVx4MEw';
-$deviceToken = 'ctzaijFbSF2fHd5FVlY3bA:APA91bFfmGpTOMCbgbTI5zDyq_mWoiV4wLAwIsx0f9eBq9VQ2A3kYw-YXl1jStb9jKiI2-ph_1wD6XWGDz4ify7Jc-ulsIuPYIApjjPCr1gZH7WyPhORTnQ'; 
+$serverKey = 'Atra-ta-ta-4MEw';
+$deviceToken = 'ctzaijFbSF2fHd5FVlYH7WyPhORTnQ';
 $pid = "wagon-a7dd0";
 $data = [
     "to" => $deviceToken,

@@ -27,7 +27,7 @@ class ShopOrder extends Auth
         $sql = <<<EOD
         select b.f_id, 0 as f_x, g.f_scancode, g.f_name, b.f_qty, 
             u.f_name as f_unit, b.f_price, b.f_total, b.f_goods, b.f_return, 
-            b.f_returnedqty, b.f_discountfactor, b.f_discountmode
+            b.f_returnedqty, b.f_discountfactor, b.f_discountmode, b.f_emarks
             from o_goods b 
             inner join c_goods g on g.f_id=b.f_goods 
             inner join c_units u on u.f_id=g.f_unit 
@@ -44,6 +44,7 @@ class ShopOrder extends Auth
         $this->select("update o_draft_sale_body set f_state=3 where f_header=?", "s", [$params->header->f_id], true);
         $jsonString = json_encode($params, JSON_UNESCAPED_UNICODE);
         $this->callJsonProcedure("sf_create_shop_order", $jsonString, true);
+        $this->storeOrderEmarks($params);
         $row = $this->select("select * from a_result where f_session=?", "s", [$params->session])->fetch_assoc();
         if (!$row) {
             dieWithCode("Result is empty, contact to program developer");
@@ -54,6 +55,21 @@ class ShopOrder extends Auth
             dieWithCode($result["message"]);
         }
         $this->echoResult();
+    }
+
+    private function storeOrderEmarks($params)
+    {
+        if (empty($params->goods)) {
+            return;
+        }
+        foreach ($params->goods as $g) {
+            $lineId = $g->f_id ?? "";
+            $emark = $g->f_emarks ?? "";
+            if ($lineId === "" || $emark === "" || $emark === null) {
+                continue;
+            }
+            $this->update("o_goods", ["f_emarks" => $emark], $lineId);
+        }
     }
 
     public function AdjustDeliveryAfterReturn($params)

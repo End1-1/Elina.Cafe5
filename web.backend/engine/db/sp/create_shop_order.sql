@@ -189,7 +189,8 @@ BEGIN
                     JSON_VALUE(@g, '$.f_id'), JSON_VALUE(@g, '$.f_discountfactor'), JSON_VALUE(@g, '$.f_discountmode'),
                     JSON_VALUE(@g, '$.f_return'), JSON_VALUE(@g, '$.f_returnfrom'),
                     JSON_VALUE(@g, '$.f_discountamount'), JSON_VALUE(@g, '$.f_isservice'),
-                    JSON_VALUE(@g, '$.f_amountaccumulate'), JSON_VALUE(@g, '$.f_emarks'));
+                    JSON_VALUE(@g, '$.f_amountaccumulate'),
+                    NULLIF(JSON_UNQUOTE(JSON_EXTRACT(@g, '$.f_emarks')), 'null'));
             UPDATE a_store_sale
             SET f_qty=f_qty - JSON_VALUE(@g, '$.f_qty'),
                 f_qtyprogram=f_qtyprogram - JSON_VALUE(@g, '$.f_qty')

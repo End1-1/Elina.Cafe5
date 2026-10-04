@@ -3257,7 +3257,7 @@
     <message>
         <location filename="../Forms/c5mainwindow.cpp" line="1066"/>
         <source>New store decomplecation</source>
-        <translation></translation>
+        <translation>Ապակոմպլեկտավորում պահեստում</translation>
     </message>
     <message>
         <location filename="../Forms/c5mainwindow.cpp" line="1067"/>
@@ -5946,149 +5946,189 @@ descriptions</source>
     <message>
         <location filename="c5storedecompilation.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="103"/>
         <source>Date</source>
-        <translation type="unfinished">Ամսաթիվ</translation>
+        <translation>Ամսաթիվ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="110"/>
         <source>Doc number</source>
-        <translation type="unfinished"></translation>
+        <translation>Փաստաթղթի համար</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="148"/>
-        <source>Output store</source>
-        <translation type="unfinished">Ելքի պահեստ</translation>
+        <source>Input store</source>
+        <translation>Մուտքի պահեստ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="173"/>
-        <source>Input store</source>
-        <translation type="unfinished">Մուտքի պահեստ</translation>
+        <source>Output store</source>
+        <translation>Ելքի պահեստ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="183"/>
         <source>Comment</source>
-        <translation type="unfinished">Մեկնաբանություն</translation>
+        <translation>Մեկնաբանություն</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="214"/>
         <source>Quantity</source>
-        <translation type="unfinished">Քանակ</translation>
+        <translation>Քանակ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="221"/>
         <source>Search</source>
-        <translation type="unfinished">Փնտրել</translation>
+        <translation>Փնտրել</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="310"/>
         <source>Output goods</source>
-        <translation type="unfinished"></translation>
+        <translation>Կոմպլեկտ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="338"/>
         <location filename="c5storedecompilation.ui" line="349"/>
         <location filename="c5storedecompilation.ui" line="360"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="397"/>
         <source>RecID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="402"/>
         <source>Goods id</source>
-        <translation type="unfinished">Ապրանքի կոդ</translation>
+        <translation>Ապրանքի կոդ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="407"/>
         <source>Goods name</source>
-        <translation type="unfinished"></translation>
+        <translation>Անվանում</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="412"/>
         <source>Barcode</source>
-        <translation type="unfinished">Բարկոդ</translation>
+        <translation>Բարկոդ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="417"/>
         <source>Qty</source>
-        <translation type="unfinished"></translation>
+        <translation>Քնկ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="422"/>
         <source>Unit</source>
-        <translation type="unfinished">ՉՄ</translation>
+        <translation>ՉՄ</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="427"/>
         <source>Price</source>
-        <translation type="unfinished">Գին</translation>
+        <translation>Գին</translation>
     </message>
     <message>
         <location filename="c5storedecompilation.ui" line="432"/>
         <source>Total</source>
-        <translation type="unfinished">Ընդամենը</translation>
+        <translation>Ընդամենը</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="30"/>
+        <location filename="c5storedecompilation.cpp" line="36"/>
         <source>Disassembly</source>
-        <translation type="unfinished"></translation>
+        <translation>Ապակոմպլեկտավորում</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="57"/>
+        <location filename="c5storedecompilation.cpp" line="68"/>
         <source>Save</source>
-        <translation type="unfinished">Պահպանել</translation>
+        <translation>Պահպանել</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="58"/>
+        <location filename="c5storedecompilation.cpp" line="69"/>
         <source>Draft</source>
-        <translation type="unfinished">Սևագիր</translation>
+        <translation>Սևագիր</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="59"/>
+        <location filename="c5storedecompilation.cpp" line="70"/>
         <source>Remove</source>
-        <translation type="unfinished">Հեռացնել</translation>
+        <translation>Հեռացնել</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="60"/>
+        <location filename="c5storedecompilation.cpp" line="71"/>
         <source>Print</source>
-        <translation type="unfinished">Տպել</translation>
+        <translation>Տպել</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="107"/>
+        <location filename="c5storedecompilation.cpp" line="118"/>
         <source>Output store is not defined</source>
-        <translation type="unfinished">Ելքի պահեստը նշված չէ</translation>
+        <translation>Ելքի պահեստը նշված չէ</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="111"/>
+        <location filename="c5storedecompilation.cpp" line="121"/>
         <source>Input store is not defined</source>
-        <translation type="unfinished">Մուտքի պահեստը նշված չէ</translation>
+        <translation>Մուտքի պահեստը նշված չէ</translation>
     </message>
     <message>
-        <location filename="c5storedecompilation.cpp" line="116"/>
-        <source>Row</source>
-        <translation type="unfinished">Տող</translation>
-    </message>
-    <message>
-        <location filename="c5storedecompilation.cpp" line="116"/>
-        <source>has no quantity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="c5storedecompilation.cpp" line="216"/>
-        <source>Multiple rows in result, getting first</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="c5storedecompilation.cpp" line="280"/>
+        <location filename="c5storedecompilation.cpp" line="124"/>
+        <location filename="c5storedecompilation.cpp" line="361"/>
         <source>Select complect</source>
-        <translation type="unfinished"></translation>
+        <translation>Ընտրեք կոմպլեկտը</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="127"/>
+        <source>The quantity of complectation cannot be zero</source>
+        <translation>Քանակը չի կարող լինել զրոյական</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="130"/>
+        <source>Cannot save an emtpy document</source>
+        <translation>Փաստաթուղթը դատարկ է</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="134"/>
+        <source>Row</source>
+        <translation>Տող</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="134"/>
+        <source>has no quantity</source>
+        <translation>քանակը նշված չէ</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="225"/>
+        <source>Saved</source>
+        <translation>Պահպանված է</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="232"/>
+        <source>Confirm to remove document</source>
+        <translation>Հաստատեք հեռացումը</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="261"/>
+        <source>Deleted</source>
+        <translation>Հեռացված է</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="267"/>
+        <source>Print is not available for this document yet</source>
+        <translation>Այս փաստաթղթի տպումը դեռ հասանելի չէ</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="293"/>
+        <source>Multiple rows in result, getting first</source>
+        <translation>Գտնվել է մի քանի տող, վերցվում է առաջինը</translation>
+    </message>
+    <message>
+        <location filename="c5storedecompilation.cpp" line="372"/>
+        <source>Empty document</source>
+        <translation>Դատարկ փաստաթուղթ</translation>
+    </message>
+    <message>
+        <source>Wrong barcode</source>
+        <translation>Սխալ բարկոդ</translation>
     </message>
 </context>
 <context>

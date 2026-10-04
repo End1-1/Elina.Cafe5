@@ -1,5 +1,7 @@
 #include <QJsonDocument>
+#include <QJsonValue>
 #include "worder.h"
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QInputDialog>
@@ -34,6 +36,49 @@
 #include "ui_worder.h"
 #include "wcustomerdisplay.h"
 #include "working.h"
+
+static QString codeForLog(const QString &src)
+{
+    QString out;
+    out.reserve(src.size() + 8);
+    for (const QChar c : src) {
+        if (c.unicode() == 29) {
+            out.append("\\u001d");
+        } else {
+            out.append(c);
+        }
+    }
+    return out;
+}
+
+static void logEnteredCode(const QString &code)
+{
+    if (code.isEmpty()) {
+        return;
+    }
+    const QString path = QDir::tempPath() + "/code_" + QDate::currentDate().toString("dd_MM_yyyy") + ".log";
+    QFile file(path);
+    if (!file.open(QIODevice::Append)) {
+        qDebug() << "code log open failed" << path;
+        return;
+    }
+    const QString line = QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss ")
+        + QString::number(code.size()) + " " + codeForLog(code) + "\r\n";
+    file.write(line.toUtf8());
+}
+
+static QString emarkForStorage(const QString &src)
+{
+    QString out;
+    out.reserve(src.size());
+    for (const QChar c : src) {
+        const uint u = c.unicode();
+        if (u == 29 || (u >= 33 && u <= 126)) {
+            out.append(c);
+        }
+    }
+    return out;
+}
 
 WOrder::WOrder(C5User *user, int saleType, WCustomerDisplay *customerDisplay, QWidget *parent)
     : QWidget(parent)
@@ -348,7 +393,7 @@ void WOrder::writeOrder(std::function<void()> nextStep)
             jt["f_returnfrom"] = g.returnFrom.isEmpty() ? QJsonValue() : g.returnFrom;
             jt["f_isservice"] = g.isService;
             jt["f_amountaccumulate"] = g.accumulateAmount;
-            jt["f_emarks"] = QString(g.emarks).replace("\"", "\\\"");
+            jt["f_emarks"] = emarkForStorage(g.emarks);
             jg.append(jt);
         }
 
@@ -806,11 +851,19 @@ void WOrder::setDiscount(const QString &label, const QString &value)
 void WOrder::countTotal()
 {
     double accAmount = 0;
+    const double discFactor = fBHistory.type == CARD_TYPE_DISCOUNT ? fBHistory.value / 100.0 : 0;
     for (int i = 0; i < fOGoods.count(); i++) {
         if (fBHistory.type == CARD_TYPE_DISCOUNT) {
             auto *ch = static_cast<C5CheckBox *>(ui->tblData->cellWidget(i, col_check_discount));
             OGoods &og = fOGoods[i];
-            og.discountMode = ch->isChecked() ? CARD_TYPE_DISCOUNT : 0;
+            if (ch && ch->isChecked()) {
+                og.discountMode = CARD_TYPE_DISCOUNT;
+                if (og.discountFactor < 0.000001 && discFactor > 0.000001) {
+                    og.discountFactor = discFactor;
+                }
+            } else {
+                og.discountMode = 0;
+            }
         }
     }
     fOHeader.countAmount(fOGoods, fBHistory);
@@ -1117,9 +1170,8 @@ void WOrder::openDraftResponse(const QJsonObject &jdoc)
         fOGoods.append(og);
         int row = ui->tblData->addEmptyRow();
         auto *ch = new C5CheckBox();
-        QSettings s(_ORGANIZATION_, _APPLICATION_ + QString("\\") + _MODULE_);
-        ch->setCheckable(s.value("learnaccumulate").toBool());
-        ch->setChecked(jo["f_candiscount"].toInt() == 1);
+        ch->setCheckable(true);
+        ch->setChecked(jo["f_candiscount"].toInt() == 1 || g.canDiscount());
         connect(ch, &C5CheckBox::clicked, this, &WOrder::checkCardClicked);
         ui->tblData->setCellWidget(row, col_check_discount, ch);
     }
@@ -1177,8 +1229,11 @@ void WOrder::on_leCode_textChanged(const QString &arg1)
 }
 void WOrder::on_leCode_returnPressed()
 {
-    QString code = ui->leCode->text().replace(";", "");
+    const QString entered = ui->leCode->text();
+    logEnteredCode(entered);
+    QString code = entered;
     if (code.length() < 29) {
+        code.replace(";", "");
         code.replace("?", "");
     }
     C5ReplaceCharacter::replace(code);
@@ -1373,10 +1428,10 @@ void WOrder::checkDiscountCardCode(const QString &code)
                 fBHistory.value = v;
             }
 
-            ui->leDisc->setText(QString("%1%").arg(float_str(card["f_value"].toDouble(), 2)));
+            ui->leDisc->setText(QString("%1%").arg(float_str(fBHistory.value, 2)));
             ui->leDisc->setVisible(true);
             ui->lbDisc->setVisible(true);
-            ui->lbDisc->setText(QString("%1: %2%").arg(tr("Discount"), float_str(card["f_value"].toDouble(), 2)));
+            ui->lbDisc->setText(QString("%1: %2%").arg(tr("Discount"), float_str(fBHistory.value, 2)));
             ui->leCustomer->setText(partner["f_name"].toString());
             ui->leTIN->setText(partner["f_taxcode"].toString());
             fOHeader.partner = partner["f_id"].toInt();
@@ -1393,15 +1448,16 @@ void WOrder::checkDiscountCardCode(const QString &code)
 
             for (int i = 0; i < fOGoods.count(); i++) {
                 OGoods &og = fOGoods[i];
+                auto *ch = static_cast<C5CheckBox *>(ui->tblData->cellWidget(i, col_check_discount));
+                const bool apply = !discountRow || og.rowDiscount;
 
-                if (discountRow) {
-                    if (og.rowDiscount) {
-                        og.discountFactor = fBHistory.value / 100;
-                        og.discountMode = fBHistory.type;
-                    }
-                } else {
+                if (apply) {
                     og.discountFactor = fBHistory.value / 100;
                     og.discountMode = fBHistory.type;
+                    if (ch) {
+                        ch->setCheckable(true);
+                        ch->setChecked(true);
+                    }
                 }
             }
 
@@ -1464,17 +1520,23 @@ void WOrder::checkGoodsCode(const QString &code, std::function<void()> postProce
                 price = jm["price"].toDouble();
             }
 
-            if (goods.value("f_id").toInt() == 0) {
+            auto jsonInt = [](const QJsonValue &v) -> int {
+                if (v.isDouble()) {
+                    return v.toInt();
+                }
+                return v.toString().toInt();
+            };
+
+            if (jsonInt(goods.value("f_id")) == 0) {
                 C5Message::error("Program error, contact with support. Code 109.");
                 return;
             }
 
-            QSettings s(_ORGANIZATION_, _APPLICATION_ + QString("\\") + _MODULE_);
-
             int row = ui->tblData->addEmptyRow();
             auto *ch = new C5CheckBox();
-            ch->setCheckable(s.value("learnaccumulate").toBool());
-            ch->setChecked(goods["f_candiscount"].toInt() == 1);
+            ch->setCheckable(true);
+            ch->setChecked(jsonInt(goods["f_candiscount"]) == 1
+                           || (fBHistory.type == CARD_TYPE_DISCOUNT && fBHistory.card > 0));
             connect(ch, &C5CheckBox::clicked, this, &WOrder::checkCardClicked);
             ui->tblData->setCellWidget(row, col_check_discount, ch);
             OGoods og;
@@ -1492,10 +1554,10 @@ void WOrder::checkGoodsCode(const QString &code, std::function<void()> postProce
             og._unitName = goods["f_unitname"].toString();
             og._barcode = goods["f_scancode"].toString();
             og.header = fOHeader._id();
-            og.goods = goods["f_id"].toInt();
-            og.taxDept = goods["f_taxdept"].toInt();
+            og.goods = jsonInt(goods["f_id"]);
+            og.taxDept = jsonInt(goods["f_taxdept"]);
             og.adgCode = goods["f_adgcode"].toString();
-            og.isService = goods["f_service"].toInt();
+            og.isService = jsonInt(goods["f_service"]);
             og.lowLevel = goods["f_lowlevel"].toDouble();
             og.stock = store["f_qty"].toDouble();
             og.qty = qty;
@@ -1505,8 +1567,8 @@ void WOrder::checkGoodsCode(const QString &code, std::function<void()> postProce
             og.discountFactor = fBHistory.value / 100;
             og.discountMode = fBHistory.type;
             og.discountAmount = 0;
-            og.emarks = jdoc["emarks"].toString();
-            og.canDiscount = goods["f_candiscount"].toInt();
+            og.emarks = emarkForStorage(jdoc["emarks"].toString());
+            og.canDiscount = jsonInt(goods["f_candiscount"]);
             fOGoods.append(og);
 
             ui->tblData->item(row, 0)->setData(Qt::UserRole + 101, jdoc["draftid"].toString());

@@ -367,6 +367,12 @@ $sql[$v] = <<<EOD
     alter table m_goal_product add column f_height_lining float default 0 after f_width_lining;
 EOD;
 
+$v = 221;
+$sql[$v] = <<<EOD
+    update s_app set f_version = '$v' where lower(f_app)='db';
+    alter table o_goods modify f_emarks varchar(128) null default null;
+EOD;
+
 
 $update_verision = intval(stmtall("select * from s_app where lower(f_app)='db'")->fetch_assoc()["f_version"]);
 for ($i = $update_verision + 1; $i <= $v; $i++) {
